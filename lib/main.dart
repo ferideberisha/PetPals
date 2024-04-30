@@ -6,7 +6,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   if (kIsWeb) {
     await Firebase.initializeApp(
-        options: FirebaseOptions(
+        options: const FirebaseOptions(
             apiKey: "AIzaSyCnKC-8GTDmbTjipRzfgky9LkSknxho9wA",
             authDomain: "petpals-96da1.firebaseapp.com",
             projectId: "petpals-96da1",
