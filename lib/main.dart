@@ -1,6 +1,22 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  if (kIsWeb) {
+    await Firebase.initializeApp(
+        options: FirebaseOptions(
+            apiKey: "AIzaSyCnKC-8GTDmbTjipRzfgky9LkSknxho9wA",
+            authDomain: "petpals-96da1.firebaseapp.com",
+            projectId: "petpals-96da1",
+            storageBucket: "petpals-96da1.appspot.com",
+            messagingSenderId: "341587754190",
+            appId: "1:341587754190:web:d27b5168966d6d36efe49f"));
+  } else {
+    await Firebase.initializeApp();
+  }
+
   runApp(const MyApp());
 }
 
