@@ -1,19 +1,27 @@
+buildscript {
+    repositories {
+        google()
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:4.1.0'
+        classpath 'com.google.gms:google-services:4.4.1' // <- Make sure this line is added
+    }
+}
+
+
 allprojects {
     repositories {
         google()
         mavenCentral()
     }
-}
-
-depencencies{
-    classpath 'com.google.gms.google-services:4.4.1' 
+    // Add any global configurations here if needed
 }
 
 rootProject.buildDir = '../build'
+
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
-}
-subprojects {
     project.evaluationDependsOn(':app')
 }
 

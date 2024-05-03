@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:petpals/auth/auth.dart';
+import 'package:petpals/service/auth_service.dart'; // Import your AuthService
 
 class HomePage extends StatelessWidget {
   final BuildContext context; // Accept context here
@@ -11,9 +12,8 @@ class HomePage extends StatelessWidget {
 
   // sign user out method
   void signUserOut() {
-    FirebaseAuth.instance.signOut();
-    Navigator.of(context)
-        .pushReplacement(MaterialPageRoute(builder: (context) => AuthPage()));
+    AuthService().signOut(); // Call signOut() method from AuthService
+    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => AuthPage()));
   }
 
   @override
