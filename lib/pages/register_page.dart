@@ -1,23 +1,204 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:petpals/components/my_button.dart';
 import 'package:petpals/components/my_textfield.dart';
-import 'package:petpals/components/square_tile.dart';
-import 'package:petpals/service/auth_service.dart';
 
 class RegisterPage extends StatefulWidget {
   final Function()? onTap;
-  const RegisterPage({super.key, required this.onTap});
+
+  const RegisterPage({Key? key, required this.onTap}) : super(key: key);
 
   @override
-  State<RegisterPage> createState() => _RegiterPageState();
+  State<RegisterPage> createState() => _RegisterPageState();
 }
 
-class _RegiterPageState extends State<RegisterPage> {
-  // text editing controllers
+class _RegisterPageState extends State<RegisterPage> {
+  final firstNameController = TextEditingController();
+  final lastNameController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
+  bool isPasswordVisible = false;
+  bool isPrivacyPolicyChecked = false;
+  bool isUserAgreementChecked = false;
+
+  void togglePasswordVisibility() {
+    setState(() {
+      isPasswordVisible = !isPasswordVisible;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SingleChildScrollView(
+        child: Container(
+          decoration: BoxDecoration(
+            color: Color(0xFF967BB6),
+          ),
+          child: SafeArea(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 30),
+                  child: Text(
+                    'PetPals',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.exo2(
+                      textStyle: const TextStyle(
+                        fontSize: 40,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 2.0,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(30),
+                      topRight: Radius.circular(30),
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Sign Up',
+                          style: GoogleFonts.openSans(
+                            textStyle: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 30),
+                        MyTextField(
+                          controller: firstNameController,
+                          hintText: 'First name',
+                          obscureText: false,
+                          fillColor: Color.fromRGBO(230, 230, 250, 0.5),
+                        ),
+                        const SizedBox(height: 10),
+                        MyTextField(
+                          controller: lastNameController,
+                          hintText: 'Last name',
+                          obscureText: false,
+                          fillColor: Color.fromRGBO(230, 230, 250, 0.5),
+                        ),
+                        const SizedBox(height: 10),
+                        MyTextField(
+                          controller: emailController,
+                          hintText: 'Email',
+                          obscureText: false,
+                          fillColor: Color.fromRGBO(230, 230, 250, 0.5),
+                        ),
+                        const SizedBox(height: 10),
+                        MyTextField(
+                          controller: passwordController,
+                          hintText: 'Create password',
+                          obscureText: !isPasswordVisible,
+                          fillColor: Color.fromRGBO(230, 230, 250, 0.5),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              isPasswordVisible
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                              color: Colors.grey,
+                            ),
+                            onPressed: togglePasswordVisibility,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        MyTextField(
+                          controller: confirmPasswordController,
+                          hintText: 'Confirm password',
+                          obscureText: !isPasswordVisible,
+                          fillColor: Color.fromRGBO(230, 230, 250, 0.5),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              isPasswordVisible
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                              color: Colors.grey,
+                            ),
+                            onPressed: togglePasswordVisibility,
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                   Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Checkbox(
+                        value: isPrivacyPolicyChecked,
+                        onChanged: (value) {
+                          setState(() {
+                            isPrivacyPolicyChecked = value!;
+                          });
+                        },
+                      ),
+                      Flexible(
+                        child: Text(
+                          'I agree to the Privacy Policy, confirm that I am 18 years of age or older, and consent to receive email communication.',
+                          style: TextStyle(color: Colors.black),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Checkbox(
+                              value: isUserAgreementChecked,
+                              onChanged: (value) {
+                                setState(() {
+                                  isUserAgreementChecked = value!;
+                                });
+                              },
+                            ),
+                            const Text(
+                              'I agree with the User Agreement',
+                              style: TextStyle(color: Colors.black),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        MyButton(
+                          onTap: isPrivacyPolicyChecked && isUserAgreementChecked ? signUserUp : null,
+                          text: 'Sign Up',
+                          color: Color(0xFF967BB6),
+                          textColor: Colors.white,
+                          borderColor: Color(0xFF967BB6),
+                          borderWidth: 1.0,
+                        ),
+                        const SizedBox(height: 20),
+                        MyButton(
+                          onTap: widget.onTap,
+                          text: 'Back',
+                          color: Colors.transparent,
+                          textColor: Color(0xFF967BB6),
+                          borderColor: Color(0xFF967BB6),
+                          borderWidth: 1.0,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
   void signUserUp() async {
     showDialog(
@@ -30,7 +211,6 @@ class _RegiterPageState extends State<RegisterPage> {
     );
 
     //make sure passwords match
-
     if (passwordController.text != confirmPasswordController.text) {
       //pop loading circle
       Navigator.pop(context);
@@ -43,7 +223,7 @@ class _RegiterPageState extends State<RegisterPage> {
       await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: emailController.text, password: passwordController.text);
 
-// Clear text fields
+      // Clear text fields
       emailController.clear();
       passwordController.clear();
       confirmPasswordController.clear();
@@ -67,148 +247,6 @@ class _RegiterPageState extends State<RegisterPage> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(message),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[300],
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const SizedBox(height: 50),
-
-                // logo
-                const Icon(
-                  Icons.lock,
-                  size: 100,
-                ),
-
-                const SizedBox(height: 50),
-
-                // welcome back, you've been missed!
-                Text(
-                  'Lets create an account for you!',
-                  style: TextStyle(
-                    color: Colors.grey[700],
-                    fontSize: 16,
-                  ),
-                ),
-
-                const SizedBox(height: 25),
-
-                // email textfield
-                MyTextField(
-                  controller: emailController,
-                  hintText: 'Email',
-                  obscureText: false,
-                ),
-
-                const SizedBox(height: 10),
-
-                // password textfield
-                MyTextField(
-                  controller: passwordController,
-                  hintText: 'Password',
-                  obscureText: true,
-                ),
-
-                const SizedBox(height: 10),
-
-                //confirm password textfield
-                MyTextField(
-                  controller: confirmPasswordController,
-                  hintText: 'Confirm Password',
-                  obscureText: true,
-                ),
-
-                const SizedBox(height: 10),
-
-                // sign up button
-                MyButton(
-                  onTap: signUserUp,
-                  text: 'Sign Up',
-                ),
-
-                const SizedBox(height: 50),
-
-                // or continue with
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Divider(
-                          thickness: 0.5,
-                          color: Colors.grey[400],
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                        child: Text(
-                          'Or continue with',
-                          style: TextStyle(color: Colors.grey[700]),
-                        ),
-                      ),
-                      Expanded(
-                        child: Divider(
-                          thickness: 0.5,
-                          color: Colors.grey[400],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 50),
-
-                // google + apple sign in buttons
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // google button
-                    SquareTile(
-                        onTap: () => AuthService().signInWithGoogle(), imagePath: 'lib/images/google.png'),
-
-                    SizedBox(width: 25),
-
-                    // apple button
-                    SquareTile(onTap: () {}, imagePath: 'lib/images/apple.png')
-                  ],
-                ),
-
-                const SizedBox(height: 50),
-
-                // go to login page
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Already have an account?',
-                      style: TextStyle(color: Colors.grey[700]),
-                    ),
-                    const SizedBox(width: 4),
-                    GestureDetector(
-                      onTap: widget.onTap,
-                      child: const Text(
-                        'Login now',
-                        style: TextStyle(
-                          color: Colors.blue,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                )
-              ],
-            ),
-          ),
-        ),
       ),
     );
   }

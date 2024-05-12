@@ -1,26 +1,27 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 import 'package:petpals/components/my_button.dart';
 import 'package:petpals/components/my_textfield.dart';
 import 'package:petpals/components/square_tile.dart';
 import 'package:petpals/service/auth_service.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class LoginPage extends StatefulWidget {
   final Function()? onTap;
-  const LoginPage({super.key, required this.onTap});
+
+  const LoginPage({Key? key, required this.onTap}) : super(key: key);
 
   @override
   State<LoginPage> createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
-  // text editing controllers
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  bool isPasswordVisible = false;
 
-  // sign user in method
   void signUserIn() async {
-    // show loading circle
     showDialog(
       context: context,
       builder: (context) {
@@ -30,32 +31,22 @@ class _LoginPageState extends State<LoginPage> {
       },
     );
 
-    // try sign in
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: emailController.text,
         password: passwordController.text,
       );
-      // pop the loading circle
       Navigator.pop(context);
     } on FirebaseAuthException catch (e) {
-      // pop the loading circle
       Navigator.pop(context);
-      // WRONG EMAIL
       if (e.code == 'user-not-found') {
-        // show error to user
         wrongEmailMessage();
-      }
-
-      // WRONG PASSWORD
-      else if (e.code == 'wrong-password') {
-        // show error to user
+      } else if (e.code == 'wrong-password') {
         wrongPasswordMessage();
       }
     }
   }
 
-  // wrong email message popup
   void wrongEmailMessage() {
     showDialog(
       context: context,
@@ -73,7 +64,6 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  // wrong password message popup
   void wrongPasswordMessage() {
     showDialog(
       context: context,
@@ -91,147 +81,197 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  void togglePasswordVisibility() {
+    setState(() {
+      isPasswordVisible = !isPasswordVisible;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[300],
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Center(
+      body: SingleChildScrollView( // Wrap with SingleChildScrollView
+        child: Container(
+          decoration: BoxDecoration(
+            color: Color(0xFF967BB6),
+          ),
+          child: SafeArea(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(height: 50),
-
-                // logo
-                const Icon(
-                  Icons.lock,
-                  size: 100,
-                ),
-
-                const SizedBox(height: 50),
-
-                // welcome back, you've been missed!
-                Text(
-                  'Welcome back you\'ve been missed!',
-                  style: TextStyle(
-                    color: Colors.grey[700],
-                    fontSize: 16,
-                  ),
-                ),
-
-                const SizedBox(height: 25),
-
-                // email textfield
-                MyTextField(
-                  controller: emailController,
-                  hintText: 'Email',
-                  obscureText: false,
-                ),
-
-                const SizedBox(height: 10),
-
-                // password textfield
-                MyTextField(
-                  controller: passwordController,
-                  hintText: 'Password',
-                  obscureText: true,
-                ),
-
-                const SizedBox(height: 10),
-
-              // forgot password?
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Text(
-                        'Forgot Password?',
-                        style: TextStyle(color: Colors.grey[600]),
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 25),
-
-                // sign in button
-                MyButton(
-                  onTap: signUserIn,
-                  text: 'Sign in',
-                ),
-
-                const SizedBox(height: 50),
-
-                // or continue with
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Divider(
-                          thickness: 0.5,
-                          color: Colors.grey[400],
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                        child: Text(
-                          'Or continue with',
-                          style: TextStyle(color: Colors.grey[700]),
-                        ),
-                      ),
-                      Expanded(
-                        child: Divider(
-                          thickness: 0.5,
-                          color: Colors.grey[400],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 50),
-
-                // google + apple sign in buttons
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // google button
-                    SquareTile(
-                        onTap: () => AuthService().signInWithGoogle(), imagePath: 'lib/images/google.png'),
-
-                    SizedBox(width: 25),
-
-                    // apple button
-                    SquareTile(onTap: () {}, imagePath: 'lib/images/apple.png')
-                  ],
-                ),
-
-                const SizedBox(height: 50),
-
-                // not a member? register now
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Not a member?',
-                      style: TextStyle(color: Colors.grey[700]),
-                    ),
-                    const SizedBox(width: 4),
-                    GestureDetector(
-                      onTap: widget.onTap,
-                      child: const Text(
-                        'Register now',
-                        style: TextStyle(
-                          color: Colors.blue,
-                          fontWeight: FontWeight.bold,
-                        ),
+                  padding: const EdgeInsets.symmetric(vertical: 30),
+                  child: Text(
+                    'PetPals',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.exo2(
+                      textStyle: const TextStyle(
+                        fontSize: 40,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 2.0,
+                        color: Colors.white,
                       ),
                     ),
-                  ],
-                )
+                  ),
+                ),
+                Container(
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(30),
+                      topRight: Radius.circular(30),
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Sign In',
+                          style: GoogleFonts.openSans(
+                            textStyle: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 30),
+                        MyTextField(
+                          controller: emailController,
+                          hintText: 'Email',
+                          obscureText: false,
+                          fillColor: Color.fromRGBO(230, 230, 250, 0.5),
+                        ),
+                        const SizedBox(height: 10),
+                        MyTextField(
+                          controller: passwordController,
+                          hintText: 'Password',
+                          obscureText: !isPasswordVisible,
+                          fillColor: Color.fromRGBO(230, 230, 250, 0.5),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                              color: Colors.grey,
+                            ),
+                            onPressed: togglePasswordVisibility,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 18.0),
+                            child: GestureDetector(
+                              onTap: () {},
+                              child: Text(
+                                'Forgot Password?',
+                                style: TextStyle(
+                                  color: Colors.indigo.shade600,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 25),
+                        MyButton(
+                          onTap: signUserIn,
+                          text: 'Sign in',
+                          color: Color(0xFF967BB6),
+                          textColor: Colors.white,
+                          borderColor: Color(0xFF967BB6),
+                          borderWidth: 1.0,
+                        ),
+                        const SizedBox(height: 20),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Divider(
+                                thickness: 0.5,
+                                color: Colors.grey[400],
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                              child: Text(
+                                'Or continue with',
+                                style: TextStyle(color: Colors.black),
+                              ),
+                            ),
+                            Expanded(
+                              child: Divider(
+                                thickness: 0.5,
+                                color: Colors.grey[400],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SquareTile(
+                              onTap: () => AuthService().signInWithGoogle(),
+                              imagePath: 'lib/images/google.png',
+                            ),
+                            SquareTile(onTap: () {}, imagePath: 'lib/images/apple.png')
+                          ],
+                        ),
+                        const SizedBox(height: 15),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: RichText(
+                            textAlign: TextAlign.justify,
+                            text: TextSpan(
+                              text: 'By signing in or signing up, I agree to the ',
+                              style: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 12,
+                              ),
+                              children: [
+                                TextSpan(
+                                  text: 'Terms of Service',
+                                  style: TextStyle(
+                                    color: Colors.indigo.shade600,
+                                  ),
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () {
+                                      // Handle Terms of Service click
+                                    },
+                                ),
+                                TextSpan(text: ' and '),
+                                TextSpan(
+                                  text: 'Privacy Policy',
+                                  style: TextStyle(
+                                    color: Colors.indigo.shade600,
+                                  ),
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () {
+                                      // Handle Privacy Policy click
+                                    },
+                                ),
+                                TextSpan(
+                                  text:
+                                      ', confirm that I am 18 years of age or older, and consent to receiving email communication. This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Service apply.',
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        MyButton(
+                          onTap: widget.onTap,
+                          text: 'Sign Up',
+                          color: Colors.transparent,
+                          textColor: Color(0xFF967BB6),
+                          borderColor: Color(0xFF967BB6),
+                          borderWidth: 1.0,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
