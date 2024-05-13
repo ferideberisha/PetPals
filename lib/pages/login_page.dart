@@ -4,6 +4,7 @@ import 'package:flutter/gestures.dart';
 import 'package:petpals/components/my_button.dart';
 import 'package:petpals/components/my_textfield.dart';
 import 'package:petpals/components/square_tile.dart';
+import 'package:petpals/pages/sign_up_type_page.dart';
 import 'package:petpals/service/auth_service.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -100,7 +101,7 @@ class _LoginPageState extends State<LoginPage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 30),
+                  padding: const EdgeInsets.symmetric(vertical: 25),
                   child: Text(
                     'PetPals',
                     textAlign: TextAlign.center,
@@ -192,8 +193,8 @@ class _LoginPageState extends State<LoginPage> {
                                 color: Colors.grey[400],
                               ),
                             ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                            const Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 10.0),
                               child: Text(
                                 'Or continue with',
                                 style: TextStyle(color: Colors.black),
@@ -220,54 +221,82 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         const SizedBox(height: 15),
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: RichText(
-                            textAlign: TextAlign.justify,
-                            text: TextSpan(
-                              text: 'By signing in or signing up, I agree to the ',
-                              style: const TextStyle(
-                                color: Colors.black,
-                                fontSize: 12,
-                              ),
-                              children: [
-                                TextSpan(
-                                  text: 'Terms of Service',
-                                  style: TextStyle(
-                                    color: Colors.indigo.shade600,
-                                  ),
-                                  recognizer: TapGestureRecognizer()
-                                    ..onTap = () {
-                                      // Handle Terms of Service click
-                                    },
-                                ),
-                                TextSpan(text: ' and '),
-                                TextSpan(
-                                  text: 'Privacy Policy',
-                                  style: TextStyle(
-                                    color: Colors.indigo.shade600,
-                                  ),
-                                  recognizer: TapGestureRecognizer()
-                                    ..onTap = () {
-                                      // Handle Privacy Policy click
-                                    },
-                                ),
-                                TextSpan(
-                                  text:
-                                      ', confirm that I am 18 years of age or older, and consent to receiving email communication. This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Service apply.',
-                                ),
-                              ],
+                        padding: const EdgeInsets.symmetric(horizontal: 3),
+                        child: RichText(
+                          textAlign: TextAlign.justify,
+                          text: TextSpan(
+                            text: 'By signing in or signing up, I agree to the ',
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 14, // Matching font size
+                              fontFamily: 'OpenSans', // Using the same Google Font
+                              fontWeight: FontWeight.normal, // Matching font weight
                             ),
+                            children: [
+                              TextSpan(
+                                text: 'Terms of Service',
+                                style: TextStyle(
+                                  color: Colors.indigo.shade600,
+                                  fontFamily: 'OpenSans', // Using the same Google Font
+                                  fontSize: 14, // Matching font size
+                                  fontWeight: FontWeight.normal, // Matching font weight
+                                ),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () {
+                                    // Handle Terms of Service click
+                                  },
+                              ),
+                              TextSpan(text: ' and '),
+                              TextSpan(
+                                text: 'Privacy Policy',
+                                style: TextStyle(
+                                  color: Colors.indigo.shade600,
+                                  fontFamily: 'OpenSans', // Using the same Google Font
+                                  fontSize: 14, // Matching font size
+                                  fontWeight: FontWeight.normal, // Matching font weight
+                                ),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () {
+                                    // Handle Privacy Policy click
+                                  },
+                              ),
+                              const TextSpan(
+                                text: ', confirm that I am 18 years of age or older, and consent to receiving email communication. This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Service apply.',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontFamily: 'OpenSans', // Using the same Google Font
+                                  fontSize: 14, // Matching font size
+                                  fontWeight: FontWeight.normal, // Matching font weight
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        const SizedBox(height: 20),
-                        MyButton(
-                          onTap: widget.onTap,
-                          text: 'Sign Up',
-                          color: Colors.transparent,
-                          textColor: Color(0xFF967BB6),
-                          borderColor: Color(0xFF967BB6),
-                          borderWidth: 1.0,
-                        ),
+                      ),
+
+                        const SizedBox(height: 40),
+                    MyButton(
+                        onTap: () {
+                          // Navigate to the SignUpTypePage
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => SignUpTypePage(
+                                onTap: () {
+                                  // Navigate back to the LoginPage when needed
+                                  Navigator.pop(context);
+                                },
+                              ),
+                            ),
+                          );
+                        },
+                        text: 'Sign Up',
+                        color: Colors.transparent,
+                        textColor: Color(0xFF967BB6),
+                        borderColor: Color(0xFF967BB6),
+                        borderWidth: 1.0,
+                      ),
+
                       ],
                     ),
                   ),

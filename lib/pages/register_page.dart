@@ -6,8 +6,9 @@ import 'package:petpals/components/my_textfield.dart';
 
 class RegisterPage extends StatefulWidget {
   final Function()? onTap;
+  final String userType; // Add userType parameter
 
-  const RegisterPage({Key? key, required this.onTap}) : super(key: key);
+  const RegisterPage({Key? key, required this.onTap, required this.userType}) : super(key: key);
 
   @override
   State<RegisterPage> createState() => _RegisterPageState();
@@ -42,7 +43,7 @@ class _RegisterPageState extends State<RegisterPage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 30),
+                  padding: const EdgeInsets.symmetric(vertical: 25),
                   child: Text(
                     'PetPals',
                     textAlign: TextAlign.center,
@@ -132,45 +133,100 @@ class _RegisterPageState extends State<RegisterPage> {
                             onPressed: togglePasswordVisibility,
                           ),
                         ),
-                        const SizedBox(height: 20),
-                   Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Checkbox(
-                        value: isPrivacyPolicyChecked,
-                        onChanged: (value) {
-                          setState(() {
-                            isPrivacyPolicyChecked = value!;
-                          });
-                        },
-                      ),
-                      Flexible(
-                        child: Text(
-                          'I agree to the Privacy Policy, confirm that I am 18 years of age or older, and consent to receive email communication.',
-                          style: TextStyle(color: Colors.black),
-                        ),
-                      ),
-                    ],
-                  ),
-
+                        const SizedBox(height: 15),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            Checkbox(
-                              value: isUserAgreementChecked,
-                              onChanged: (value) {
-                                setState(() {
-                                  isUserAgreementChecked = value!;
-                                });
-                              },
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 30), // Adjust the top padding as needed
+                              child: Container(
+                                width: 20,
+                                height: 20,
+                                decoration: BoxDecoration(
+                                  color: Colors.white, // Set the inside color to white
+                                  borderRadius: BorderRadius.circular(3),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.15), // Shadow color
+                                      spreadRadius: 0,
+                                      blurRadius: 5,
+                                      offset: Offset(0, 1), // Move the shadow downwards a bit
+                                    ),
+                                  ],
+                                ),
+                                child: Checkbox(
+                                  value: isPrivacyPolicyChecked,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      isPrivacyPolicyChecked = value!;
+                                    });
+                                  },
+                                ),
+                              ),
                             ),
-                            const Text(
-                              'I agree with the User Agreement',
-                              style: TextStyle(color: Colors.black),
+                            const SizedBox(width: 10),
+                            const Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'I agree to the Privacy Policy, confirm that I am 18 years of age or older, and consent to receive email communication.',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 14,
+                                      fontFamily: 'OpenSans',
+                                      fontWeight: FontWeight.normal,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: 20,
+                            height: 20,
+                            decoration: BoxDecoration(
+                              color: Colors.white, // Set the inside color to white
+                              borderRadius: BorderRadius.circular(3),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.15), // Shadow color
+                                  spreadRadius: 0,
+                                  blurRadius: 5,
+                                  offset: Offset(0, 2), // Adjust the offset to move the shadow downwards
+                                ),
+                              ],
+                            ),
+                            child: Checkbox(
+                              value: isPrivacyPolicyChecked,
+                              onChanged: (value) {
+                                setState(() {
+                                  isPrivacyPolicyChecked = value!;
+                                });
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          const Flexible(
+                            child: Text(
+                              'I agree to the User Agreement',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 14,
+                                fontFamily: 'OpenSans',
+                                fontWeight: FontWeight.normal,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                        const SizedBox(height: 15),
                         MyButton(
                           onTap: isPrivacyPolicyChecked && isUserAgreementChecked ? signUserUp : null,
                           text: 'Sign Up',
@@ -179,7 +235,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           borderColor: Color(0xFF967BB6),
                           borderWidth: 1.0,
                         ),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 15),
                         MyButton(
                           onTap: widget.onTap,
                           text: 'Back',
@@ -201,45 +257,52 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   void signUserUp() async {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return const Center(
-          child: CircularProgressIndicator(),
-        );
-      },
-    );
+  showDialog(
+    context: context,
+    builder: (context) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    },
+  );
 
-    //make sure passwords match
-    if (passwordController.text != confirmPasswordController.text) {
-      //pop loading circle
-      Navigator.pop(context);
-      //show error to user
-      displayMessage("Passwords don't match!");
-    }
-
-    //try creating the user
-    try {
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: emailController.text, password: passwordController.text);
-
-      // Clear text fields
-      emailController.clear();
-      passwordController.clear();
-      confirmPasswordController.clear();
-
-      //pop loading circle
-      if (context.mounted) Navigator.pop(context);
-
-      // Invoke onTap function to navigate to login page
-      widget.onTap?.call();
-    } on FirebaseAuthException catch (e) {
-      //pop loading circle
-      Navigator.pop(context);
-      //show error to user
-      displayMessage(e.code);
-    }
+  // Make sure passwords match
+  if (passwordController.text != confirmPasswordController.text) {
+    // Pop loading circle
+    Navigator.pop(context);
+    // Show error to user
+    displayMessage("Passwords don't match!");
   }
+
+  // Try creating the user
+  try {
+    // Your registration logic here
+    // Depending on the userType, you can customize the registration process
+    // For example:
+    if (widget.userType == 'owner') {
+      // Handle owner registration
+    } else if (widget.userType == 'walker') {
+      // Handle walker registration
+    }
+
+    // Clear text fields
+    emailController.clear();
+    passwordController.clear();
+    confirmPasswordController.clear();
+
+    // Pop loading circle
+    if (context.mounted) Navigator.pop(context);
+
+    // Invoke onTap function to navigate to login page
+    widget.onTap?.call();
+  } on FirebaseAuthException catch (e) {
+    // Pop loading circle
+    Navigator.pop(context);
+    // Show error to user
+    displayMessage(e.code);
+  }
+}
+
 
   //display a dialog message
   void displayMessage(String message) {
