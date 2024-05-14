@@ -122,7 +122,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           controller: confirmPasswordController,
                           hintText: 'Confirm password',
                           obscureText: !isPasswordVisible,
-                          fillColor: Color.fromRGBO(230, 230, 250, 0.5),
+                          fillColor: Color(0x7EE6E6FA),
                           suffixIcon: IconButton(
                             icon: Icon(
                               isPasswordVisible
