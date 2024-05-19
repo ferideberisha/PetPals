@@ -228,7 +228,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
                         const SizedBox(height: 15),
                         MyButton(
-                          onTap: isPrivacyPolicyChecked && isUserAgreementChecked ? signUserUp : null,
+                          onTap: () => signUserUp(context),
                           text: 'Sign Up',
                           color: Color(0xFF967BB6),
                           textColor: Colors.white,
@@ -256,7 +256,7 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  void signUserUp() async {
+void signUserUp(BuildContext context) async {
   showDialog(
     context: context,
     builder: (context) {
@@ -266,51 +266,55 @@ class _RegisterPageState extends State<RegisterPage> {
     },
   );
 
+  // Display a dialog message
+void displayMessage(BuildContext context, String message) {
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text(message),
+    ),
+  );
+}
+
+
   // Make sure passwords match
   if (passwordController.text != confirmPasswordController.text) {
     // Pop loading circle
     Navigator.pop(context);
     // Show error to user
-    displayMessage("Passwords don't match!");
+    displayMessage(context, "Passwords don't match!");
+    return; // Exit function early if passwords don't match
   }
 
-  // Try creating the user
   try {
-    // Your registration logic here
-    // Depending on the userType, you can customize the registration process
-    // For example:
-    if (widget.userType == 'owner') {
-      // Handle owner registration
-    } else if (widget.userType == 'walker') {
-      // Handle walker registration
-    }
+    // Create user with email and password
+    UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      email: emailController.text,
+      password: passwordController.text,
+    );
+
+    // Update user's profile with first and last name
+    await userCredential.user!.updateProfile(displayName: '${firstNameController.text} ${lastNameController.text}');
 
     // Clear text fields
+    firstNameController.clear();
+    lastNameController.clear();
     emailController.clear();
     passwordController.clear();
     confirmPasswordController.clear();
 
     // Pop loading circle
-    if (context.mounted) Navigator.pop(context);
+    Navigator.pop(context);
 
-    // Invoke onTap function to navigate to login page
-    widget.onTap?.call();
+    // Navigate to the login page
+    Navigator.pushReplacementNamed(context, '/login');
   } on FirebaseAuthException catch (e) {
     // Pop loading circle
     Navigator.pop(context);
     // Show error to user
-    displayMessage(e.code);
+    displayMessage(context, e.code);
   }
 }
 
 
-  //display a dialog message
-  void displayMessage(String message) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(message),
-      ),
-    );
-  }
 }
