@@ -91,7 +91,8 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView( // Wrap with SingleChildScrollView
+      body: SingleChildScrollView(
+        // Wrap with SingleChildScrollView
         child: Container(
           decoration: BoxDecoration(
             color: Color(0xFF967BB6),
@@ -143,17 +144,19 @@ class _LoginPageState extends State<LoginPage> {
                           controller: emailController,
                           hintText: 'Email',
                           obscureText: false,
-                          fillColor: Color.fromRGBO(230, 230, 250, 0.5),
+                          fillColor: Colors.white,
                         ),
                         const SizedBox(height: 10),
                         MyTextField(
                           controller: passwordController,
                           hintText: 'Password',
                           obscureText: !isPasswordVisible,
-                          fillColor: Color.fromRGBO(230, 230, 250, 0.5),
+                          fillColor: Colors.white,
                           suffixIcon: IconButton(
                             icon: Icon(
-                              isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                              isPasswordVisible
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
                               color: Colors.grey,
                             ),
                             onPressed: togglePasswordVisibility,
@@ -216,87 +219,96 @@ class _LoginPageState extends State<LoginPage> {
                               onTap: () => AuthService().signInWithGoogle(),
                               imagePath: 'lib/images/google.png',
                             ),
-                            SquareTile(onTap: () {}, imagePath: 'lib/images/apple.png')
+                            SquareTile(
+                                onTap: () {}, imagePath: 'lib/images/apple.png')
                           ],
                         ),
                         const SizedBox(height: 15),
                         Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 3),
-                        child: RichText(
-                          textAlign: TextAlign.justify,
-                          text: TextSpan(
-                            text: 'By signing in or signing up, I agree to the ',
-                            style: const TextStyle(
-                              color: Colors.black,
-                              fontSize: 14, // Matching font size
-                              fontFamily: 'OpenSans', // Using the same Google Font
-                              fontWeight: FontWeight.normal, // Matching font weight
+                          padding: const EdgeInsets.symmetric(horizontal: 3),
+                          child: RichText(
+                            textAlign: TextAlign.justify,
+                            text: TextSpan(
+                              text:
+                                  'By signing in or signing up, I agree to the ',
+                              style: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 14, // Matching font size
+                                fontFamily:
+                                    'OpenSans', // Using the same Google Font
+                                fontWeight:
+                                    FontWeight.normal, // Matching font weight
+                              ),
+                              children: [
+                                TextSpan(
+                                  text: 'Terms of Service',
+                                  style: TextStyle(
+                                    color: Colors.indigo.shade600,
+                                    fontFamily:
+                                        'OpenSans', // Using the same Google Font
+                                    fontSize: 14, // Matching font size
+                                    fontWeight: FontWeight
+                                        .normal, // Matching font weight
+                                  ),
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () {
+                                      // Handle Terms of Service click
+                                    },
+                                ),
+                                TextSpan(text: ' and '),
+                                TextSpan(
+                                  text: 'Privacy Policy',
+                                  style: TextStyle(
+                                    color: Colors.indigo.shade600,
+                                    fontFamily:
+                                        'OpenSans', // Using the same Google Font
+                                    fontSize: 14, // Matching font size
+                                    fontWeight: FontWeight
+                                        .normal, // Matching font weight
+                                  ),
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () {
+                                      // Handle Privacy Policy click
+                                    },
+                                ),
+                                const TextSpan(
+                                  text:
+                                      ', confirm that I am 18 years of age or older, and consent to receiving email communication. This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Service apply.',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontFamily:
+                                        'OpenSans', // Using the same Google Font
+                                    fontSize: 14, // Matching font size
+                                    fontWeight: FontWeight
+                                        .normal, // Matching font weight
+                                  ),
+                                ),
+                              ],
                             ),
-                            children: [
-                              TextSpan(
-                                text: 'Terms of Service',
-                                style: TextStyle(
-                                  color: Colors.indigo.shade600,
-                                  fontFamily: 'OpenSans', // Using the same Google Font
-                                  fontSize: 14, // Matching font size
-                                  fontWeight: FontWeight.normal, // Matching font weight
-                                ),
-                                recognizer: TapGestureRecognizer()
-                                  ..onTap = () {
-                                    // Handle Terms of Service click
-                                  },
-                              ),
-                              TextSpan(text: ' and '),
-                              TextSpan(
-                                text: 'Privacy Policy',
-                                style: TextStyle(
-                                  color: Colors.indigo.shade600,
-                                  fontFamily: 'OpenSans', // Using the same Google Font
-                                  fontSize: 14, // Matching font size
-                                  fontWeight: FontWeight.normal, // Matching font weight
-                                ),
-                                recognizer: TapGestureRecognizer()
-                                  ..onTap = () {
-                                    // Handle Privacy Policy click
-                                  },
-                              ),
-                              const TextSpan(
-                                text: ', confirm that I am 18 years of age or older, and consent to receiving email communication. This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Service apply.',
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontFamily: 'OpenSans', // Using the same Google Font
-                                  fontSize: 14, // Matching font size
-                                  fontWeight: FontWeight.normal, // Matching font weight
-                                ),
-                              ),
-                            ],
                           ),
                         ),
-                      ),
-
                         const SizedBox(height: 40),
-                    MyButton(
-                        onTap: () {
-                          // Navigate to the SignUpTypePage
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => SignUpTypePage(
-                                onTap: () {
-                                  // Navigate back to the LoginPage when needed
-                                  Navigator.pop(context);
-                                },
+                        MyButton(
+                          onTap: () {
+                            // Navigate to the SignUpTypePage
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => SignUpTypePage(
+                                  onTap: () {
+                                    // Navigate back to the LoginPage when needed
+                                    Navigator.pop(context);
+                                  },
+                                ),
                               ),
-                            ),
-                          );
-                        },
-                        text: 'Sign Up',
-                        color: Colors.transparent,
-                        textColor: Color(0xFF967BB6),
-                        borderColor: Color(0xFF967BB6),
-                        borderWidth: 1.0,
-                      ),
-
+                            );
+                          },
+                          text: 'Sign Up',
+                          color: Colors.transparent,
+                          textColor: Color(0xFF967BB6),
+                          borderColor: Color(0xFF967BB6),
+                          borderWidth: 1.0,
+                        ),
                       ],
                     ),
                   ),

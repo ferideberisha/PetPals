@@ -8,7 +8,8 @@ class RegisterPage extends StatefulWidget {
   final Function()? onTap;
   final String userType; // Add userType parameter
 
-  const RegisterPage({Key? key, required this.onTap, required this.userType}) : super(key: key);
+  const RegisterPage({Key? key, required this.onTap, required this.userType})
+      : super(key: key);
 
   @override
   State<RegisterPage> createState() => _RegisterPageState();
@@ -85,28 +86,28 @@ class _RegisterPageState extends State<RegisterPage> {
                           controller: firstNameController,
                           hintText: 'First name',
                           obscureText: false,
-                          fillColor: Color.fromRGBO(230, 230, 250, 0.5),
+                          fillColor: Colors.white,
                         ),
                         const SizedBox(height: 10),
                         MyTextField(
                           controller: lastNameController,
                           hintText: 'Last name',
                           obscureText: false,
-                          fillColor: Color.fromRGBO(230, 230, 250, 0.5),
+                          fillColor: Colors.white,
                         ),
                         const SizedBox(height: 10),
                         MyTextField(
                           controller: emailController,
                           hintText: 'Email',
                           obscureText: false,
-                          fillColor: Color.fromRGBO(230, 230, 250, 0.5),
+                          fillColor: Colors.white,
                         ),
                         const SizedBox(height: 10),
                         MyTextField(
                           controller: passwordController,
                           hintText: 'Create password',
                           obscureText: !isPasswordVisible,
-                          fillColor: Color.fromRGBO(230, 230, 250, 0.5),
+                          fillColor: Colors.white,
                           suffixIcon: IconButton(
                             icon: Icon(
                               isPasswordVisible
@@ -122,7 +123,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           controller: confirmPasswordController,
                           hintText: 'Confirm password',
                           obscureText: !isPasswordVisible,
-                          fillColor: Color(0x7EE6E6FA),
+                          fillColor: Colors.white,
                           suffixIcon: IconButton(
                             icon: Icon(
                               isPasswordVisible
@@ -138,19 +139,24 @@ class _RegisterPageState extends State<RegisterPage> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Padding(
-                              padding: const EdgeInsets.only(bottom: 30), // Adjust the top padding as needed
+                              padding: const EdgeInsets.only(
+                                  bottom:
+                                      30), // Adjust the top padding as needed
                               child: Container(
                                 width: 20,
                                 height: 20,
                                 decoration: BoxDecoration(
-                                  color: Colors.white, // Set the inside color to white
+                                  color: Colors
+                                      .white, // Set the inside color to white
                                   borderRadius: BorderRadius.circular(3),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.15), // Shadow color
+                                      color: Colors.black
+                                          .withOpacity(0.15), // Shadow color
                                       spreadRadius: 0,
                                       blurRadius: 5,
-                                      offset: Offset(0, 1), // Move the shadow downwards a bit
+                                      offset: Offset(0,
+                                          1), // Move the shadow downwards a bit
                                     ),
                                   ],
                                 ),
@@ -184,48 +190,50 @@ class _RegisterPageState extends State<RegisterPage> {
                           ],
                         ),
                         const SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Container(
-                            width: 20,
-                            height: 20,
-                            decoration: BoxDecoration(
-                              color: Colors.white, // Set the inside color to white
-                              borderRadius: BorderRadius.circular(3),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.15), // Shadow color
-                                  spreadRadius: 0,
-                                  blurRadius: 5,
-                                  offset: Offset(0, 2), // Adjust the offset to move the shadow downwards
-                                ),
-                              ],
-                            ),
-                            child: Checkbox(
-                              value: isPrivacyPolicyChecked,
-                              onChanged: (value) {
-                                setState(() {
-                                  isPrivacyPolicyChecked = value!;
-                                });
-                              },
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          const Flexible(
-                            child: Text(
-                              'I agree to the User Agreement',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 14,
-                                fontFamily: 'OpenSans',
-                                fontWeight: FontWeight.normal,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: 20,
+                              height: 20,
+                              decoration: BoxDecoration(
+                                color: Colors
+                                    .white, // Set the inside color to white
+                                borderRadius: BorderRadius.circular(3),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black
+                                        .withOpacity(0.15), // Shadow color
+                                    spreadRadius: 0,
+                                    blurRadius: 5,
+                                    offset: Offset(0,
+                                        2), // Adjust the offset to move the shadow downwards
+                                  ),
+                                ],
+                              ),
+                              child: Checkbox(
+                                value: isPrivacyPolicyChecked,
+                                onChanged: (value) {
+                                  setState(() {
+                                    isPrivacyPolicyChecked = value!;
+                                  });
+                                },
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-
+                            const SizedBox(width: 10),
+                            const Flexible(
+                              child: Text(
+                                'I agree to the User Agreement',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 14,
+                                  fontFamily: 'OpenSans',
+                                  fontWeight: FontWeight.normal,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                         const SizedBox(height: 15),
                         MyButton(
                           onTap: () => signUserUp(context),
@@ -256,65 +264,65 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-void signUserUp(BuildContext context) async {
-  showDialog(
-    context: context,
-    builder: (context) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
-    },
-  );
-
-  // Display a dialog message
-void displayMessage(BuildContext context, String message) {
-  showDialog(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: Text(message),
-    ),
-  );
-}
-
-
-  // Make sure passwords match
-  if (passwordController.text != confirmPasswordController.text) {
-    // Pop loading circle
-    Navigator.pop(context);
-    // Show error to user
-    displayMessage(context, "Passwords don't match!");
-    return; // Exit function early if passwords don't match
-  }
-
-  try {
-    // Create user with email and password
-    UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-      email: emailController.text,
-      password: passwordController.text,
+  void signUserUp(BuildContext context) async {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      },
     );
 
-    // Update user's profile with first and last name
-    await userCredential.user!.updateProfile(displayName: '${firstNameController.text} ${lastNameController.text}');
+    // Display a dialog message
+    void displayMessage(BuildContext context, String message) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(message),
+        ),
+      );
+    }
 
-    // Clear text fields
-    firstNameController.clear();
-    lastNameController.clear();
-    emailController.clear();
-    passwordController.clear();
-    confirmPasswordController.clear();
+    // Make sure passwords match
+    if (passwordController.text != confirmPasswordController.text) {
+      // Pop loading circle
+      Navigator.pop(context);
+      // Show error to user
+      displayMessage(context, "Passwords don't match!");
+      return; // Exit function early if passwords don't match
+    }
 
-    // Pop loading circle
-    Navigator.pop(context);
+    try {
+      // Create user with email and password
+      UserCredential userCredential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: emailController.text,
+        password: passwordController.text,
+      );
 
-    // Navigate to the login page
-    Navigator.pushReplacementNamed(context, '/login');
-  } on FirebaseAuthException catch (e) {
-    // Pop loading circle
-    Navigator.pop(context);
-    // Show error to user
-    displayMessage(context, e.code);
+      // Update user's profile with first and last name
+      await userCredential.user!.updateProfile(
+          displayName:
+              '${firstNameController.text} ${lastNameController.text}');
+
+      // Clear text fields
+      firstNameController.clear();
+      lastNameController.clear();
+      emailController.clear();
+      passwordController.clear();
+      confirmPasswordController.clear();
+
+      // Pop loading circle
+      Navigator.pop(context);
+
+      // Navigate to the login page
+      Navigator.pushReplacementNamed(context, '/login');
+    } on FirebaseAuthException catch (e) {
+      // Pop loading circle
+      Navigator.pop(context);
+      // Show error to user
+      displayMessage(context, e.code);
+    }
   }
-}
-
-
 }

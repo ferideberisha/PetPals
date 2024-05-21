@@ -6,6 +6,7 @@ import 'dart:math' as math;
 import 'package:petpals/components/my_bottom_bar.dart';
 import 'package:petpals/auth/auth.dart';
 import 'package:petpals/service/auth_service.dart';
+import 'package:petpals/pages/basic_info_page.dart'; // Import the BasicInfoPage
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -24,13 +25,10 @@ class _ProfilePageState extends State<ProfilePage> {
 
   void _getUserDisplayName() {
     User? user = FirebaseAuth.instance.currentUser;
-    print("User: $user");
     if (user != null) {
       setState(() {
         _userName = user.displayName ?? 'User';
       });
-    } else {
-      print("User is null");
     }
   }
 
@@ -46,7 +44,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
   void signUserOut() {
     AuthService().signOut();
-    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => AuthPage()));
+    Navigator.of(context)
+        .pushReplacement(MaterialPageRoute(builder: (context) => AuthPage()));
   }
 
   @override
@@ -71,7 +70,8 @@ class _ProfilePageState extends State<ProfilePage> {
                     padding: EdgeInsets.only(right: 80, bottom: 90),
                     child: Text(
                       '$_userName',
-                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                     ),
                   ),
                   SizedBox(width: 10),
@@ -81,12 +81,12 @@ class _ProfilePageState extends State<ProfilePage> {
                         alignment: Alignment.bottomRight,
                         children: [
                           CircleAvatar(
-                            backgroundColor: Colors.grey[200], // Light grey background color
-                            foregroundColor: Colors.grey, // Grey color for the icon or image
+                            backgroundColor: Colors.grey[200],
+                            foregroundColor: Colors.grey,
                             radius: 60,
-                            backgroundImage: _image != null ? FileImage(_image!) : null,
+                            backgroundImage:
+                                _image != null ? FileImage(_image!) : null,
                             child: _image == null
-                            
                                 ? Icon(Icons.person, size: 80)
                                 : null,
                           ),
@@ -119,15 +119,17 @@ class _ProfilePageState extends State<ProfilePage> {
                             },
                             child: Container(
                               decoration: BoxDecoration(
-                                color: Color.fromARGB(255, 202, 173, 238), // Background color for the edit icon
-                                shape: BoxShape.circle, // Shape of the container
-                                border: Border.all(color: Colors.white, width: 3.0), // White border
+                                color: Color.fromARGB(255, 202, 173, 238),
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: Colors.white,
+                                  width: 3.0,
+                                ),
                               ),
-                              padding: EdgeInsets.all(8.0), // Padding for the edit icon
+                              padding: EdgeInsets.all(8.0),
                               child: Icon(Icons.edit),
                             ),
                           ),
-
                         ],
                       ),
                       SizedBox(width: 10),
@@ -140,14 +142,16 @@ class _ProfilePageState extends State<ProfilePage> {
               SizedBox(height: 20),
               TextButton(
                 onPressed: () {
-                  // Add functionality for the clickable item here
-                  print('Basic info button tapped!');
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => BasicInfoPage()),
+                  );
                 },
                 child: const Row(
                   children: [
-                    SizedBox(width: 10), // Space before the info icon
+                    SizedBox(width: 10),
                     Icon(Icons.info, color: Colors.black),
-                    SizedBox(width: 15), // Space between icon and text
+                    SizedBox(width: 15),
                     Text(
                       'Basic info',
                       style: TextStyle(
@@ -156,24 +160,23 @@ class _ProfilePageState extends State<ProfilePage> {
                         fontSize: 16,
                       ),
                     ),
-                    SizedBox(width: 8), // Space between text and arrow icon
-                    Expanded(child: SizedBox()), // This expands and creates space between text and arrow icon
+                    SizedBox(width: 8),
+                    Expanded(child: SizedBox()),
                     Icon(Icons.arrow_forward_ios, color: Colors.black),
-                    SizedBox(width: 10), // Space after the arrow icon
+                    SizedBox(width: 10),
                   ],
                 ),
               ),
               SizedBox(height: 20),
               TextButton(
                 onPressed: () {
-                  // Add functionality for the clickable item here
                   print('My Pets button tapped!');
                 },
                 child: const Row(
                   children: [
-                    SizedBox(width: 10), // Space before the paw icon
+                    SizedBox(width: 10),
                     Icon(Icons.pets, color: Colors.black),
-                    SizedBox(width: 15), // Space between icon and text
+                    SizedBox(width: 15),
                     Text(
                       'My pets',
                       style: TextStyle(
@@ -182,24 +185,23 @@ class _ProfilePageState extends State<ProfilePage> {
                         fontSize: 16,
                       ),
                     ),
-                    SizedBox(width: 8), // Space between text and arrow icon
-                    Expanded(child: SizedBox()), // This expands and creates space between text and arrow icon
+                    SizedBox(width: 8),
+                    Expanded(child: SizedBox()),
                     Icon(Icons.arrow_forward_ios, color: Colors.black),
-                    SizedBox(width: 10), // Space after the arrow icon
+                    SizedBox(width: 10),
                   ],
                 ),
               ),
               SizedBox(height: 20),
               TextButton(
                 onPressed: () {
-                  // Add functionality for the clickable item here
                   print('Sending Payments button tapped!');
                 },
                 child: const Row(
                   children: [
-                    SizedBox(width: 10), // Space before the card icon
+                    SizedBox(width: 10),
                     Icon(Icons.payment_rounded, color: Colors.black),
-                    SizedBox(width: 15), // Space between icon and text
+                    SizedBox(width: 15),
                     Text(
                       'Sending payments',
                       style: TextStyle(
@@ -208,24 +210,23 @@ class _ProfilePageState extends State<ProfilePage> {
                         fontSize: 16,
                       ),
                     ),
-                    SizedBox(width: 8), // Space between text and arrow icon
-                    Expanded(child: SizedBox()), // This expands and creates space between text and arrow icon
+                    SizedBox(width: 8),
+                    Expanded(child: SizedBox()),
                     Icon(Icons.arrow_forward_ios, color: Colors.black),
-                    SizedBox(width: 10), // Space after the arrow icon
+                    SizedBox(width: 10),
                   ],
                 ),
               ),
-               SizedBox(height: 20),
+              SizedBox(height: 20),
               TextButton(
                 onPressed: () {
-                  // Add functionality for the clickable item here
                   print('Account settings button tapped!');
                 },
                 child: const Row(
                   children: [
-                    SizedBox(width: 10), // Space before the card icon
+                    SizedBox(width: 10),
                     Icon(Icons.settings, color: Colors.black),
-                    SizedBox(width: 15), // Space between icon and text
+                    SizedBox(width: 15),
                     Text(
                       'Account settings',
                       style: TextStyle(
@@ -234,28 +235,27 @@ class _ProfilePageState extends State<ProfilePage> {
                         fontSize: 16,
                       ),
                     ),
-                    SizedBox(width: 8), // Space between text and arrow icon
-                    Expanded(child: SizedBox()), // This expands and creates space between text and arrow icon
+                    SizedBox(width: 8),
+                    Expanded(child: SizedBox()),
                     Icon(Icons.arrow_forward_ios, color: Colors.black),
-                    SizedBox(width: 10), // Space after the arrow icon
+                    SizedBox(width: 10),
                   ],
                 ),
               ),
               SizedBox(height: 20),
               TextButton(
                 onPressed: () {
-                  // Add functionality for the clickable item here
-                  signUserOut(); // This calls the signOut function when the logout button is tapped
+                  signUserOut();
                 },
                 child: Row(
                   children: [
-                    SizedBox(width: 10), // Space before the logout icon
+                    SizedBox(width: 10),
                     Transform(
                       alignment: Alignment.center,
-                      transform: Matrix4.rotationY(math.pi), // Rotate 180 degrees horizontally
+                      transform: Matrix4.rotationY(math.pi),
                       child: Icon(Icons.logout, color: Colors.red),
                     ),
-                    SizedBox(width: 15), // Space between icon and text
+                    SizedBox(width: 15),
                     const Text(
                       'Log out',
                       style: TextStyle(
@@ -264,7 +264,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         fontSize: 16,
                       ),
                     ),
-                    SizedBox(width: 8), // Space between text and arrow icon
+                    SizedBox(width: 8),
                     Expanded(child: SizedBox()),
                   ],
                 ),
@@ -277,4 +277,3 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 }
-
