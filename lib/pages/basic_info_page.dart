@@ -138,6 +138,40 @@ class _BasicInfoPageState extends State<BasicInfoPage> {
                 borderColor: Color(0xFF967BB6),
                 borderWidth: 1.0,
               ),
+              MyButton(
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text("Confirm Deletion"),
+                          content: Text("Are you sure you want to delete your account? This action cannot be undone."),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: Text("Cancel"),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                // Add code here to delete the account
+                                Navigator.of(context).pop();
+                              },
+                              child: Text("Delete", style: TextStyle(color: Colors.red)),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                  text: 'Delete My Account',
+                  color: Colors.transparent, // Transparent background
+                  textColor: Colors.red, // Red text color
+                  borderColor: Colors.transparent, // Transparent border
+                  borderWidth: 0, // No border width
+                ),
+
             ],
           ),
         ),

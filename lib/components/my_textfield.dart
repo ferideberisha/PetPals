@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:petpals/pages/add_phone_number_page.dart'; // Import the AddPhoneNumber page
-
-class MyTextField extends StatelessWidget {
+class MyTextField extends StatefulWidget {
   final TextEditingController controller;
   final String hintText;
   final bool obscureText;
@@ -9,7 +7,7 @@ class MyTextField extends StatelessWidget {
   final String? Function(String?)? validator;
   final VoidCallback? onTap;
   final bool readOnly;
-  final Widget? suffixIcon; // Ensure this parameter is named suffixIcon
+  final Widget? suffixIcon;
 
   const MyTextField({
     Key? key,
@@ -24,19 +22,24 @@ class MyTextField extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  _MyTextFieldState createState() => _MyTextFieldState();
+}
+
+class _MyTextFieldState extends State<MyTextField> {
+  @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 0),
         child: TextFormField(
-          controller: controller,
-          obscureText: obscureText,
-          readOnly: readOnly,
-          onTap: onTap,
+          controller: widget.controller,
+          obscureText: widget.obscureText, // Use widget.obscureText here
+          readOnly: widget.readOnly,
+          onTap: widget.onTap,
           decoration: InputDecoration(
-            labelText: hintText,
-            labelStyle: TextStyle(color: Colors.grey[500]), // Hint text color
+            labelText: widget.hintText,
+            labelStyle: TextStyle(color: Colors.grey[500]),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
               borderSide: BorderSide(color: Color.fromRGBO(226, 225, 225, 1)),
@@ -53,20 +56,12 @@ class MyTextField extends StatelessWidget {
               borderRadius: BorderRadius.circular(10),
               borderSide: BorderSide(color: Colors.red),
             ),
-            fillColor: fillColor,
+            fillColor: widget.fillColor,
             filled: true,
             hintStyle: TextStyle(color: Colors.grey[300]),
-            suffixIcon: hintText == 'Phone Number' ? GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => AddPhoneNumberPage()),
-                );
-              },
-              child: Icon(Icons.arrow_circle_right_outlined),
-            ) : null,
+            suffixIcon: widget.suffixIcon,
           ),
-          validator: validator,
+          validator: widget.validator,
         ),
       ),
     );

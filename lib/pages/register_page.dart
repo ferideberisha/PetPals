@@ -1,8 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:petpals/components/my_button.dart';
-import 'package:petpals/components/my_textfield.dart';
+import 'package:petpals/components/my_button.dart'; // Import MyButton
+import 'package:petpals/components/my_textfield.dart'; // Import MyTextField
 
 class RegisterPage extends StatefulWidget {
   final Function()? onTap;
@@ -22,12 +21,19 @@ class _RegisterPageState extends State<RegisterPage> {
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
   bool isPasswordVisible = false;
+  bool isConfirmPasswordVisible = false; // Add a state variable for confirm password visibility
   bool isPrivacyPolicyChecked = false;
   bool isUserAgreementChecked = false;
 
   void togglePasswordVisibility() {
     setState(() {
       isPasswordVisible = !isPasswordVisible;
+    });
+  }
+
+  void toggleConfirmPasswordVisibility() { // Add function to toggle confirm password visibility
+    setState(() {
+      isConfirmPasswordVisible = !isConfirmPasswordVisible;
     });
   }
 
@@ -48,18 +54,16 @@ class _RegisterPageState extends State<RegisterPage> {
                   child: Text(
                     'PetPals',
                     textAlign: TextAlign.center,
-                    style: GoogleFonts.exo2(
-                      textStyle: const TextStyle(
-                        fontSize: 40,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 2.0,
-                        color: Colors.white,
-                      ),
+                    style: TextStyle(
+                      fontSize: 40,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 2.0,
+                      color: Colors.white,
                     ),
                   ),
                 ),
                 Container(
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(30),
@@ -73,36 +77,34 @@ class _RegisterPageState extends State<RegisterPage> {
                       children: [
                         Text(
                           'Sign Up',
-                          style: GoogleFonts.openSans(
-                            textStyle: const TextStyle(
-                              color: Colors.black,
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                            ),
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(height: 30),
+                        SizedBox(height: 30),
                         MyTextField(
                           controller: firstNameController,
                           hintText: 'First name',
                           obscureText: false,
                           fillColor: Colors.white,
                         ),
-                        const SizedBox(height: 10),
+                        SizedBox(height: 10),
                         MyTextField(
                           controller: lastNameController,
                           hintText: 'Last name',
                           obscureText: false,
                           fillColor: Colors.white,
                         ),
-                        const SizedBox(height: 10),
+                        SizedBox(height: 10),
                         MyTextField(
                           controller: emailController,
                           hintText: 'Email',
                           obscureText: false,
                           fillColor: Colors.white,
                         ),
-                        const SizedBox(height: 10),
+                        SizedBox(height: 10),
                         MyTextField(
                           controller: passwordController,
                           hintText: 'Create password',
@@ -118,23 +120,23 @@ class _RegisterPageState extends State<RegisterPage> {
                             onPressed: togglePasswordVisibility,
                           ),
                         ),
-                        const SizedBox(height: 10),
+                        SizedBox(height: 10),
                         MyTextField(
                           controller: confirmPasswordController,
                           hintText: 'Confirm password',
-                          obscureText: !isPasswordVisible,
+                          obscureText: !isConfirmPasswordVisible, // Use separate state variable here
                           fillColor: Colors.white,
                           suffixIcon: IconButton(
                             icon: Icon(
-                              isPasswordVisible
+                              isConfirmPasswordVisible
                                   ? Icons.visibility
                                   : Icons.visibility_off,
                               color: Colors.grey,
                             ),
-                            onPressed: togglePasswordVisibility,
+                            onPressed: toggleConfirmPasswordVisibility, // Use separate function here
                           ),
                         ),
-                        const SizedBox(height: 15),
+                        SizedBox(height: 15),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
@@ -170,8 +172,8 @@ class _RegisterPageState extends State<RegisterPage> {
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 10),
-                            const Expanded(
+                            SizedBox(width: 10),
+                            Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -189,7 +191,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 10),
+                        SizedBox(height: 10),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
@@ -220,8 +222,8 @@ class _RegisterPageState extends State<RegisterPage> {
                                 },
                               ),
                             ),
-                            const SizedBox(width: 10),
-                            const Flexible(
+                            SizedBox(width: 10),
+                            Flexible(
                               child: Text(
                                 'I agree to the User Agreement',
                                 style: TextStyle(
@@ -234,7 +236,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 15),
+                        SizedBox(height: 15),
                         MyButton(
                           onTap: () => signUserUp(context),
                           text: 'Sign Up',
@@ -243,7 +245,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           borderColor: Color(0xFF967BB6),
                           borderWidth: 1.0,
                         ),
-                        const SizedBox(height: 15),
+                        SizedBox(height: 15),
                         MyButton(
                           onTap: widget.onTap,
                           text: 'Back',
@@ -268,7 +270,7 @@ class _RegisterPageState extends State<RegisterPage> {
     showDialog(
       context: context,
       builder: (context) {
-        return const Center(
+        return Center(
           child: CircularProgressIndicator(),
         );
       },
@@ -326,3 +328,4 @@ class _RegisterPageState extends State<RegisterPage> {
     }
   }
 }
+

@@ -5,6 +5,9 @@ import 'dart:io';
 import 'dart:math' as math;
 import 'package:petpals/components/my_bottom_bar.dart';
 import 'package:petpals/auth/auth.dart';
+import 'package:petpals/pages/account_settings_page.dart';
+import 'package:petpals/pages/my_payment_page.dart';
+import 'package:petpals/pages/my_pets_page.dart';
 import 'package:petpals/service/auth_service.dart';
 import 'package:petpals/pages/basic_info_page.dart'; // Import the BasicInfoPage
 
@@ -170,7 +173,10 @@ class _ProfilePageState extends State<ProfilePage> {
               SizedBox(height: 20),
               TextButton(
                 onPressed: () {
-                  print('My Pets button tapped!');
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => MyPetsPage()),
+                  );
                 },
                 child: const Row(
                   children: [
@@ -195,7 +201,10 @@ class _ProfilePageState extends State<ProfilePage> {
               SizedBox(height: 20),
               TextButton(
                 onPressed: () {
-                  print('Sending Payments button tapped!');
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => MyPaymentsPage()),
+                  );
                 },
                 child: const Row(
                   children: [
@@ -220,7 +229,10 @@ class _ProfilePageState extends State<ProfilePage> {
               SizedBox(height: 20),
               TextButton(
                 onPressed: () {
-                  print('Account settings button tapped!');
+                    Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => AccountSettingsPage()),
+                  );
                 },
                 child: const Row(
                   children: [
