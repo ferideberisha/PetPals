@@ -1,8 +1,9 @@
+import 'dart:io';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:io';
-import 'dart:math' as math;
+import 'package:petpals/components/circle_avatar.dart'; // Import CircleAvatarWidget
 import 'package:petpals/components/my_bottom_bar.dart';
 import 'package:petpals/auth/auth.dart';
 import 'package:petpals/pages/account_settings_page.dart';
@@ -80,60 +81,36 @@ class _ProfilePageState extends State<ProfilePage> {
                   SizedBox(width: 10),
                   Row(
                     children: [
-                      Stack(
-                        alignment: Alignment.bottomRight,
-                        children: [
-                          CircleAvatar(
-                            backgroundColor: Colors.grey[200],
-                            foregroundColor: Colors.grey,
-                            radius: 60,
-                            backgroundImage:
-                                _image != null ? FileImage(_image!) : null,
-                            child: _image == null
-                                ? Icon(Icons.person, size: 80)
-                                : null,
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    title: Text('Select Image Source'),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () {
-                                          _pickImage(ImageSource.camera);
-                                          Navigator.of(context).pop();
-                                        },
-                                        child: Text('Camera'),
-                                      ),
-                                      TextButton(
-                                        onPressed: () {
-                                          _pickImage(ImageSource.gallery);
-                                          Navigator.of(context).pop();
-                                        },
-                                        child: Text('Gallery'),
-                                      ),
-                                    ],
-                                  );
-                                },
+                      CircleAvatarWidget(
+                        pickImage: _pickImage,
+                        image: _image,
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Text('Select Image Source'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      _pickImage(ImageSource.camera);
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text('Camera'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      _pickImage(ImageSource.gallery);
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text('Gallery'),
+                                  ),
+                                ],
                               );
                             },
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Color.fromARGB(255, 202, 173, 238),
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: Colors.white,
-                                  width: 3.0,
-                                ),
-                              ),
-                              padding: EdgeInsets.all(8.0),
-                              child: Icon(Icons.edit),
-                            ),
-                          ),
-                        ],
+                          );
+                        },
+                        icon: Icons.person, // Use the user icon
                       ),
                       SizedBox(width: 10),
                     ],
@@ -229,9 +206,10 @@ class _ProfilePageState extends State<ProfilePage> {
               SizedBox(height: 20),
               TextButton(
                 onPressed: () {
-                    Navigator.push(
+                  Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => AccountSettingsPage()),
+                    MaterialPageRoute(
+                        builder: (context) => AccountSettingsPage()),
                   );
                 },
                 child: const Row(

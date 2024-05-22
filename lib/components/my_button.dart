@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 class MyButton extends StatelessWidget {
   final Function()? onTap;
   final String text;
@@ -39,7 +40,7 @@ class MyButton extends StatelessWidget {
               text,
               style: TextStyle(
                 color: textColor, // Use the provided text color
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.normal,
                 fontSize: 16,
               ),
             ),

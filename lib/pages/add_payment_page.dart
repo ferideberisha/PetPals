@@ -18,7 +18,8 @@ class _AddPaymentPageState extends State<AddPaymentPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add Payment Method', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Text('Add Payment Method',
+            style: TextStyle(fontWeight: FontWeight.bold)),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -33,7 +34,8 @@ class _AddPaymentPageState extends State<AddPaymentPage> {
               fillColor: Colors.white,
             ),
             SizedBox(height: 5),
-            Text('Enter the 16-digit card number', style: TextStyle(color: Colors.grey)),
+            Text('Enter the 16-digit card number',
+                style: TextStyle(color: Colors.grey)),
             SizedBox(height: 20),
             // Expiry Date and CVV2 Row
             Row(
@@ -46,11 +48,14 @@ class _AddPaymentPageState extends State<AddPaymentPage> {
                       controller: expiryDateController,
                       decoration: InputDecoration(
                         hintText: 'Expiry Date',
-                        labelText: 'Expiry Date', // Add labelText for consistent styling
-                        labelStyle: TextStyle(color: Colors.grey[500]), // Hint text color
+                        labelText:
+                            'Expiry Date', // Add labelText for consistent styling
+                        labelStyle: TextStyle(
+                            color: Colors.grey[500]), // Hint text color
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: Color.fromRGBO(226, 225, 225, 1)),
+                          borderSide: BorderSide(
+                              color: Color.fromRGBO(226, 225, 225, 1)),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
@@ -70,14 +75,16 @@ class _AddPaymentPageState extends State<AddPaymentPage> {
                       ),
                       keyboardType: TextInputType.number,
                       inputFormatters: [
-                        LengthLimitingTextInputFormatter(7), // Limit to MM/yyyy format
+                        LengthLimitingTextInputFormatter(
+                            7), // Limit to MM/yyyy format
                         ExpiryDateInputFormatter(), // Custom input formatter
                       ],
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter the expiry date';
                         }
-                        if (!RegExp(r'^(0[1-9]|1[0-2])\/20[2-9]\d$').hasMatch(value)) {
+                        if (!RegExp(r'^(0[1-9]|1[0-2])\/20[2-9]\d$')
+                            .hasMatch(value)) {
                           return 'Invalid expiry date. Please use MM/yyyy format.';
                         }
                         return null;
@@ -136,7 +143,8 @@ class _AddPaymentPageState extends State<AddPaymentPage> {
 
 class ExpiryDateInputFormatter extends TextInputFormatter {
   @override
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
     final String newText = newValue.text;
 
     if (newText.length == 2 && !newText.contains('/')) {
