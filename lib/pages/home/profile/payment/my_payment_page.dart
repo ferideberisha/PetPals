@@ -3,11 +3,14 @@ import 'package:petpals/components/my_button.dart';
 import 'package:petpals/pages/home/profile/payment/add_payment_page.dart'; // Import MyButton
 
 class MyPaymentsPage extends StatelessWidget {
+  const MyPaymentsPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Payments', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text('Payments',
+            style: TextStyle(fontWeight: FontWeight.bold)),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -37,12 +40,13 @@ class MyPaymentsPage extends StatelessWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => AddPaymentPage()),
+                  MaterialPageRoute(
+                      builder: (context) => const AddPaymentPage()),
                 );
               },
               text: 'Add payment method',
-              color: Color(0xFF967BB6), // Change the color as needed
-              textColor: Colors.white, borderColor: Color(0xFF967BB6),
+              color: const Color(0xFF967BB6), // Change the color as needed
+              textColor: Colors.white, borderColor: const Color(0xFF967BB6),
               borderWidth: 0,
             ),
           ],

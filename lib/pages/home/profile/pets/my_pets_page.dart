@@ -3,11 +3,14 @@ import 'package:petpals/components/my_button.dart'; // Import MyButton
 import 'package:petpals/pages/home/profile/pets/add_pet_page.dart'; // Import the AddPetPage
 
 class MyPetsPage extends StatelessWidget {
+  const MyPetsPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('My Pets', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text('My Pets',
+            style: TextStyle(fontWeight: FontWeight.bold)),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -38,12 +41,12 @@ class MyPetsPage extends StatelessWidget {
                 // Navigate to the AddPetPage
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => AddPetPage()),
+                  MaterialPageRoute(builder: (context) => const AddPetPage()),
                 );
               },
               text: 'Add Pet',
-              color: Color(0xFF967BB6), // Change the color as needed
-              textColor: Colors.white, borderColor: Color(0xFF967BB6),
+              color: const Color(0xFF967BB6), // Change the color as needed
+              textColor: Colors.white, borderColor: const Color(0xFF967BB6),
               borderWidth: 0,
             ),
           ],

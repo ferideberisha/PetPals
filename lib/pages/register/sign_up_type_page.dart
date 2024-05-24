@@ -6,14 +6,14 @@ import 'register_page.dart'; // Import the RegisterPage
 class SignUpTypePage extends StatelessWidget {
   final VoidCallback onTap;
 
-  const SignUpTypePage({Key? key, required this.onTap}) : super(key: key);
+  const SignUpTypePage({super.key, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
         child: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             color: Color(0xFF967BB6),
           ),
           child: SafeArea(
@@ -38,7 +38,7 @@ class SignUpTypePage extends StatelessWidget {
                 Container(
                   decoration: BoxDecoration(
                     color: Colors.grey[100], // Light gray background
-                    borderRadius: BorderRadius.only(
+                    borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(30),
                       topRight: Radius.circular(30),
                     ),
@@ -61,8 +61,8 @@ class SignUpTypePage extends StatelessWidget {
                             ),
                           ),
                         ),
-                        SizedBox(height: 20),
-                        Container(
+                        const SizedBox(height: 20),
+                        SizedBox(
                           height: 100,
                           width: double.infinity,
                           child: ElevatedButton(
@@ -94,7 +94,7 @@ class SignUpTypePage extends StatelessWidget {
                                   height: 60, // Adjust the height of the icon
                                   child: Image.asset('lib/images/dogowner.png'),
                                 ),
-                                SizedBox(
+                                const SizedBox(
                                     width:
                                         15), // Add space between the image and text
                                 const Column(
@@ -124,8 +124,8 @@ class SignUpTypePage extends StatelessWidget {
                             ),
                           ),
                         ),
-                        SizedBox(height: 20),
-                        Container(
+                        const SizedBox(height: 20),
+                        SizedBox(
                           height: 100,
                           width: double.infinity,
                           child: ElevatedButton(
@@ -158,7 +158,7 @@ class SignUpTypePage extends StatelessWidget {
                                   child:
                                       Image.asset('lib/images/dogwalker.png'),
                                 ),
-                                SizedBox(
+                                const SizedBox(
                                     width:
                                         15), // Add space between the image and text
                                 const Column(
@@ -188,13 +188,13 @@ class SignUpTypePage extends StatelessWidget {
                             ),
                           ),
                         ),
-                        SizedBox(height: 300),
+                        const SizedBox(height: 300),
                         MyButton(
                           onTap: onTap,
                           text: 'Back',
                           color: Colors.transparent,
-                          textColor: Color(0xFF967BB6),
-                          borderColor: Color(0xFF967BB6),
+                          textColor: const Color(0xFF967BB6),
+                          borderColor: const Color(0xFF967BB6),
                           borderWidth: 1.0,
                         ),
                       ],

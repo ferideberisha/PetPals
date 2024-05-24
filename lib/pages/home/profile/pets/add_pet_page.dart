@@ -6,7 +6,10 @@ import 'package:petpals/components/circle_avatar.dart'; // Import CircleAvatarWi
 import 'package:petpals/components/my_textfield.dart'; // Import your custom text field
 
 class AddPetPage extends StatefulWidget {
+  const AddPetPage({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _AddPetPageState createState() => _AddPetPageState();
 }
 
@@ -23,7 +26,6 @@ class _AddPetPageState extends State<AddPetPage> {
   bool _isFriendlyWithDogs = false;
   bool _isHouseTrained = false;
   bool _isFriendlyWithCats = false;
-
 
   Future<void> _pickImage(ImageSource source) async {
     final pickedImage = await ImagePicker().pickImage(source: source);
@@ -46,7 +48,8 @@ class _AddPetPageState extends State<AddPetPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add Pet', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text('Add Pet',
+            style: TextStyle(fontWeight: FontWeight.bold)),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -61,21 +64,21 @@ class _AddPetPageState extends State<AddPetPage> {
                     context: context,
                     builder: (BuildContext context) {
                       return AlertDialog(
-                        title: Text('Select Image Source'),
+                        title: const Text('Select Image Source'),
                         actions: [
                           TextButton(
                             onPressed: () {
                               _pickImage(ImageSource.camera);
                               Navigator.of(context).pop();
                             },
-                            child: Text('Camera'),
+                            child: const Text('Camera'),
                           ),
                           TextButton(
                             onPressed: () {
                               _pickImage(ImageSource.gallery);
                               Navigator.of(context).pop();
                             },
-                            child: Text('Gallery'),
+                            child: const Text('Gallery'),
                           ),
                         ],
                       );
@@ -85,20 +88,20 @@ class _AddPetPageState extends State<AddPetPage> {
                 icon: Icons.pets, // Use the paw icon
               ),
             ),
-            SizedBox(height: 20),
-            Divider(),
-            SizedBox(height: 10),
+            const SizedBox(height: 20),
+            const Divider(),
+            const SizedBox(height: 10),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                const Text(
                   'Name, age',
                   style: TextStyle(
                     fontWeight: FontWeight.normal,
                     fontSize: 16,
                   ),
                 ),
-                SizedBox(height: 15),
+                const SizedBox(height: 15),
                 MyTextField(
                   controller: _nameController,
                   hintText: 'Enter your pet\'s name',
@@ -111,7 +114,7 @@ class _AddPetPageState extends State<AddPetPage> {
                     return null;
                   },
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 MyTextField(
                   controller: _ageController,
                   hintText: 'Age',
@@ -124,9 +127,9 @@ class _AddPetPageState extends State<AddPetPage> {
                     return null;
                   },
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 Text('Gender', style: TextStyle(color: Colors.grey[700])),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 Row(
                   children: [
                     Expanded(
@@ -138,13 +141,15 @@ class _AddPetPageState extends State<AddPetPage> {
                           });
                         },
                         text: 'Male',
-                        color: _isMaleSelected ? Color(0xFFCAADEE) : Colors.white,
+                        color: _isMaleSelected
+                            ? const Color(0xFFCAADEE)
+                            : Colors.white,
                         textColor: Colors.black,
-                        borderColor: Color(0xFFCAADEE),
+                        borderColor: const Color(0xFFCAADEE),
                         borderWidth: 2,
                       ),
                     ),
-                    SizedBox(width: 10),
+                    const SizedBox(width: 10),
                     Expanded(
                       child: MyButton(
                         onTap: () {
@@ -154,9 +159,11 @@ class _AddPetPageState extends State<AddPetPage> {
                           });
                         },
                         text: 'Female',
-                        color: _isFemaleSelected ? Color(0xFFCAADEE) : Colors.white,
+                        color: _isFemaleSelected
+                            ? const Color(0xFFCAADEE)
+                            : Colors.white,
                         textColor: Colors.black,
-                        borderColor: Color(0xFFCAADEE),
+                        borderColor: const Color(0xFFCAADEE),
                         borderWidth: 2,
                       ),
                     ),
@@ -164,9 +171,9 @@ class _AddPetPageState extends State<AddPetPage> {
                 ),
               ],
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Text('Size (kg)', style: TextStyle(color: Colors.grey[700])),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Row(
               children: [
                 Expanded(
@@ -177,13 +184,15 @@ class _AddPetPageState extends State<AddPetPage> {
                       });
                     },
                     text: '1-5',
-                    color: _selectedSizeRange == '1-5' ? Color(0xFFCAADEE) : Colors.white,
+                    color: _selectedSizeRange == '1-5'
+                        ? const Color(0xFFCAADEE)
+                        : Colors.white,
                     textColor: Colors.black,
-                    borderColor: Color(0xFFCAADEE),
+                    borderColor: const Color(0xFFCAADEE),
                     borderWidth: 2,
                   ),
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 Expanded(
                   child: MyButton(
                     onTap: () {
@@ -192,13 +201,15 @@ class _AddPetPageState extends State<AddPetPage> {
                       });
                     },
                     text: '5-10',
-                    color: _selectedSizeRange == '5-10' ? Color(0xFFCAADEE) : Colors.white,
+                    color: _selectedSizeRange == '5-10'
+                        ? const Color(0xFFCAADEE)
+                        : Colors.white,
                     textColor: Colors.black,
-                    borderColor: Color(0xFFCAADEE),
+                    borderColor: const Color(0xFFCAADEE),
                     borderWidth: 2,
                   ),
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 Expanded(
                   child: MyButton(
                     onTap: () {
@@ -207,13 +218,15 @@ class _AddPetPageState extends State<AddPetPage> {
                       });
                     },
                     text: '10-15',
-                    color: _selectedSizeRange == '10-15' ? Color(0xFFCAADEE) : Colors.white,
+                    color: _selectedSizeRange == '10-15'
+                        ? const Color(0xFFCAADEE)
+                        : Colors.white,
                     textColor: Colors.black,
-                    borderColor: Color(0xFFCAADEE),
+                    borderColor: const Color(0xFFCAADEE),
                     borderWidth: 2,
                   ),
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 Expanded(
                   child: MyButton(
                     onTap: () {
@@ -222,29 +235,31 @@ class _AddPetPageState extends State<AddPetPage> {
                       });
                     },
                     text: '15-20',
-                    color: _selectedSizeRange == '15-20' ? Color(0xFFCAADEE) : Colors.white,
+                    color: _selectedSizeRange == '15-20'
+                        ? const Color(0xFFCAADEE)
+                        : Colors.white,
                     textColor: Colors.black,
-                    borderColor: Color(0xFFCAADEE),
+                    borderColor: const Color(0xFFCAADEE),
                     borderWidth: 2,
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 20),
-            Divider(),
-            SizedBox(height: 10),
-            Text('About the pet',
+            const SizedBox(height: 20),
+            const Divider(),
+            const SizedBox(height: 10),
+            const Text('About the pet',
                 style: TextStyle(
                   color: Colors.black,
                   fontWeight: FontWeight.normal,
                   fontSize: 16,
                 )),
-            SizedBox(height: 15),
+            const SizedBox(height: 15),
             Container(
               height: 100,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8.0),
-                border: Border.all(color: Color(0xFFCAADEE)),
+                border: Border.all(color: const Color(0xFFCAADEE)),
               ),
               child: const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 8.0),
@@ -261,9 +276,9 @@ class _AddPetPageState extends State<AddPetPage> {
                 ),
               ),
             ),
-            SizedBox(height: 15),
+            const SizedBox(height: 15),
             SwitchListTile(
-              title: Text(
+              title: const Text(
                 'Microchipped',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
               ),
@@ -274,10 +289,11 @@ class _AddPetPageState extends State<AddPetPage> {
                 });
               },
               activeColor: Colors.white,
-              activeTrackColor: Color(0xFF967BB6), // Set active track color
+              activeTrackColor:
+                  const Color(0xFF967BB6), // Set active track color
             ),
             SwitchListTile(
-              title: Text(
+              title: const Text(
                 'Friendly with children',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
               ),
@@ -288,10 +304,10 @@ class _AddPetPageState extends State<AddPetPage> {
                 });
               },
               activeColor: Colors.white,
-              activeTrackColor: Color(0xFF967BB6),
+              activeTrackColor: const Color(0xFF967BB6),
             ),
             SwitchListTile(
-              title: Text(
+              title: const Text(
                 'Spayed or neutered',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
               ),
@@ -302,10 +318,10 @@ class _AddPetPageState extends State<AddPetPage> {
                 });
               },
               activeColor: Colors.white,
-              activeTrackColor: Color(0xFF967BB6),
+              activeTrackColor: const Color(0xFF967BB6),
             ),
             SwitchListTile(
-              title: Text(
+              title: const Text(
                 'Friendly with dogs',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
               ),
@@ -316,10 +332,10 @@ class _AddPetPageState extends State<AddPetPage> {
                 });
               },
               activeColor: Colors.white,
-              activeTrackColor: Color(0xFF967BB6),
+              activeTrackColor: const Color(0xFF967BB6),
             ),
             SwitchListTile(
-              title: Text(
+              title: const Text(
                 'House trained',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
               ),
@@ -330,10 +346,10 @@ class _AddPetPageState extends State<AddPetPage> {
                 });
               },
               activeColor: Colors.white,
-              activeTrackColor: Color(0xFF967BB6),
+              activeTrackColor: const Color(0xFF967BB6),
             ),
             SwitchListTile(
-              title: Text(
+              title: const Text(
                 'Friendly with cats',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
               ),
@@ -344,31 +360,32 @@ class _AddPetPageState extends State<AddPetPage> {
                 });
               },
               activeColor: Colors.white,
-              activeTrackColor: Color(0xFF967BB6),
+              activeTrackColor: const Color(0xFF967BB6),
             ),
-            SizedBox(height: 5),
-            Divider(),
-            SizedBox(height: 10),
-            Text('Care info',
+            const SizedBox(height: 5),
+            const Divider(),
+            const SizedBox(height: 10),
+            const Text('Care info',
                 style: TextStyle(
                   color: Colors.black,
                   fontWeight: FontWeight.normal,
                   fontSize: 16,
                 )),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             // Inside the _AddPetPageState class, in the build method
             DropdownButtonFormField<String>(
               decoration: InputDecoration(
                 labelText: 'Number of walks per day',
                 labelStyle: TextStyle(color: Colors.grey[500]),
-                 hintText: 'Select Option', // Display hint text inside dropdown
+                hintText: 'Select Option', // Display hint text inside dropdown
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(color: Color.fromRGBO(226, 225, 225, 1)),
+                  borderSide:
+                      const BorderSide(color: Color.fromRGBO(226, 225, 225, 1)),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(color: Color(0xFF967BB6)),
+                  borderSide: const BorderSide(color: Color(0xFF967BB6)),
                 ),
               ),
               value: 'Not specified', // Default value
@@ -388,13 +405,15 @@ class _AddPetPageState extends State<AddPetPage> {
                 return DropdownMenuItem<String>(
                   value: value,
                   child: Text(
-                      value,
-                      style: TextStyle(fontWeight: FontWeight.normal), // Set font weight to normal
-                    ),
+                    value,
+                    style: const TextStyle(
+                        fontWeight:
+                            FontWeight.normal), // Set font weight to normal
+                  ),
                 );
               }).toList(),
             ),
-              SizedBox(height: 20),
+            const SizedBox(height: 20),
             // Inside the _AddPetPageState class, in the build method
             DropdownButtonFormField<String>(
               decoration: InputDecoration(
@@ -402,11 +421,12 @@ class _AddPetPageState extends State<AddPetPage> {
                 labelStyle: TextStyle(color: Colors.grey[500]),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(color: Color.fromRGBO(226, 225, 225, 1)),
+                  borderSide:
+                      const BorderSide(color: Color.fromRGBO(226, 225, 225, 1)),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(color: Color(0xFF967BB6)),
+                  borderSide: const BorderSide(color: Color(0xFF967BB6)),
                 ),
               ),
               value: 'Not specified', // Default value
@@ -425,27 +445,29 @@ class _AddPetPageState extends State<AddPetPage> {
                 return DropdownMenuItem<String>(
                   value: value,
                   child: Text(
-                      value,
-                      style: TextStyle(fontWeight: FontWeight.normal), // Set font weight to normal
-                    ),
+                    value,
+                    style: const TextStyle(
+                        fontWeight:
+                            FontWeight.normal), // Set font weight to normal
+                  ),
                 );
               }).toList(),
             ),
-            SizedBox(height: 20),
-            Divider(),
-            SizedBox(height: 10),
-            Text('Vet info',
+            const SizedBox(height: 20),
+            const Divider(),
+            const SizedBox(height: 10),
+            const Text('Vet info',
                 style: TextStyle(
                   color: Colors.black,
                   fontWeight: FontWeight.normal,
                   fontSize: 16,
                 )),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Container(
               height: 100,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8.0),
-                border: Border.all(color: Color(0xFFCAADEE)),
+                border: Border.all(color: const Color(0xFFCAADEE)),
               ),
               child: const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 8.0),
@@ -463,16 +485,16 @@ class _AddPetPageState extends State<AddPetPage> {
                 ),
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Center(
               child: MyButton(
                 onTap: () {
                   // Handle form submission
                 },
                 text: 'Submit',
-                color: Color(0xFF967BB6),
+                color: const Color(0xFF967BB6),
                 textColor: Colors.white,
-                borderColor: Color(0xFF967BB6),
+                borderColor: const Color(0xFF967BB6),
                 borderWidth: 2,
               ),
             ),

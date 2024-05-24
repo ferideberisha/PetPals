@@ -8,7 +8,10 @@ import 'package:petpals/components/my_textfield.dart'; // Import MyTextField
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart'; // Import the new date picker
 
 class BasicInfoPage extends StatefulWidget {
+  const BasicInfoPage({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _BasicInfoPageState createState() => _BasicInfoPageState();
 }
 
@@ -74,35 +77,35 @@ class _BasicInfoPageState extends State<BasicInfoPage> {
           key: _formKey,
           child: ListView(
             children: [
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               MyTextField(
                 controller: _firstNameController,
                 hintText: 'First Name',
                 obscureText: false,
                 fillColor: Colors.white,
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               MyTextField(
                 controller: _lastNameController,
                 hintText: 'Last Name',
                 obscureText: false,
                 fillColor: Colors.white,
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               MyPhoneNumberButton(
                 hintText: 'Phone Number',
                 controller: _phoneNumberController,
                 enabled:
                     true, // Set to false when the phone number is confirmed
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               MyTextField(
                 controller: _emailController,
                 hintText: 'Email',
                 obscureText: false,
                 fillColor: Colors.white,
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               MyTextField(
                 controller: _birthdayController,
                 hintText: 'Birthday',
@@ -111,7 +114,7 @@ class _BasicInfoPageState extends State<BasicInfoPage> {
                 onTap: () => _selectBirthday(context),
                 readOnly: true,
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               MyTextField(
                 controller: _addressController,
                 hintText: 'Address',
@@ -124,19 +127,19 @@ class _BasicInfoPageState extends State<BasicInfoPage> {
                   return null;
                 },
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               MyButton(
                 onTap: () {
                   if (_formKey.currentState!.validate()) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Changes saved')),
+                      const SnackBar(content: Text('Changes saved')),
                     );
                   }
                 },
                 text: 'Save Changes',
-                color: Color(0xFF967BB6),
+                color: const Color(0xFF967BB6),
                 textColor: Colors.white,
-                borderColor: Color(0xFF967BB6),
+                borderColor: const Color(0xFF967BB6),
                 borderWidth: 1.0,
               ),
               MyButton(
@@ -145,22 +148,22 @@ class _BasicInfoPageState extends State<BasicInfoPage> {
                     context: context,
                     builder: (BuildContext context) {
                       return AlertDialog(
-                        title: Text("Confirm Deletion"),
-                        content: Text(
+                        title: const Text("Confirm Deletion"),
+                        content: const Text(
                             "Are you sure you want to delete your account? This action cannot be undone."),
                         actions: [
                           TextButton(
                             onPressed: () {
                               Navigator.of(context).pop();
                             },
-                            child: Text("Cancel"),
+                            child: const Text("Cancel"),
                           ),
                           TextButton(
                             onPressed: () {
                               // Add code here to delete the account
                               Navigator.of(context).pop();
                             },
-                            child: Text("Delete",
+                            child: const Text("Delete",
                                 style: TextStyle(color: Colors.red)),
                           ),
                         ],
@@ -178,7 +181,7 @@ class _BasicInfoPageState extends State<BasicInfoPage> {
           ),
         ),
       ),
-      bottomNavigationBar: CustomBottomNavigationBar(selectedIndex: 3),
+      bottomNavigationBar: const CustomBottomNavigationBar(selectedIndex: 3),
     );
   }
 }

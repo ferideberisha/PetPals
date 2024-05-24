@@ -7,7 +7,7 @@ import 'package:petpals/pages/home/profile/profile_page.dart';
 class CustomBottomNavigationBar extends StatelessWidget {
   final int selectedIndex;
 
-  CustomBottomNavigationBar({required this.selectedIndex});
+  const CustomBottomNavigationBar({super.key, required this.selectedIndex});
 
   void _onItemTapped(BuildContext context, int index) {
     if (index == selectedIndex) return;
@@ -18,13 +18,13 @@ class CustomBottomNavigationBar extends StatelessWidget {
         nextPage = HomePage(context: context);
         break;
       case 1:
-        nextPage = MessageRequestPage();
+        nextPage = const MessageRequestPage();
         break;
       case 2:
-        nextPage = FavoritePage();
+        nextPage = const FavoritePage();
         break;
       case 3:
-        nextPage = ProfilePage();
+        nextPage = const ProfilePage();
         break;
       case 4:
         nextPage = HomePage(context: context); // Replace with MenuPage
@@ -51,7 +51,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
         topRight: Radius.circular(30),
       ),
       child: BottomAppBar(
-        color: Color(0x7EE6E6FA),
+        color: const Color(0x7EE6E6FA),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
@@ -72,10 +72,11 @@ class CustomBottomNavigationBar extends StatelessWidget {
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
       child: Container(
-        padding: EdgeInsets.all(10),
+        padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color:
-              selectedIndex == index ? Color(0xFF967BB6) : Colors.transparent,
+          color: selectedIndex == index
+              ? const Color(0xFF967BB6)
+              : Colors.transparent,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Icon(

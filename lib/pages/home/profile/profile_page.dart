@@ -13,7 +13,10 @@ import 'package:petpals/service/auth_service.dart';
 import 'package:petpals/pages/home/profile/basicinfo/basic_info_page.dart'; // Import the BasicInfoPage
 
 class ProfilePage extends StatefulWidget {
+  const ProfilePage({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _ProfilePageState createState() => _ProfilePageState();
 }
 
@@ -48,8 +51,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
   void signUserOut() {
     AuthService().signOut();
-    Navigator.of(context)
-        .pushReplacement(MaterialPageRoute(builder: (context) => AuthPage()));
+    Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => const AuthPage()));
   }
 
   @override
@@ -62,7 +65,7 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.only(top: 20),
+        padding: const EdgeInsets.only(top: 20),
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -71,14 +74,14 @@ class _ProfilePageState extends State<ProfilePage> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Container(
-                    padding: EdgeInsets.only(right: 80, bottom: 90),
+                    padding: const EdgeInsets.only(right: 80, bottom: 90),
                     child: Text(
-                      '$_userName',
-                      style:
-                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                      _userName,
+                      style: const TextStyle(
+                          fontSize: 24, fontWeight: FontWeight.bold),
                     ),
                   ),
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   Row(
                     children: [
                       CircleAvatarWidget(
@@ -89,21 +92,21 @@ class _ProfilePageState extends State<ProfilePage> {
                             context: context,
                             builder: (BuildContext context) {
                               return AlertDialog(
-                                title: Text('Select Image Source'),
+                                title: const Text('Select Image Source'),
                                 actions: [
                                   TextButton(
                                     onPressed: () {
                                       _pickImage(ImageSource.camera);
                                       Navigator.of(context).pop();
                                     },
-                                    child: Text('Camera'),
+                                    child: const Text('Camera'),
                                   ),
                                   TextButton(
                                     onPressed: () {
                                       _pickImage(ImageSource.gallery);
                                       Navigator.of(context).pop();
                                     },
-                                    child: Text('Gallery'),
+                                    child: const Text('Gallery'),
                                   ),
                                 ],
                               );
@@ -112,19 +115,20 @@ class _ProfilePageState extends State<ProfilePage> {
                         },
                         icon: Icons.person, // Use the user icon
                       ),
-                      SizedBox(width: 10),
+                      const SizedBox(width: 10),
                     ],
                   ),
                 ],
               ),
-              SizedBox(height: 20),
-              Divider(),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
+              const Divider(),
+              const SizedBox(height: 20),
               TextButton(
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => BasicInfoPage()),
+                    MaterialPageRoute(
+                        builder: (context) => const BasicInfoPage()),
                   );
                 },
                 child: const Row(
@@ -147,12 +151,12 @@ class _ProfilePageState extends State<ProfilePage> {
                   ],
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               TextButton(
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => MyPetsPage()),
+                    MaterialPageRoute(builder: (context) => const MyPetsPage()),
                   );
                 },
                 child: const Row(
@@ -175,12 +179,13 @@ class _ProfilePageState extends State<ProfilePage> {
                   ],
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               TextButton(
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => MyPaymentsPage()),
+                    MaterialPageRoute(
+                        builder: (context) => const MyPaymentsPage()),
                   );
                 },
                 child: const Row(
@@ -203,13 +208,13 @@ class _ProfilePageState extends State<ProfilePage> {
                   ],
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               TextButton(
                 onPressed: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => AccountSettingsPage()),
+                        builder: (context) => const AccountSettingsPage()),
                   );
                 },
                 child: const Row(
@@ -232,20 +237,20 @@ class _ProfilePageState extends State<ProfilePage> {
                   ],
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               TextButton(
                 onPressed: () {
                   signUserOut();
                 },
                 child: Row(
                   children: [
-                    SizedBox(width: 10),
+                    const SizedBox(width: 10),
                     Transform(
                       alignment: Alignment.center,
                       transform: Matrix4.rotationY(math.pi),
-                      child: Icon(Icons.logout, color: Colors.red),
+                      child: const Icon(Icons.logout, color: Colors.red),
                     ),
-                    SizedBox(width: 15),
+                    const SizedBox(width: 15),
                     const Text(
                       'Log out',
                       style: TextStyle(
@@ -254,8 +259,8 @@ class _ProfilePageState extends State<ProfilePage> {
                         fontSize: 16,
                       ),
                     ),
-                    SizedBox(width: 8),
-                    Expanded(child: SizedBox()),
+                    const SizedBox(width: 8),
+                    const Expanded(child: SizedBox()),
                   ],
                 ),
               ),
@@ -263,7 +268,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ),
       ),
-      bottomNavigationBar: CustomBottomNavigationBar(selectedIndex: 3),
+      bottomNavigationBar: const CustomBottomNavigationBar(selectedIndex: 3),
     );
   }
 }

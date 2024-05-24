@@ -11,7 +11,7 @@ import 'package:google_fonts/google_fonts.dart';
 class LoginPage extends StatefulWidget {
   final Function()? onTap;
 
-  const LoginPage({Key? key, required this.onTap}) : super(key: key);
+  const LoginPage({super.key, required this.onTap});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -37,8 +37,10 @@ class _LoginPageState extends State<LoginPage> {
         email: emailController.text,
         password: passwordController.text,
       );
+      // ignore: use_build_context_synchronously
       Navigator.pop(context);
     } on FirebaseAuthException catch (e) {
+      // ignore: use_build_context_synchronously
       Navigator.pop(context);
       if (e.code == 'user-not-found') {
         wrongEmailMessage();
@@ -94,7 +96,7 @@ class _LoginPageState extends State<LoginPage> {
       body: SingleChildScrollView(
         // Wrap with SingleChildScrollView
         child: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             color: Color(0xFF967BB6),
           ),
           child: SafeArea(
@@ -182,9 +184,9 @@ class _LoginPageState extends State<LoginPage> {
                         MyButton(
                           onTap: signUserIn,
                           text: 'Sign in',
-                          color: Color(0xFF967BB6),
+                          color: const Color(0xFF967BB6),
                           textColor: Colors.white,
-                          borderColor: Color(0xFF967BB6),
+                          borderColor: const Color(0xFF967BB6),
                           borderWidth: 1.0,
                         ),
                         const SizedBox(height: 20),
@@ -255,7 +257,7 @@ class _LoginPageState extends State<LoginPage> {
                                       // Handle Terms of Service click
                                     },
                                 ),
-                                TextSpan(text: ' and '),
+                                const TextSpan(text: ' and '),
                                 TextSpan(
                                   text: 'Privacy Policy',
                                   style: TextStyle(
@@ -305,8 +307,8 @@ class _LoginPageState extends State<LoginPage> {
                           },
                           text: 'Sign Up',
                           color: Colors.transparent,
-                          textColor: Color(0xFF967BB6),
-                          borderColor: Color(0xFF967BB6),
+                          textColor: const Color(0xFF967BB6),
+                          borderColor: const Color(0xFF967BB6),
                           borderWidth: 1.0,
                         ),
                       ],

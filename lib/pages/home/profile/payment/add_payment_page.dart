@@ -4,7 +4,10 @@ import 'package:petpals/components/my_button.dart'; // Import MyButton
 import 'package:petpals/components/my_textfield.dart'; // Import the new date picker
 
 class AddPaymentPage extends StatefulWidget {
+  const AddPaymentPage({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _AddPaymentPageState createState() => _AddPaymentPageState();
 }
 
@@ -18,7 +21,7 @@ class _AddPaymentPageState extends State<AddPaymentPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add Payment Method',
+        title: const Text('Add Payment Method',
             style: TextStyle(fontWeight: FontWeight.bold)),
       ),
       body: Padding(
@@ -33,10 +36,10 @@ class _AddPaymentPageState extends State<AddPaymentPage> {
               obscureText: false,
               fillColor: Colors.white,
             ),
-            SizedBox(height: 5),
-            Text('Enter the 16-digit card number',
+            const SizedBox(height: 5),
+            const Text('Enter the 16-digit card number',
                 style: TextStyle(color: Colors.grey)),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             // Expiry Date and CVV2 Row
             Row(
               children: [
@@ -54,20 +57,21 @@ class _AddPaymentPageState extends State<AddPaymentPage> {
                             color: Colors.grey[500]), // Hint text color
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(
+                          borderSide: const BorderSide(
                               color: Color.fromRGBO(226, 225, 225, 1)),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: Color(0xFF967BB6)),
+                          borderSide:
+                              const BorderSide(color: Color(0xFF967BB6)),
                         ),
                         errorBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: Colors.red),
+                          borderSide: const BorderSide(color: Colors.red),
                         ),
                         focusedErrorBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: Colors.red),
+                          borderSide: const BorderSide(color: Colors.red),
                         ),
                         filled: true,
                         fillColor: Colors.white,
@@ -103,12 +107,12 @@ class _AddPaymentPageState extends State<AddPaymentPage> {
                 ),
               ],
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             // Set as Default option
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
+                const Text(
                   'Set as Default',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
                 ),
@@ -122,16 +126,16 @@ class _AddPaymentPageState extends State<AddPaymentPage> {
                 ),
               ],
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             // Submit Button
             MyButton(
               onTap: () {
                 // Add your logic to handle form submission
               },
               text: 'Submit',
-              color: Color(0xFF967BB6), // Change the color as needed
+              color: const Color(0xFF967BB6), // Change the color as needed
               textColor: Colors.white,
-              borderColor: Color(0xFF967BB6),
+              borderColor: const Color(0xFF967BB6),
               borderWidth: 0,
             ),
           ],

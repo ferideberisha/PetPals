@@ -3,14 +3,17 @@ import 'dart:math' as math;
 import '../../../components/my_bottom_bar.dart';
 
 class MessageRequestPage extends StatefulWidget {
+  const MessageRequestPage({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _MessageRequestPageState createState() => _MessageRequestPageState();
 }
 
 class _MessageRequestPageState extends State<MessageRequestPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  int _selectedIndex = 1;
+  final int _selectedIndex = 1;
 
   @override
   void initState() {
@@ -30,7 +33,7 @@ class _MessageRequestPageState extends State<MessageRequestPage>
       appBar: AppBar(
         backgroundColor: Colors.white,
         automaticallyImplyLeading: false,
-        title: Row(
+        title: const Row(
           children: [
             Text(
               'Orders',
@@ -45,12 +48,12 @@ class _MessageRequestPageState extends State<MessageRequestPage>
           indicatorPadding: EdgeInsets.zero,
           labelPadding: EdgeInsets.zero,
           controller: _tabController,
-          labelColor: Color(0xFF604560),
-          unselectedLabelColor: Color(0xFF967BB6),
-          indicatorColor: Color(0xFF604560),
+          labelColor: const Color(0xFF604560),
+          unselectedLabelColor: const Color(0xFF967BB6),
+          indicatorColor: const Color(0xFF604560),
           tabs: [
             Container(
-              padding: EdgeInsets.only(right: 10),
+              padding: const EdgeInsets.only(right: 10),
               child: Tab(
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -59,17 +62,17 @@ class _MessageRequestPageState extends State<MessageRequestPage>
                     Transform(
                       alignment: Alignment.center,
                       transform: Matrix4.rotationY(math.pi),
-                      child: Icon(Icons.send, color: Color(0xFF967BB6)),
+                      child: const Icon(Icons.send, color: Color(0xFF967BB6)),
                     ),
-                    SizedBox(width: 6),
-                    Text('Outgoing'),
+                    const SizedBox(width: 6),
+                    const Text('Outgoing'),
                   ],
                 ),
               ),
             ),
             Container(
-              padding: EdgeInsets.only(right: 11.0),
-              child: Tab(
+              padding: const EdgeInsets.only(right: 11.0),
+              child: const Tab(
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -82,8 +85,8 @@ class _MessageRequestPageState extends State<MessageRequestPage>
               ),
             ),
             Container(
-              padding: EdgeInsets.only(right: 11.0),
-              child: Tab(
+              padding: const EdgeInsets.only(right: 11.0),
+              child: const Tab(
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -96,8 +99,8 @@ class _MessageRequestPageState extends State<MessageRequestPage>
               ),
             ),
             Container(
-              padding: EdgeInsets.only(left: 0),
-              child: Tab(
+              padding: const EdgeInsets.only(left: 0),
+              child: const Tab(
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -114,7 +117,7 @@ class _MessageRequestPageState extends State<MessageRequestPage>
       ),
       body: TabBarView(
         controller: _tabController,
-        children: [
+        children: const [
           RequestList(status: 'Outgoing'),
           RequestList(status: 'Accepted'),
           RequestList(status: 'Rejected'),
@@ -130,7 +133,7 @@ class _MessageRequestPageState extends State<MessageRequestPage>
 class RequestList extends StatelessWidget {
   final String status;
 
-  RequestList({required this.status});
+  const RequestList({super.key, required this.status});
 
   @override
   Widget build(BuildContext context) {

@@ -5,15 +5,16 @@ import 'package:petpals/components/my_bottom_bar.dart';
 class HomePage extends StatefulWidget {
   final BuildContext context;
 
-  HomePage({required this.context, Key? key}) : super(key: key);
+  const HomePage({required this.context, super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
   final user = FirebaseAuth.instance.currentUser!;
-  int _selectedIndex = 0;
+  final int _selectedIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +22,7 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             color: Color(0xFF967BB6),
           ),
           child: SafeArea(
@@ -29,16 +30,16 @@ class _HomePageState extends State<HomePage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Padding(
-                  padding: EdgeInsets.symmetric(vertical: 25),
+                  padding: const EdgeInsets.symmetric(vertical: 25),
                   child: AppBar(
-                    backgroundColor: Color(0xFF967BB6),
+                    backgroundColor: const Color(0xFF967BB6),
                     title: InkWell(
                       onTap: () {
                         // Handle search bar tap
                       },
                       child: Container(
                         height: 45,
-                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(10),
@@ -51,7 +52,9 @@ class _HomePageState extends State<HomePage> {
                               size: 25,
                             ),
                             SizedBox(width: 10),
-                            Text('Search...', style: TextStyle(color: Colors.grey, fontSize: 21)),
+                            Text('Search...',
+                                style: TextStyle(
+                                    color: Colors.grey, fontSize: 21)),
                             Spacer(),
                             Icon(Icons.tune, color: Colors.grey, size: 25),
                           ],
@@ -71,10 +74,10 @@ class _HomePageState extends State<HomePage> {
                   child: Center(
                     child: Column(
                       children: [
-                        SizedBox(height: 20),
+                        const SizedBox(height: 20),
                         Text(
-                          "LOGGED IN AS: " + user.email!,
-                          style: TextStyle(fontSize: 20),
+                          "LOGGED IN AS: ${user.email!}",
+                          style: const TextStyle(fontSize: 20),
                         ),
                       ],
                     ),
@@ -85,7 +88,8 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ),
-      bottomNavigationBar: CustomBottomNavigationBar(selectedIndex: _selectedIndex),
+      bottomNavigationBar:
+          CustomBottomNavigationBar(selectedIndex: _selectedIndex),
     );
   }
 }

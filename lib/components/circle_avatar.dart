@@ -9,6 +9,7 @@ class CircleAvatarWidget extends StatelessWidget {
   final IconData icon; // New parameter for the icon
 
   const CircleAvatarWidget({
+    super.key,
     required this.onTap,
     required this.image,
     required this.pickImage,
@@ -33,15 +34,15 @@ class CircleAvatarWidget extends StatelessWidget {
           ),
           Container(
             decoration: BoxDecoration(
-              color: Color(0xFFCAADEE),
+              color: const Color(0xFFCAADEE),
               shape: BoxShape.circle,
               border: Border.all(
                 color: Colors.white,
                 width: 3.0,
               ),
             ),
-            padding: EdgeInsets.all(8.0),
-            child: Icon(Icons.edit),
+            padding: const EdgeInsets.all(8.0),
+            child: const Icon(Icons.edit),
           ),
         ],
       ),

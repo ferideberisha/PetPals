@@ -7,11 +7,11 @@ class MyPhoneNumberButton extends StatelessWidget {
   final bool enabled;
 
   const MyPhoneNumberButton({
-    Key? key,
+    super.key,
     required this.hintText,
     required this.controller,
     this.enabled = true,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +25,7 @@ class MyPhoneNumberButton extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => AddPhoneNumberPage()),
+                        builder: (context) => const AddPhoneNumberPage()),
                   );
                 }
               : null,
@@ -37,7 +37,7 @@ class MyPhoneNumberButton extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => AddPhoneNumberPage()),
+                          builder: (context) => const AddPhoneNumberPage()),
                     );
                   }
                 : null,
@@ -46,19 +46,20 @@ class MyPhoneNumberButton extends StatelessWidget {
               labelStyle: TextStyle(color: Colors.grey[500]), // Hint text color
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide(color: Color.fromRGBO(226, 225, 225, 1)),
+                borderSide:
+                    const BorderSide(color: Color.fromRGBO(226, 225, 225, 1)),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide(color: Color(0xFF967BB6)),
+                borderSide: const BorderSide(color: Color(0xFF967BB6)),
               ),
               errorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide(color: Colors.red),
+                borderSide: const BorderSide(color: Colors.red),
               ),
               focusedErrorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide(color: Colors.red),
+                borderSide: const BorderSide(color: Colors.red),
               ),
               fillColor: Colors.white,
               filled: true,
@@ -69,10 +70,10 @@ class MyPhoneNumberButton extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => AddPhoneNumberPage()),
+                              builder: (context) => const AddPhoneNumberPage()),
                         );
                       },
-                      child: Icon(Icons.arrow_circle_right_outlined),
+                      child: const Icon(Icons.arrow_circle_right_outlined),
                     )
                   : null,
             ),

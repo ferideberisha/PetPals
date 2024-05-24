@@ -1,14 +1,14 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:petpals/components/my_button.dart'; // Import MyButton
-import 'package:petpals/components/my_textfield.dart'; // Import MyTextField
+import 'package:petpals/components/my_textfield.dart';
+import 'package:petpals/pages/home/home_page.dart'; // Import MyTextField
 
 class RegisterPage extends StatefulWidget {
   final Function()? onTap;
   final String userType; // Add userType parameter
 
-  const RegisterPage({Key? key, required this.onTap, required this.userType})
-      : super(key: key);
+  const RegisterPage({super.key, required this.onTap, required this.userType});
 
   @override
   State<RegisterPage> createState() => _RegisterPageState();
@@ -21,7 +21,8 @@ class _RegisterPageState extends State<RegisterPage> {
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
   bool isPasswordVisible = false;
-  bool isConfirmPasswordVisible = false; // Add a state variable for confirm password visibility
+  bool isConfirmPasswordVisible =
+      false; // Add a state variable for confirm password visibility
   bool isPrivacyPolicyChecked = false;
   bool isUserAgreementChecked = false;
 
@@ -31,7 +32,8 @@ class _RegisterPageState extends State<RegisterPage> {
     });
   }
 
-  void toggleConfirmPasswordVisibility() { // Add function to toggle confirm password visibility
+  void toggleConfirmPasswordVisibility() {
+    // Add function to toggle confirm password visibility
     setState(() {
       isConfirmPasswordVisible = !isConfirmPasswordVisible;
     });
@@ -42,15 +44,15 @@ class _RegisterPageState extends State<RegisterPage> {
     return Scaffold(
       body: SingleChildScrollView(
         child: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             color: Color(0xFF967BB6),
           ),
           child: SafeArea(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 25),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 25),
                   child: Text(
                     'PetPals',
                     textAlign: TextAlign.center,
@@ -63,7 +65,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                 ),
                 Container(
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(30),
@@ -75,7 +77,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
+                        const Text(
                           'Sign Up',
                           style: TextStyle(
                             color: Colors.black,
@@ -83,28 +85,28 @@ class _RegisterPageState extends State<RegisterPage> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        SizedBox(height: 30),
+                        const SizedBox(height: 30),
                         MyTextField(
                           controller: firstNameController,
                           hintText: 'First name',
                           obscureText: false,
                           fillColor: Colors.white,
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         MyTextField(
                           controller: lastNameController,
                           hintText: 'Last name',
                           obscureText: false,
                           fillColor: Colors.white,
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         MyTextField(
                           controller: emailController,
                           hintText: 'Email',
                           obscureText: false,
                           fillColor: Colors.white,
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         MyTextField(
                           controller: passwordController,
                           hintText: 'Create password',
@@ -120,11 +122,12 @@ class _RegisterPageState extends State<RegisterPage> {
                             onPressed: togglePasswordVisibility,
                           ),
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         MyTextField(
                           controller: confirmPasswordController,
                           hintText: 'Confirm password',
-                          obscureText: !isConfirmPasswordVisible, // Use separate state variable here
+                          obscureText:
+                              !isConfirmPasswordVisible, // Use separate state variable here
                           fillColor: Colors.white,
                           suffixIcon: IconButton(
                             icon: Icon(
@@ -133,10 +136,11 @@ class _RegisterPageState extends State<RegisterPage> {
                                   : Icons.visibility_off,
                               color: Colors.grey,
                             ),
-                            onPressed: toggleConfirmPasswordVisibility, // Use separate function here
+                            onPressed:
+                                toggleConfirmPasswordVisibility, // Use separate function here
                           ),
                         ),
-                        SizedBox(height: 15),
+                        const SizedBox(height: 15),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
@@ -157,7 +161,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                           .withOpacity(0.15), // Shadow color
                                       spreadRadius: 0,
                                       blurRadius: 5,
-                                      offset: Offset(0,
+                                      offset: const Offset(0,
                                           1), // Move the shadow downwards a bit
                                     ),
                                   ],
@@ -172,8 +176,8 @@ class _RegisterPageState extends State<RegisterPage> {
                                 ),
                               ),
                             ),
-                            SizedBox(width: 10),
-                            Expanded(
+                            const SizedBox(width: 10),
+                            const Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -191,7 +195,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             ),
                           ],
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
@@ -208,22 +212,22 @@ class _RegisterPageState extends State<RegisterPage> {
                                         .withOpacity(0.15), // Shadow color
                                     spreadRadius: 0,
                                     blurRadius: 5,
-                                    offset: Offset(0,
+                                    offset: const Offset(0,
                                         2), // Adjust the offset to move the shadow downwards
                                   ),
                                 ],
                               ),
                               child: Checkbox(
-                                value: isPrivacyPolicyChecked,
+                                value: isUserAgreementChecked,
                                 onChanged: (value) {
                                   setState(() {
-                                    isPrivacyPolicyChecked = value!;
+                                    isUserAgreementChecked = value!;
                                   });
                                 },
                               ),
                             ),
-                            SizedBox(width: 10),
-                            Flexible(
+                            const SizedBox(width: 10),
+                            const Flexible(
                               child: Text(
                                 'I agree to the User Agreement',
                                 style: TextStyle(
@@ -236,22 +240,22 @@ class _RegisterPageState extends State<RegisterPage> {
                             ),
                           ],
                         ),
-                        SizedBox(height: 15),
+                        const SizedBox(height: 15),
                         MyButton(
                           onTap: () => signUserUp(context),
                           text: 'Sign Up',
-                          color: Color(0xFF967BB6),
+                          color: const Color(0xFF967BB6),
                           textColor: Colors.white,
-                          borderColor: Color(0xFF967BB6),
+                          borderColor: const Color(0xFF967BB6),
                           borderWidth: 1.0,
                         ),
-                        SizedBox(height: 15),
+                        const SizedBox(height: 15),
                         MyButton(
                           onTap: widget.onTap,
                           text: 'Back',
                           color: Colors.transparent,
-                          textColor: Color(0xFF967BB6),
-                          borderColor: Color(0xFF967BB6),
+                          textColor: const Color(0xFF967BB6),
+                          borderColor: const Color(0xFF967BB6),
                           borderWidth: 1.0,
                         ),
                       ],
@@ -270,7 +274,7 @@ class _RegisterPageState extends State<RegisterPage> {
     showDialog(
       context: context,
       builder: (context) {
-        return Center(
+        return const Center(
           child: CircularProgressIndicator(),
         );
       },
@@ -304,6 +308,7 @@ class _RegisterPageState extends State<RegisterPage> {
       );
 
       // Update user's profile with first and last name
+      // ignore: deprecated_member_use
       await userCredential.user!.updateProfile(
           displayName:
               '${firstNameController.text} ${lastNameController.text}');
@@ -316,16 +321,23 @@ class _RegisterPageState extends State<RegisterPage> {
       confirmPasswordController.clear();
 
       // Pop loading circle
+      // ignore: use_build_context_synchronously
       Navigator.pop(context);
 
-      // Navigate to the login page
-      Navigator.pushReplacementNamed(context, '/login');
+      // Navigate to the home page
+      // ignore: use_build_context_synchronously
+      Navigator.pushReplacement(
+        // ignore: use_build_context_synchronously
+        context,
+        MaterialPageRoute(builder: (context) => HomePage(context: context)),
+      );
     } on FirebaseAuthException catch (e) {
       // Pop loading circle
+      // ignore: use_build_context_synchronously
       Navigator.pop(context);
       // Show error to user
+      // ignore: use_build_context_synchronously
       displayMessage(context, e.code);
     }
   }
 }
-

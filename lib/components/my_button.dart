@@ -9,14 +9,14 @@ class MyButton extends StatelessWidget {
   final double borderWidth; // New parameter for border width
 
   const MyButton({
-    Key? key,
+    super.key,
     required this.onTap,
     required this.text,
     required this.color,
     required this.textColor, // Define the new parameter
     required this.borderColor, // Define the new parameter
     required this.borderWidth, // Define the new parameter
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 class MyTextField extends StatefulWidget {
   final TextEditingController controller;
   final String hintText;
@@ -10,7 +11,7 @@ class MyTextField extends StatefulWidget {
   final Widget? suffixIcon;
 
   const MyTextField({
-    Key? key,
+    super.key,
     required this.controller,
     required this.hintText,
     required this.obscureText,
@@ -19,9 +20,10 @@ class MyTextField extends StatefulWidget {
     this.onTap,
     this.suffixIcon,
     this.readOnly = false,
-  }) : super(key: key);
+  });
 
   @override
+  // ignore: library_private_types_in_public_api
   _MyTextFieldState createState() => _MyTextFieldState();
 }
 
@@ -42,19 +44,20 @@ class _MyTextFieldState extends State<MyTextField> {
             labelStyle: TextStyle(color: Colors.grey[500]),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: Color.fromRGBO(226, 225, 225, 1)),
+              borderSide:
+                  const BorderSide(color: Color.fromRGBO(226, 225, 225, 1)),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: Color(0xFF967BB6)),
+              borderSide: const BorderSide(color: Color(0xFF967BB6)),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: Colors.red),
+              borderSide: const BorderSide(color: Colors.red),
             ),
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: Colors.red),
+              borderSide: const BorderSide(color: Colors.red),
             ),
             fillColor: widget.fillColor,
             filled: true,
