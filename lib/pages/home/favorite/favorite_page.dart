@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:petpals/components/my_button.dart';
-import 'package:petpals/pages/home_page.dart';
-import '../components/my_bottom_bar.dart';
+import 'package:petpals/pages/home/home_page.dart';
+import '../../../components/my_bottom_bar.dart';
 
 class FavoritePage extends StatefulWidget {
   @override

@@ -79,7 +79,9 @@ class SignUpTypePage extends StatelessWidget {
                               );
                             },
                             style: ElevatedButton.styleFrom(
-                              foregroundColor: Colors.black, backgroundColor: Colors.white, // Set the text color to black
+                              foregroundColor: Colors.black,
+                              backgroundColor:
+                                  Colors.white, // Set the text color to black
                               elevation: 0,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
@@ -92,7 +94,9 @@ class SignUpTypePage extends StatelessWidget {
                                   height: 60, // Adjust the height of the icon
                                   child: Image.asset('lib/images/dogowner.png'),
                                 ),
-                                SizedBox(width: 15), // Add space between the image and text
+                                SizedBox(
+                                    width:
+                                        15), // Add space between the image and text
                                 const Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   mainAxisAlignment: MainAxisAlignment.center,
@@ -120,8 +124,6 @@ class SignUpTypePage extends StatelessWidget {
                             ),
                           ),
                         ),
-
-
                         SizedBox(height: 20),
                         Container(
                           height: 100,
@@ -140,21 +142,25 @@ class SignUpTypePage extends StatelessWidget {
                               );
                             },
                             style: ElevatedButton.styleFrom(
-                              foregroundColor: Colors.black, backgroundColor: Colors.white, // Set the text color to black
+                              foregroundColor: Colors.black,
+                              backgroundColor:
+                                  Colors.white, // Set the text color to black
                               elevation: 0,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              
                             ),
                             child: Row(
                               children: [
                                 SizedBox(
                                   width: 60, // Adjust the width of the icon
                                   height: 60, // Adjust the height of the icon
-                                  child: Image.asset('lib/images/dogwalker.png'),
+                                  child:
+                                      Image.asset('lib/images/dogwalker.png'),
                                 ),
-                                SizedBox(width: 15), // Add space between the image and text
+                                SizedBox(
+                                    width:
+                                        15), // Add space between the image and text
                                 const Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   mainAxisAlignment: MainAxisAlignment.center,
@@ -182,8 +188,6 @@ class SignUpTypePage extends StatelessWidget {
                             ),
                           ),
                         ),
-
-
                         SizedBox(height: 300),
                         MyButton(
                           onTap: onTap,

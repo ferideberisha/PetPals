@@ -6,11 +6,11 @@ import 'package:image_picker/image_picker.dart';
 import 'package:petpals/components/circle_avatar.dart'; // Import CircleAvatarWidget
 import 'package:petpals/components/my_bottom_bar.dart';
 import 'package:petpals/auth/auth.dart';
-import 'package:petpals/pages/account_settings_page.dart';
-import 'package:petpals/pages/my_payment_page.dart';
-import 'package:petpals/pages/my_pets_page.dart';
+import 'package:petpals/pages/home/profile/accountsettings/account_settings_page.dart';
+import 'package:petpals/pages/home/profile/payment/my_payment_page.dart';
+import 'package:petpals/pages/home/profile/pets/my_pets_page.dart';
 import 'package:petpals/service/auth_service.dart';
-import 'package:petpals/pages/basic_info_page.dart'; // Import the BasicInfoPage
+import 'package:petpals/pages/home/profile/basicinfo/basic_info_page.dart'; // Import the BasicInfoPage
 
 class ProfilePage extends StatefulWidget {
   @override

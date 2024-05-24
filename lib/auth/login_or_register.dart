@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:petpals/pages/login_page.dart';
-import 'package:petpals/pages/register_page.dart';
+import 'package:petpals/pages/login/login_page.dart';
+import 'package:petpals/pages/register/register_page.dart';
 
 class LoginOrRegister extends StatefulWidget {
   const LoginOrRegister({super.key});
@@ -23,7 +23,8 @@ class _LoginOrRegisterState extends State<LoginOrRegister> {
     if (showLoginPage) {
       return LoginPage(onTap: togglePages);
     } else {
-      return RegisterPage(onTap: togglePages, userType: ''); // Add userType parameter here
+      return RegisterPage(
+          onTap: togglePages, userType: ''); // Add userType parameter here
     }
   }
 }

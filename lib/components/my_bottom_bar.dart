@@ -1,48 +1,47 @@
 import 'package:flutter/material.dart';
-import 'package:petpals/pages/home_page.dart';
-import 'package:petpals/pages/message_request_page.dart';
-import 'package:petpals/pages/favorite_page.dart';
-import 'package:petpals/pages/profile_page.dart';
+import 'package:petpals/pages/home/home_page.dart';
+import 'package:petpals/pages/home/request/message_request_page.dart';
+import 'package:petpals/pages/home/favorite/favorite_page.dart';
+import 'package:petpals/pages/home/profile/profile_page.dart';
 
 class CustomBottomNavigationBar extends StatelessWidget {
   final int selectedIndex;
 
   CustomBottomNavigationBar({required this.selectedIndex});
 
-void _onItemTapped(BuildContext context, int index) {
-  if (index == selectedIndex) return;
+  void _onItemTapped(BuildContext context, int index) {
+    if (index == selectedIndex) return;
 
-  Widget nextPage;
-  switch (index) {
-    case 0:
-      nextPage = HomePage(context: context);
-      break;
-    case 1:
-      nextPage = MessageRequestPage();
-      break;
-    case 2:
-      nextPage = FavoritePage();
-      break;
-    case 3:
-      nextPage = ProfilePage(); 
-      break;
-    case 4:
-      nextPage = HomePage(context: context); // Replace with MenuPage
-      break;
-    default:
-      return;
+    Widget nextPage;
+    switch (index) {
+      case 0:
+        nextPage = HomePage(context: context);
+        break;
+      case 1:
+        nextPage = MessageRequestPage();
+        break;
+      case 2:
+        nextPage = FavoritePage();
+        break;
+      case 3:
+        nextPage = ProfilePage();
+        break;
+      case 4:
+        nextPage = HomePage(context: context); // Replace with MenuPage
+        break;
+      default:
+        return;
+    }
+
+    Navigator.pushAndRemoveUntil(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (_, __, ___) => nextPage,
+        transitionDuration: Duration.zero,
+      ),
+      (route) => false,
+    );
   }
-
-  Navigator.pushAndRemoveUntil(
-    context,
-    PageRouteBuilder(
-      pageBuilder: (_, __, ___) => nextPage,
-      transitionDuration: Duration.zero,
-    ),
-    (route) => false,
-  );
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +74,8 @@ void _onItemTapped(BuildContext context, int index) {
       child: Container(
         padding: EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: selectedIndex == index ? Color(0xFF967BB6) : Colors.transparent,
+          color:
+              selectedIndex == index ? Color(0xFF967BB6) : Colors.transparent,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Icon(

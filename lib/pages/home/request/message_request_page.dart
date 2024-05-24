@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
-import '../components/my_bottom_bar.dart';
+import '../../../components/my_bottom_bar.dart';
 
 class MessageRequestPage extends StatefulWidget {
   @override
@@ -34,7 +34,8 @@ class _MessageRequestPageState extends State<MessageRequestPage>
           children: [
             Text(
               'Orders',
-              style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+              style:
+                  TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -120,7 +121,8 @@ class _MessageRequestPageState extends State<MessageRequestPage>
           RequestList(status: 'Completed'),
         ],
       ),
-      bottomNavigationBar: CustomBottomNavigationBar(selectedIndex: _selectedIndex),
+      bottomNavigationBar:
+          CustomBottomNavigationBar(selectedIndex: _selectedIndex),
     );
   }
 }

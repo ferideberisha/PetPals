@@ -4,7 +4,7 @@ import 'package:flutter/gestures.dart';
 import 'package:petpals/components/my_button.dart';
 import 'package:petpals/components/my_textfield.dart';
 import 'package:petpals/components/square_tile.dart';
-import 'package:petpals/pages/sign_up_type_page.dart';
+import 'package:petpals/pages/register/sign_up_type_page.dart';
 import 'package:petpals/service/auth_service.dart';
 import 'package:google_fonts/google_fonts.dart';
 

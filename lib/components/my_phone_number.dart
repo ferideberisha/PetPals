@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:petpals/pages/add_phone_number_page.dart'; // Import the AddPhoneNumberPage
+import 'package:petpals/pages/home/profile/basicinfo/add_phone_number_page.dart'; // Import the AddPhoneNumberPage
 
 class MyPhoneNumberButton extends StatelessWidget {
   final String hintText;
@@ -20,21 +20,27 @@ class MyPhoneNumberButton extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 0),
         child: InkWell(
-          onTap: enabled ? () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => AddPhoneNumberPage()),
-            );
-          } : null,
+          onTap: enabled
+              ? () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => AddPhoneNumberPage()),
+                  );
+                }
+              : null,
           child: TextFormField(
             controller: controller,
             readOnly: true,
-            onTap: enabled ? () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => AddPhoneNumberPage()),
-              );
-            } : null,
+            onTap: enabled
+                ? () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => AddPhoneNumberPage()),
+                    );
+                  }
+                : null,
             decoration: InputDecoration(
               labelText: hintText,
               labelStyle: TextStyle(color: Colors.grey[500]), // Hint text color
@@ -57,15 +63,18 @@ class MyPhoneNumberButton extends StatelessWidget {
               fillColor: Colors.white,
               filled: true,
               hintStyle: TextStyle(color: Colors.grey[300]),
-              suffixIcon: enabled ? GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => AddPhoneNumberPage()),
-                  );
-                },
-                child: Icon(Icons.arrow_circle_right_outlined),
-              ) : null,
+              suffixIcon: enabled
+                  ? GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => AddPhoneNumberPage()),
+                        );
+                      },
+                      child: Icon(Icons.arrow_circle_right_outlined),
+                    )
+                  : null,
             ),
           ),
         ),
