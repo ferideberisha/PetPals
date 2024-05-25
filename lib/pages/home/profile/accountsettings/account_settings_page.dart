@@ -3,14 +3,14 @@ import 'package:petpals/components/my_button.dart'; // Import MyButton
 import 'package:petpals/components/my_textfield.dart'; // Import MyTextField
 
 class AccountSettingsPage extends StatefulWidget {
-  const AccountSettingsPage({super.key});
+  const AccountSettingsPage({Key? key}) : super(key: key);
 
   @override
-  // ignore: library_private_types_in_public_api
-  _AccountSettingsPageState createState() => _AccountSettingsPageState();
+  State<AccountSettingsPage> createState() => _AccountSettingsPageState();
 }
 
 class _AccountSettingsPageState extends State<AccountSettingsPage> {
+  final _formKey = GlobalKey<FormState>();
   late TextEditingController _currentPasswordController;
   late TextEditingController _newPasswordController;
   late TextEditingController _confirmNewPasswordController;
@@ -54,7 +54,9 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
   }
 
   void _changePassword() {
-    // Implement logic to change the password
+    if (_formKey.currentState!.validate()) {
+      // Your logic to change the password goes here
+    }
   }
 
   @override
@@ -68,62 +70,87 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            MyTextField(
-              controller: _currentPasswordController,
-              hintText: 'Current Password',
-              obscureText:
-                  _obscureCurrentPassword, // Pass the state variable here
-              fillColor: Colors.white,
-              suffixIcon: IconButton(
-                icon: Icon(
-                  _obscureCurrentPassword
-                      ? Icons.visibility_off
-                      : Icons.visibility,
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              MyTextField(
+                controller: _currentPasswordController,
+                hintText: 'Current Password',
+                obscureText: _obscureCurrentPassword,
+                fillColor: Colors.white,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your current password';
+                  }
+                  return null;
+                },
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _obscureCurrentPassword
+                        ? Icons.visibility_off
+                        : Icons.visibility,
+                  ),
+                  onPressed: _toggleCurrentPasswordVisibility,
                 ),
-                onPressed: _toggleCurrentPasswordVisibility,
               ),
-            ),
-            const SizedBox(height: 20),
-            MyTextField(
-              controller: _newPasswordController,
-              hintText: 'New Password',
-              obscureText: _obscureNewPassword,
-              fillColor: Colors.white,
-              suffixIcon: IconButton(
-                icon: Icon(
-                  _obscureNewPassword ? Icons.visibility_off : Icons.visibility,
+              const SizedBox(height: 20),
+              MyTextField(
+                controller: _newPasswordController,
+                hintText: 'New Password',
+                obscureText: _obscureNewPassword,
+                fillColor: Colors.white,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your new password';
+                  }
+                  return null;
+                },
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _obscureNewPassword
+                        ? Icons.visibility_off
+                        : Icons.visibility,
+                  ),
+                  onPressed: _toggleNewPasswordVisibility,
                 ),
-                onPressed: _toggleNewPasswordVisibility,
               ),
-            ),
-            const SizedBox(height: 20),
-            MyTextField(
-              controller: _confirmNewPasswordController,
-              hintText: 'Confirm New Password',
-              obscureText: _obscureConfirmNewPassword,
-              fillColor: Colors.white,
-              suffixIcon: IconButton(
-                icon: Icon(
-                  _obscureConfirmNewPassword
-                      ? Icons.visibility_off
-                      : Icons.visibility,
+              const SizedBox(height: 20),
+              MyTextField(
+                controller: _confirmNewPasswordController,
+                hintText: 'Confirm New Password',
+                obscureText: _obscureConfirmNewPassword,
+                fillColor: Colors.white,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please confirm your new password';
+                  }
+                  if (value != _newPasswordController.text) {
+                    return 'Passwords do not match';
+                  }
+                  return null;
+                },
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _obscureConfirmNewPassword
+                        ? Icons.visibility_off
+                        : Icons.visibility,
+                  ),
+                  onPressed: _toggleConfirmNewPasswordVisibility,
                 ),
-                onPressed: _toggleConfirmNewPasswordVisibility,
               ),
-            ),
-            const SizedBox(height: 20),
-            MyButton(
-              onTap: _changePassword,
-              text: 'Change Password',
-              color: const Color(0xFF967BB6),
-              textColor: Colors.white,
-              borderColor: const Color(0xFF967BB6),
-              borderWidth: 0,
-            ),
-          ],
+              const SizedBox(height: 20),
+              MyButton(
+                onTap: _changePassword,
+                text: 'Change Password',
+                color: const Color(0xFF967BB6),
+                textColor: Colors.white,
+                borderColor: const Color(0xFF967BB6),
+                borderWidth: 0,
+              ),
+            ],
+          ),
         ),
       ),
     );
