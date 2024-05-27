@@ -39,9 +39,10 @@ class _LoginPageState extends State<LoginPage> {
           email: emailController.text,
           password: passwordController.text,
         );
+        // ignore: use_build_context_synchronously
         Navigator.pop(context);
       } on FirebaseAuthException catch (e) {
-        print('FirebaseAuthException code: ${e.code}, message: ${e.message}');
+        // ignore: use_build_context_synchronously
         Navigator.pop(context);
         if (e.code == 'user-not-found') {
           showErrorDialog('You have entered an invalid username or password.');

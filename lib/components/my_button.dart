@@ -7,15 +7,19 @@ class MyButton extends StatelessWidget {
   final Color textColor; // New parameter for text color
   final Color borderColor; // New parameter for border color
   final double borderWidth; // New parameter for border width
+  final String? Function(String?)?
+      validator; // Keep the validator parameter optional
 
+  // ignore: use_key_in_widget_constructors
   const MyButton({
-    super.key,
+    Key? key, // Use Key? instead of super.key
     required this.onTap,
     required this.text,
     required this.color,
-    required this.textColor, // Define the new parameter
-    required this.borderColor, // Define the new parameter
-    required this.borderWidth, // Define the new parameter
+    required this.textColor,
+    required this.borderColor,
+    required this.borderWidth,
+    this.validator, // Make the validator parameter optional
   });
 
   @override
@@ -28,10 +32,10 @@ class MyButton extends StatelessWidget {
           padding: const EdgeInsets.all(18),
           margin: const EdgeInsets.symmetric(horizontal: 0),
           decoration: BoxDecoration(
-            color: color, // Use the provided color for the background
+            color: color,
             border: Border.all(
-              color: borderColor, // Use the provided border color
-              width: borderWidth, // Use the provided border width
+              color: borderColor,
+              width: borderWidth,
             ),
             borderRadius: BorderRadius.circular(8),
           ),
@@ -39,7 +43,7 @@ class MyButton extends StatelessWidget {
             child: Text(
               text,
               style: TextStyle(
-                color: textColor, // Use the provided text color
+                color: textColor,
                 fontWeight: FontWeight.normal,
                 fontSize: 16,
               ),

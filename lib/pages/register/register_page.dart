@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:petpals/components/my_button.dart'; // Import MyButton
@@ -8,8 +10,7 @@ class RegisterPage extends StatefulWidget {
   final Function()? onTap;
   final String userType; // Add userType parameter
 
-  const RegisterPage({Key? key, required this.onTap, required this.userType})
-      : super(key: key);
+  const RegisterPage({super.key, required this.onTap, required this.userType});
 
   @override
   State<RegisterPage> createState() => _RegisterPageState();
@@ -362,6 +363,7 @@ class _RegisterPageState extends State<RegisterPage> {
         );
 
         // Update user's profile with first and last name
+        // ignore: deprecated_member_use
         await userCredential.user!.updateProfile(
             displayName:
                 '${firstNameController.text} ${lastNameController.text}');
@@ -374,6 +376,8 @@ class _RegisterPageState extends State<RegisterPage> {
         confirmPasswordController.clear();
 
         // Pop loading circle
+        // ignore: duplicate_ignore
+        // ignore: use_build_context_synchronously
         Navigator.pop(context);
 
         // Navigate to the home page

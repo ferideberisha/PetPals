@@ -4,9 +4,10 @@ import 'package:petpals/components/my_button.dart'; // Import MyButton
 import 'package:petpals/components/my_textfield.dart'; // Import the new date picker
 
 class AddPaymentPage extends StatefulWidget {
-  const AddPaymentPage({Key? key}) : super(key: key);
+  const AddPaymentPage({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _AddPaymentPageState createState() => _AddPaymentPageState();
 }
 
@@ -47,10 +48,7 @@ class _AddPaymentPageState extends State<AddPaymentPage> {
                   return null;
                 },
               ),
-              const SizedBox(height: 5),
-              const Text('Enter the 16-digit card number',
-                  style: TextStyle(color: Colors.grey)),
-              const SizedBox(height: 20),
+              const SizedBox(height: 15),
               // Expiry Date and CVV2 Row
               Row(
                 children: [
@@ -164,15 +162,15 @@ class _AddPaymentPageState extends State<AddPaymentPage> {
                       showDialog(
                         context: context,
                         builder: (context) => AlertDialog(
-                          title: Text('Error'),
-                          content: Text(
+                          title: const Text('Error'),
+                          content: const Text(
                               'Please set this payment method as default if you want to proceed.'),
                           actions: [
                             TextButton(
                               onPressed: () {
                                 Navigator.pop(context);
                               },
-                              child: Text('OK'),
+                              child: const Text('OK'),
                             ),
                           ],
                         ),

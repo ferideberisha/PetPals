@@ -7,13 +7,14 @@ class MyPhoneNumberButton extends StatefulWidget {
   final bool enabled;
 
   const MyPhoneNumberButton({
-    Key? key,
+    super.key,
     required this.hintText,
     required this.controller,
     this.enabled = true,
-  }) : super(key: key);
+  });
 
   @override
+  // ignore: library_private_types_in_public_api
   _MyPhoneNumberButtonState createState() => _MyPhoneNumberButtonState();
 }
 
@@ -52,7 +53,8 @@ class _MyPhoneNumberButtonState extends State<MyPhoneNumberButton> {
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
                 borderSide: BorderSide(
-                  color: _isHovered ? Color(0xFF967BB6) : Colors.grey[400]!,
+                  color:
+                      _isHovered ? const Color(0xFF967BB6) : Colors.grey[400]!,
                 ),
               ),
               errorBorder: OutlineInputBorder(
