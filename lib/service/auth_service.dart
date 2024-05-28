@@ -25,5 +25,4 @@ class AuthService {
     await FirebaseAuth.instance.signOut();
     await GoogleSignIn().signOut(); // Sign out from Google Sign-In as well
   }
-
 }

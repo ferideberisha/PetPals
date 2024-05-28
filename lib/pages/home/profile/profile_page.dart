@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:math' as math;
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
@@ -21,7 +22,8 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  late String _userName;
+  late String _userName =
+      "Loading..."; // Initialize _userName with "Loading..."
   File? _image;
 
   @override
@@ -30,11 +32,20 @@ class _ProfilePageState extends State<ProfilePage> {
     _getUserDisplayName();
   }
 
-  void _getUserDisplayName() {
+  void _getUserDisplayName() async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+      Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
+      print('User Data: $userData'); // Add this line for debugging
+      String firstName = userData['firstName'] ?? '';
+      String lastName = userData['lastName'] ?? '';
       setState(() {
-        _userName = user.displayName ?? 'User';
+        _userName =
+            '$firstName $lastName'; // Update _userName with the user's name
       });
     }
   }
@@ -73,12 +84,13 @@ class _ProfilePageState extends State<ProfilePage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.only(right: 80, bottom: 90),
-                    child: Text(
-                      _userName,
-                      style: const TextStyle(
-                          fontSize: 24, fontWeight: FontWeight.bold),
+                  Text(
+                    _userName.isNotEmpty
+                        ? _userName
+                        : 'Loading...', // Check if _userName is not empty
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(width: 10),

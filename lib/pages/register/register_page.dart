@@ -1,10 +1,9 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:petpals/components/my_button.dart'; // Import MyButton
 import 'package:petpals/components/my_textfield.dart';
-import 'package:petpals/pages/home/home_page.dart'; // Import MyTextField
+import 'package:petpals/pages/register/email_verification.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RegisterPage extends StatefulWidget {
   final Function()? onTap;
@@ -326,7 +325,6 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  // Display a dialog message
   void signUserUp(BuildContext context) async {
     if (_formKey.currentState!.validate()) {
       if (!isPrivacyPolicyChecked || !isUserAgreementChecked) {
@@ -362,11 +360,17 @@ class _RegisterPageState extends State<RegisterPage> {
           password: passwordController.text,
         );
 
-        // Update user's profile with first and last name
-        // ignore: deprecated_member_use
-        await userCredential.user!.updateProfile(
-            displayName:
-                '${firstNameController.text} ${lastNameController.text}');
+        // Save user data to Firestore
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(userCredential.user!.uid)
+            .set({
+          'firstName': firstNameController.text,
+          'lastName': lastNameController.text,
+          'email': emailController.text,
+          'userType': widget.userType, // Save user's role
+          // Add more fields as needed
+        });
 
         // Clear text fields
         firstNameController.clear();
@@ -376,23 +380,27 @@ class _RegisterPageState extends State<RegisterPage> {
         confirmPasswordController.clear();
 
         // Pop loading circle
-        // ignore: duplicate_ignore
-        // ignore: use_build_context_synchronously
         Navigator.pop(context);
 
-        // Navigate to the home page
+        // Navigate to the email verification page
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-              builder: (context) => HomePage(
-                    context: context,
-                  )),
+            builder: (context) => VerifyEmailPage(
+              onTap: () {}, // Provide an appropriate onTap callback
+            ),
+          ),
         );
       } on FirebaseAuthException catch (e) {
         // Pop loading circle
         Navigator.pop(context);
         // Show error to user
         displayMessage(context, e.code);
+      } catch (e) {
+        // Pop loading circle
+        Navigator.pop(context);
+        // Handle other exceptions
+        displayMessage(context, "An error occurred. Please try again later.");
       }
     }
   }
