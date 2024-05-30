@@ -7,6 +7,7 @@ import 'package:petpals/components/my_textfield.dart';
 import 'package:petpals/components/square_tile.dart';
 import 'package:petpals/pages/register/sign_up_type_page.dart';
 import 'package:petpals/service/auth_service.dart';
+import 'package:petpals/pages/login/forgot_password_page.dart';
 
 class LoginPage extends StatefulWidget {
   final Function()? onTap;
@@ -192,7 +193,14 @@ class _LoginPageState extends State<LoginPage> {
                             child: Padding(
                               padding: const EdgeInsets.only(right: 18.0),
                               child: GestureDetector(
-                                onTap: () {},
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            const ForgotPasswordPage()),
+                                  );
+                                },
                                 child: Text(
                                   'Forgot Password?',
                                   style: TextStyle(

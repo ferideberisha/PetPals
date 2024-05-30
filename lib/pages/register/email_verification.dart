@@ -79,10 +79,10 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
         ) // Navigate to HomePage if email is verified
       : Scaffold(
           appBar: AppBar(
-            title: Text('Verify Email'),
+            title: const Text('Verify Email'),
           ),
           body: Padding(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -91,7 +91,7 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
                   style: TextStyle(fontSize: 20),
                   textAlign: TextAlign.center,
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 MyButton(
                   onTap: canResendEmail ? sendVerificationEmail : null,
                   text: 'Resend email',
@@ -100,7 +100,7 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
                   borderColor: const Color(0xFF967BB6),
                   borderWidth: 1.0,
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 MyButton(
                   onTap: () {
                     // Sign out the user

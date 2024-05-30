@@ -40,7 +40,6 @@ class _ProfilePageState extends State<ProfilePage> {
           .doc(user.uid)
           .get();
       Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
-      print('User Data: $userData'); // Add this line for debugging
       String firstName = userData['firstName'] ?? '';
       String lastName = userData['lastName'] ?? '';
       setState(() {

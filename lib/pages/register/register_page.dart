@@ -380,10 +380,12 @@ class _RegisterPageState extends State<RegisterPage> {
         confirmPasswordController.clear();
 
         // Pop loading circle
+        // ignore: use_build_context_synchronously
         Navigator.pop(context);
 
         // Navigate to the email verification page
         Navigator.pushReplacement(
+          // ignore: use_build_context_synchronously
           context,
           MaterialPageRoute(
             builder: (context) => VerifyEmailPage(
@@ -393,13 +395,17 @@ class _RegisterPageState extends State<RegisterPage> {
         );
       } on FirebaseAuthException catch (e) {
         // Pop loading circle
+        // ignore: use_build_context_synchronously
         Navigator.pop(context);
         // Show error to user
+        // ignore: use_build_context_synchronously
         displayMessage(context, e.code);
       } catch (e) {
         // Pop loading circle
+        // ignore: use_build_context_synchronously
         Navigator.pop(context);
         // Handle other exceptions
+        // ignore: use_build_context_synchronously
         displayMessage(context, "An error occurred. Please try again later.");
       }
     }
