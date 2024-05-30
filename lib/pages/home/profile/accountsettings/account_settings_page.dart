@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:petpals/components/my_button.dart'; // Import MyButton
 import 'package:petpals/components/my_textfield.dart'; // Import MyTextField
 
@@ -11,25 +12,9 @@ class AccountSettingsPage extends StatefulWidget {
 
 class _AccountSettingsPageState extends State<AccountSettingsPage> {
   final _formKey = GlobalKey<FormState>();
-  late TextEditingController _currentPasswordController;
-  late TextEditingController _newPasswordController;
-  late TextEditingController _confirmNewPasswordController;
-
-  @override
-  void initState() {
-    super.initState();
-    _currentPasswordController = TextEditingController();
-    _newPasswordController = TextEditingController();
-    _confirmNewPasswordController = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    _currentPasswordController.dispose();
-    _newPasswordController.dispose();
-    _confirmNewPasswordController.dispose();
-    super.dispose();
-  }
+  final _currentPasswordController = TextEditingController();
+  final _newPasswordController = TextEditingController();
+  final _confirmNewPasswordController = TextEditingController();
 
   bool _obscureCurrentPassword = true;
   bool _obscureNewPassword = true;
@@ -53,9 +38,37 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
     });
   }
 
-  void _changePassword() {
+  void _changePassword() async {
     if (_formKey.currentState!.validate()) {
-      // Your logic to change the password goes here
+      try {
+        final user = FirebaseAuth.instance.currentUser;
+        if (user != null) {
+          // Reauthenticate user before changing password
+          final credential = EmailAuthProvider.credential(
+            email: user.email!,
+            password: _currentPasswordController.text,
+          );
+          await user.reauthenticateWithCredential(credential);
+
+          // Change user's password
+          await user.updatePassword(_newPasswordController.text);
+
+          // Clear text fields
+          _currentPasswordController.clear();
+          _newPasswordController.clear();
+          _confirmNewPasswordController.clear();
+
+          // Show success message
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Password changed successfully')),
+          );
+        }
+      } catch (e) {
+        // Show error message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to change password: $e')),
+        );
+      }
     }
   }
 

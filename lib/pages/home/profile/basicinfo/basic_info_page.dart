@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // Import Firestore
 import 'package:petpals/components/my_bottom_bar.dart';
 import 'package:petpals/components/my_button.dart'; // Import MyButton
 import 'package:petpals/components/my_phone_number.dart';
@@ -31,14 +32,28 @@ class _BasicInfoPageState extends State<BasicInfoPage> {
     _initializeBirthday();
   }
 
-  void _loadUserInfo() {
+  Future<void> _loadUserInfo() async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      setState(() {
-        _firstNameController.text = user.displayName?.split(' ').first ?? '';
-        _lastNameController.text = user.displayName?.split(' ').last ?? '';
-        _emailController.text = user.email ?? '';
-      });
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+
+      if (userDoc.exists) {
+        print('User document found');
+        print('First Name: ${userDoc['firstName']}');
+        print('Last Name: ${userDoc['lastName']}');
+        setState(() {
+          _firstNameController.text = userDoc['firstName'] ?? '';
+          _lastNameController.text = userDoc['lastName'] ?? '';
+          _emailController.text = user.email ?? '';
+        });
+      } else {
+        print('User document does not exist');
+      }
+    } else {
+      print('No user logged in');
     }
   }
 
