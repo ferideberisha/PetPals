@@ -63,10 +63,12 @@ class _FavoritePageState extends State<FavoritePage>
               height: 60,
               child: MyButton(
                 onTap: () {
-                  Navigator.push(
+                  Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(
-                        builder: (context) => HomePage(context: context)),
+                    PageRouteBuilder(
+                      pageBuilder: (_, __, ___) => HomePage(context: context),
+                      transitionDuration: Duration.zero,
+                    ),
                   );
                 },
                 text: 'Search for a sitter',

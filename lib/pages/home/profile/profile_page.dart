@@ -1,12 +1,13 @@
 import 'dart:io';
 import 'dart:math' as math;
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:petpals/components/circle_avatar.dart'; // Import CircleAvatarWidget
 import 'package:petpals/components/my_bottom_bar.dart';
-import 'package:petpals/auth/auth.dart';
+import 'package:petpals/pages/auth/auth.dart';
 import 'package:petpals/pages/home/profile/accountsettings/account_settings_page.dart';
 import 'package:petpals/pages/home/profile/payment/my_payment_page.dart';
 import 'package:petpals/pages/home/profile/pets/my_pets_page.dart';
@@ -17,14 +18,12 @@ class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _ProfilePageState createState() => _ProfilePageState();
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  late String _userName =
-      "Loading..."; // Initialize _userName with "Loading..."
-  File? _image;
+  late String _userName = "Loading..."; // Initialize _userName with "Loading..."
+  dynamic _image; // Can be a File or a String URL
 
   @override
   void initState() {
@@ -32,32 +31,76 @@ class _ProfilePageState extends State<ProfilePage> {
     _getUserDisplayName();
   }
 
-  void _getUserDisplayName() async {
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+
+void _getUserDisplayName() async {
+  User? user = FirebaseAuth.instance.currentUser;
+  if (user != null) {
+    DocumentSnapshot userDoc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .get();
+    Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
+    String firstName = userData['firstName'] ?? '';
+    String lastName = userData['lastName'] ?? '';
+    String profilePictureUrl = userData['profilePicture'] ?? ''; // Fetch profile picture URL
+    setState(() {
+      _userName = '$firstName $lastName'; // Update _userName with the user's name
+      if (profilePictureUrl.isNotEmpty) {
+        _image = profilePictureUrl; // Initialize _image with the profile picture URL
+      }
+    });
+  }
+}
+
+
+Future<void> _pickImage(ImageSource source) async {
+  final pickedImage = await ImagePicker().pickImage(source: source);
+
+  if (pickedImage != null) {
+    final File image = File(pickedImage.path);
+    
+    // Upload Image to Firebase Storage
+    try {
+      final imageUrl = await uploadImageToStorage(image);
+      
+      // Update User Profile with Image URL
+      await updateProfilePicture(imageUrl);
+      
+      // Update _image variable to display the new image
+      setState(() {
+        _image = image;
+      });
+    } catch (e) {
+      // Handle errors
+      print('Error uploading image: $e');
+    }
+  }
+}
+
+Future<String> uploadImageToStorage(File image) async {
+  try {
+    final ref = FirebaseStorage.instance.ref('Users/Images/Profile/${DateTime.now().millisecondsSinceEpoch}');
+    await ref.putFile(image);
+    return await ref.getDownloadURL();
+  } catch (e) {
+    throw e; // Handle error appropriately
+  }
+}
+
+Future<void> updateProfilePicture(String imageUrl) async {
+  try {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null) {
+      await FirebaseFirestore.instance
           .collection('users')
-          .doc(user.uid)
-          .get();
-      Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
-      String firstName = userData['firstName'] ?? '';
-      String lastName = userData['lastName'] ?? '';
-      setState(() {
-        _userName =
-            '$firstName $lastName'; // Update _userName with the user's name
-      });
+          .doc(currentUser.uid)
+          .update({'profilePicture': imageUrl});
     }
+  } catch (e) {
+    throw e; // Handle error appropriately
   }
+}
 
-  Future<void> _pickImage(ImageSource source) async {
-    final pickedImage = await ImagePicker().pickImage(source: source);
-
-    if (pickedImage != null) {
-      setState(() {
-        _image = File(pickedImage.path);
-      });
-    }
-  }
 
   void signUserOut() {
     AuthService().signOut();
@@ -83,16 +126,17 @@ class _ProfilePageState extends State<ProfilePage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Text(
-                    _userName.isNotEmpty
-                        ? _userName
-                        : 'Loading...', // Check if _userName is not empty
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 75), // Adjust this value to move the username up
+                    child: Text(
+                      _userName.isNotEmpty ? _userName : 'Loading...', // Check if _userName is not empty
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 142),
                   Row(
                     children: [
                       CircleAvatarWidget(
@@ -124,7 +168,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             },
                           );
                         },
-                        icon: Icons.person, // Use the user icon
+                        icon: Icons.person,
                       ),
                       const SizedBox(width: 10),
                     ],
@@ -138,8 +182,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                        builder: (context) => const BasicInfoPage()),
+                    MaterialPageRoute(builder: (context) => const BasicInfoPage()),
                   );
                 },
                 child: const Row(
@@ -195,8 +238,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                        builder: (context) => const MyPaymentsPage()),
+                    MaterialPageRoute(builder: (context) => const MyPaymentsPage()),
                   );
                 },
                 child: const Row(
@@ -224,8 +266,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                        builder: (context) => const AccountSettingsPage()),
+                    MaterialPageRoute(builder: (context) => const AccountSettingsPage()),
                   );
                 },
                 child: const Row(

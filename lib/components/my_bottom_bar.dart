@@ -26,21 +26,18 @@ class CustomBottomNavigationBar extends StatelessWidget {
       case 3:
         nextPage = const ProfilePage();
         break;
-      case 4:
-        nextPage = HomePage(context: context); // Replace with MenuPage
-        break;
       default:
         return;
     }
 
-    Navigator.pushAndRemoveUntil(
+    Navigator.pushReplacement(
       context,
       PageRouteBuilder(
         pageBuilder: (_, __, ___) => nextPage,
         transitionDuration: Duration.zero,
       ),
-      (route) => false,
     );
+  
   }
 
   @override
@@ -59,7 +56,6 @@ class CustomBottomNavigationBar extends StatelessWidget {
             buildNavItem(context, 1, Icons.message_outlined),
             buildNavItem(context, 2, Icons.favorite_border_outlined),
             buildNavItem(context, 3, Icons.person_outline),
-            buildNavItem(context, 4, Icons.menu),
           ],
         ),
       ),

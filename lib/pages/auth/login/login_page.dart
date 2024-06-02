@@ -5,9 +5,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:petpals/components/my_button.dart';
 import 'package:petpals/components/my_textfield.dart';
 import 'package:petpals/components/square_tile.dart';
-import 'package:petpals/pages/register/sign_up_type_page.dart';
+import 'package:petpals/pages/auth/register/sign_up_type_page.dart';
 import 'package:petpals/service/auth_service.dart';
-import 'package:petpals/pages/login/forgot_password_page.dart';
+import 'package:petpals/pages/auth/login/forgot_password_page.dart';
 
 class LoginPage extends StatefulWidget {
   final Function()? onTap;

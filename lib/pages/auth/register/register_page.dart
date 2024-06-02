@@ -2,8 +2,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:petpals/components/my_button.dart'; // Import MyButton
 import 'package:petpals/components/my_textfield.dart';
-import 'package:petpals/pages/register/email_verification.dart';
+import 'package:petpals/pages/auth/register/email_verification.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:petpals/models/userModel.dart';
 
 class RegisterPage extends StatefulWidget {
   final Function()? onTap;
@@ -360,17 +361,25 @@ class _RegisterPageState extends State<RegisterPage> {
           password: passwordController.text,
         );
 
+        userModel user = userModel(
+          uid: userCredential.user!.uid,
+          firstName: firstNameController.text,
+          lastName: lastNameController.text,
+          email: emailController.text,
+          userType: widget.userType, profilePicture: '',
+        );
+
         // Save user data to Firestore
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(userCredential.user!.uid)
-            .set({
-          'firstName': firstNameController.text,
-          'lastName': lastNameController.text,
-          'email': emailController.text,
-          'userType': widget.userType, // Save user's role
-          // Add more fields as needed
-        });
+          await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .set({
+      'firstName': user.firstName,
+      'lastName': user.lastName,
+      'email': user.email,
+      'userType': user.userType,
+    });
+
 
         // Clear text fields
         firstNameController.clear();

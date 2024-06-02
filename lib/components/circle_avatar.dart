@@ -2,49 +2,54 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+
 class CircleAvatarWidget extends StatelessWidget {
-  final VoidCallback onTap;
-  final File? image;
   final Function(ImageSource) pickImage;
-  final IconData icon; // New parameter for the icon
+  final dynamic image; // Can be a File or a String URL
+  final IconData icon;
+  final Function()? onTap;
 
   const CircleAvatarWidget({
-    super.key,
-    required this.onTap,
-    required this.image,
+    Key? key,
     required this.pickImage,
-    required this.icon, // Initialize the new parameter
-  });
+    this.image,
+    required this.icon,
+    this.onTap,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Stack(
-        alignment: Alignment.bottomRight,
-        children: [
-          CircleAvatar(
-            backgroundColor: Colors.grey[200],
-            foregroundColor: Colors.grey,
-            radius: 60,
-            backgroundImage: image != null ? FileImage(image!) : null,
-            child: image == null
-                ? Icon(icon, size: 80) // Use the icon parameter
-                : null,
-          ),
-          Container(
-            decoration: BoxDecoration(
-              color: const Color(0xFFCAADEE),
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: Colors.white,
-                width: 3.0,
+      child: CircleAvatar(
+        radius: 50,
+        backgroundColor: Colors.grey[200],
+        child: Stack(
+          children: [
+            if (image != null)
+              ClipOval(
+                child: image is File
+                  ? Image.file(
+                      image,
+                      fit: BoxFit.cover,
+                      width: 100,
+                      height: 100,
+                    )
+                  : Image.network(
+                      image,
+                      fit: BoxFit.cover,
+                      width: 100,
+                      height: 100,
+                    ),
               ),
-            ),
-            padding: const EdgeInsets.all(8.0),
-            child: const Icon(Icons.edit),
-          ),
-        ],
+            if (image == null)
+              Icon(
+                icon,
+                size: 50,
+                color: Colors.grey,
+              ),
+          ],
+        ),
       ),
     );
   }

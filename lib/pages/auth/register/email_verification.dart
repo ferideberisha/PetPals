@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:petpals/components/my_button.dart';
 import 'package:petpals/pages/home/home_page.dart';
-import 'package:petpals/pages/login/login_page.dart';
+import 'package:petpals/pages/auth/login/login_page.dart';
 
 class VerifyEmailPage extends StatefulWidget {
   final VoidCallback onTap;

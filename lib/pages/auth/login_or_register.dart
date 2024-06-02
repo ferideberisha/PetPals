@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:petpals/pages/login/login_page.dart';
-import 'package:petpals/pages/register/register_page.dart';
+import 'package:petpals/pages/auth/login/login_page.dart';
+import 'package:petpals/pages/auth/register/register_page.dart';
 
 class LoginOrRegister extends StatefulWidget {
   const LoginOrRegister({super.key});
