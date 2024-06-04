@@ -10,12 +10,12 @@ class CircleAvatarWidget extends StatelessWidget {
   final Function()? onTap;
 
   const CircleAvatarWidget({
-    Key? key,
+    super.key,
     required this.pickImage,
     this.image,
     required this.icon,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

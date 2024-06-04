@@ -59,12 +59,14 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
           _confirmNewPasswordController.clear();
 
           // Show success message
+          // ignore: use_build_context_synchronously
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Password changed successfully')),
           );
         }
       } catch (e) {
         // Show error message
+        // ignore: use_build_context_synchronously
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to change password: $e')),
         );
@@ -161,6 +163,8 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
                 textColor: Colors.white,
                 borderColor: const Color(0xFF967BB6),
                 borderWidth: 0,
+                width: 390,
+                height: 60,
               ),
             ],
           ),

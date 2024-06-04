@@ -156,6 +156,8 @@ class _BasicInfoPageState extends State<BasicInfoPage> {
                 textColor: Colors.white,
                 borderColor: const Color(0xFF967BB6),
                 borderWidth: 1.0,
+                width: 390,
+                height: 60,
               ),
               MyButton(
                 onTap: () {
@@ -191,6 +193,7 @@ class _BasicInfoPageState extends State<BasicInfoPage> {
                 textColor: Colors.red, // Red text color
                 borderColor: Colors.transparent, // Transparent border
                 borderWidth: 0, // No border width
+                
               ),
             ],
           ),

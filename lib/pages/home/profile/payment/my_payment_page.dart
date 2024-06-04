@@ -48,6 +48,8 @@ class MyPaymentsPage extends StatelessWidget {
               color: const Color(0xFF967BB6), // Change the color as needed
               textColor: Colors.white, borderColor: const Color(0xFF967BB6),
               borderWidth: 0,
+              width: 390,
+              height: 60,
             ),
           ],
         ),

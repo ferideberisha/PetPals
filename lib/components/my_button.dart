@@ -7,6 +7,8 @@ class MyButton extends StatelessWidget {
   final Color textColor; // New parameter for text color
   final Color borderColor; // New parameter for border color
   final double borderWidth; // New parameter for border width
+  final double? width; // New parameter for button width
+  final double? height; // New parameter for button height
   final String? Function(String?)?
       validator; // Keep the validator parameter optional
 
@@ -19,17 +21,20 @@ class MyButton extends StatelessWidget {
     required this.textColor,
     required this.borderColor,
     required this.borderWidth,
+    this.width, // Make the width parameter optional
+    this.height, // Make the height parameter optional
     this.validator, // Make the validator parameter optional
   });
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: double.infinity, // Set the width to match the parent width
+      width: width, // Set the width if provided, otherwise use double.infinity
+      height: height, // Set the height if provided, otherwise use null (auto)
       child: GestureDetector(
         onTap: onTap,
         child: Container(
-          padding: const EdgeInsets.all(18),
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16), // Adjust padding here
           margin: const EdgeInsets.symmetric(horizontal: 0),
           decoration: BoxDecoration(
             color: color,

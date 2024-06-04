@@ -4,7 +4,8 @@ class userModel {
   final String lastName;
   final String email;
   final String userType;
-  final String profilePicture; // Add profilePicture attribute
+  final String profilePicture;
+  final String phoneNumber; // Add phoneNumber attribute
 
   userModel({
     required this.uid,
@@ -12,6 +13,7 @@ class userModel {
     required this.lastName,
     required this.email,
     required this.userType,
-    required this.profilePicture, // Initialize profilePicture
+    required this.profilePicture,
+    required this.phoneNumber, // Initialize phoneNumber
   });
 }

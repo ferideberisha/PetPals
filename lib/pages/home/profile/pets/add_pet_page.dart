@@ -157,7 +157,7 @@ class _AddPetPageState extends State<AddPetPage> {
                     const Text(
                       'Name, age',
                       style: TextStyle(
-                        fontWeight: FontWeight.normal,
+                        fontWeight: FontWeight.w500,
                         fontSize: 16,
                       ),
                     ),
@@ -380,7 +380,7 @@ class _AddPetPageState extends State<AddPetPage> {
                   'About the pet',
                   style: TextStyle(
                     color: Colors.black,
-                    fontWeight: FontWeight.normal,
+                    fontWeight: FontWeight.w500,
                     fontSize: 16,
                   ),
                 ),
@@ -542,7 +542,7 @@ class _AddPetPageState extends State<AddPetPage> {
                   'Care info',
                   style: TextStyle(
                     color: Colors.black,
-                    fontWeight: FontWeight.normal,
+                    fontWeight: FontWeight.w500,
                     fontSize: 16,
                   ),
                 ),
@@ -736,7 +736,7 @@ class _AddPetPageState extends State<AddPetPage> {
                   'Vet info',
                   style: TextStyle(
                     color: Colors.black,
-                    fontWeight: FontWeight.normal,
+                    fontWeight: FontWeight.w500,
                     fontSize: 16,
                   ),
                 ),

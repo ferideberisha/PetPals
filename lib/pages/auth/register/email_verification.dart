@@ -99,6 +99,8 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
                   textColor: Colors.white,
                   borderColor: const Color(0xFF967BB6),
                   borderWidth: 1.0,
+                  width: 390,
+                  height: 60,
                 ),
                 const SizedBox(height: 20),
                 MyButton(
@@ -119,6 +121,8 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
                   textColor: const Color(0xFF967BB6),
                   borderColor: const Color(0xFF967BB6),
                   borderWidth: 1.0,
+                  width:390,
+                  height: 60,
                 ),
               ],
             ),

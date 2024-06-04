@@ -293,6 +293,8 @@ class _RegisterPageState extends State<RegisterPage> {
                             textColor: Colors.white,
                             borderColor: const Color(0xFF967BB6),
                             borderWidth: 1.0,
+                            width: 390,
+                            height: 60,
                           ),
                           const SizedBox(height: 15),
                           MyButton(
@@ -302,6 +304,8 @@ class _RegisterPageState extends State<RegisterPage> {
                             textColor: const Color(0xFF967BB6),
                             borderColor: const Color(0xFF967BB6),
                             borderWidth: 1.0,
+                            width: 390,
+                            height: 60,
                           ),
                         ],
                       ),
@@ -366,7 +370,7 @@ class _RegisterPageState extends State<RegisterPage> {
           firstName: firstNameController.text,
           lastName: lastNameController.text,
           email: emailController.text,
-          userType: widget.userType, profilePicture: '',
+          userType: widget.userType, profilePicture: '', phoneNumber: '',
         );
 
         // Save user data to Firestore
