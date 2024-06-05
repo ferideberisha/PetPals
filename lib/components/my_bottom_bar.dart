@@ -7,7 +7,8 @@ import 'package:petpals/pages/home/profile/profile_page.dart';
 class CustomBottomNavigationBar extends StatelessWidget {
   final int selectedIndex;
 
-  const CustomBottomNavigationBar({super.key, required this.selectedIndex});
+  const CustomBottomNavigationBar({Key? key, required this.selectedIndex})
+      : super(key: key);
 
   void _onItemTapped(BuildContext context, int index) {
     if (index == selectedIndex) return;
@@ -37,11 +38,13 @@ class CustomBottomNavigationBar extends StatelessWidget {
         transitionDuration: Duration.zero,
       ),
     );
-  
   }
 
   @override
   Widget build(BuildContext context) {
+    // Get the height of the system's navigation bar
+    final double bottomPadding = MediaQuery.of(context).viewInsets.bottom;
+
     return ClipRRect(
       borderRadius: const BorderRadius.only(
         topLeft: Radius.circular(30),
@@ -49,14 +52,17 @@ class CustomBottomNavigationBar extends StatelessWidget {
       ),
       child: BottomAppBar(
         color: const Color(0x7EE6E6FA),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            buildNavItem(context, 0, Icons.search_outlined),
-            buildNavItem(context, 1, Icons.message_outlined),
-            buildNavItem(context, 2, Icons.favorite_border_outlined),
-            buildNavItem(context, 3, Icons.person_outline),
-          ],
+        child: Padding(
+          padding: EdgeInsets.only(bottom: bottomPadding),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              buildNavItem(context, 0, Icons.search_outlined),
+              buildNavItem(context, 1, Icons.message_outlined),
+              buildNavItem(context, 2, Icons.favorite_border_outlined),
+              buildNavItem(context, 3, Icons.person_outline),
+            ],
+          ),
         ),
       ),
     );

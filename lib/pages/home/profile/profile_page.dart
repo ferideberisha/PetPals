@@ -8,6 +8,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:petpals/components/circle_avatar.dart'; // Import CircleAvatarWidget
 import 'package:petpals/components/my_bottom_bar.dart';
 import 'package:petpals/pages/auth/auth.dart';
+import 'package:petpals/pages/home/business/my_bussines_page.dart';
+import 'package:petpals/pages/home/profile/aboutme/about_me_page.dart';
 import 'package:petpals/pages/home/profile/accountsettings/account_settings_page.dart';
 import 'package:petpals/pages/home/profile/payment/my_payment_page.dart';
 import 'package:petpals/pages/home/profile/pets/my_pets_page.dart';
@@ -15,7 +17,7 @@ import 'package:petpals/service/auth_service.dart';
 import 'package:petpals/pages/home/profile/basicinfo/basic_info_page.dart'; // Import the BasicInfoPage
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
+  const ProfilePage({Key? key}) : super(key: key);
 
   @override
   _ProfilePageState createState() => _ProfilePageState();
@@ -24,83 +26,94 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   late String _userName = "Loading..."; // Initialize _userName with "Loading..."
   dynamic _image; // Can be a File or a String URL
+  bool isWalker = false; // Variable to store if the user is a walker
 
   @override
   void initState() {
     super.initState();
     _getUserDisplayName();
+    _checkUserRole(); // Check user role when the widget initializes
   }
 
-
-void _getUserDisplayName() async {
-  User? user = FirebaseAuth.instance.currentUser;
-  if (user != null) {
-    DocumentSnapshot userDoc = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .get();
-    Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
-    String firstName = userData['firstName'] ?? '';
-    String lastName = userData['lastName'] ?? '';
-    String profilePictureUrl = userData['profilePicture'] ?? ''; // Fetch profile picture URL
-    setState(() {
-      _userName = '$firstName $lastName'; // Update _userName with the user's name
-      if (profilePictureUrl.isNotEmpty) {
-        _image = profilePictureUrl; // Initialize _image with the profile picture URL
-      }
-    });
-  }
-}
-
-
-Future<void> _pickImage(ImageSource source) async {
-  final pickedImage = await ImagePicker().pickImage(source: source);
-
-  if (pickedImage != null) {
-    final File image = File(pickedImage.path);
-    
-    // Upload Image to Firebase Storage
-    try {
-      final imageUrl = await uploadImageToStorage(image);
-      
-      // Update User Profile with Image URL
-      await updateProfilePicture(imageUrl);
-      
-      // Update _image variable to display the new image
-      setState(() {
-        _image = image;
-      });
-    } catch (e) {
-      // Handle errors
-      print('Error uploading image: $e');
-    }
-  }
-}
-
-Future<String> uploadImageToStorage(File image) async {
-  try {
-    final ref = FirebaseStorage.instance.ref('Users/Images/Profile/${DateTime.now().millisecondsSinceEpoch}');
-    await ref.putFile(image);
-    return await ref.getDownloadURL();
-  } catch (e) {
-    throw e; // Handle error appropriately
-  }
-}
-
-Future<void> updateProfilePicture(String imageUrl) async {
-  try {
-    final currentUser = FirebaseAuth.instance.currentUser;
-    if (currentUser != null) {
-      await FirebaseFirestore.instance
+  void _getUserDisplayName() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
           .collection('users')
-          .doc(currentUser.uid)
-          .update({'profilePicture': imageUrl});
+          .doc(user.uid)
+          .get();
+      Map<String, dynamic> userData =
+          userDoc.data() as Map<String, dynamic>;
+      String firstName = userData['firstName'] ?? '';
+      String lastName = userData['lastName'] ?? '';
+      String profilePictureUrl = userData['profilePicture'] ?? '';
+      setState(() {
+        _userName = '$firstName $lastName';
+        if (profilePictureUrl.isNotEmpty) {
+          _image = profilePictureUrl;
+        }
+      });
     }
-  } catch (e) {
-    throw e; // Handle error appropriately
   }
-}
 
+  // Function to check if the user is a walker
+  void _checkUserRole() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+      Map<String, dynamic> userData =
+          userDoc.data() as Map<String, dynamic>;
+      setState(() {
+        isWalker = userData['userType'] == 'walker'; // Check if user role is 'walker'
+      });
+    }
+  }
+
+  Future<void> _pickImage(ImageSource source) async {
+    final pickedImage = await ImagePicker().pickImage(source: source);
+
+    if (pickedImage != null) {
+      final File image = File(pickedImage.path);
+
+      try {
+        final imageUrl = await uploadImageToStorage(image);
+        await updateProfilePicture(imageUrl);
+        setState(() {
+          _image = image;
+        });
+      } catch (e) {
+        print('Error uploading image: $e');
+      }
+    }
+  }
+
+  Future<String> uploadImageToStorage(File image) async {
+    try {
+      final ref = FirebaseStorage.instance
+          .ref('Users/Images/Profile/${DateTime.now().millisecondsSinceEpoch}');
+      await ref.putFile(image);
+      return await ref.getDownloadURL();
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  Future<void> updateProfilePicture(String imageUrl) async {
+    try {
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser != null) {
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(currentUser.uid)
+            .update({'profilePicture': imageUrl});
+      }
+    } catch (e) {
+      throw e;
+    }
+  }
 
   void signUserOut() {
     AuthService().signOut();
@@ -127,9 +140,9 @@ Future<void> updateProfilePicture(String imageUrl) async {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 75), // Adjust this value to move the username up
+                    padding: const EdgeInsets.only(bottom: 75),
                     child: Text(
-                      _userName.isNotEmpty ? _userName : 'Loading...', // Check if _userName is not empty
+                      _userName.isNotEmpty ? _userName : 'Loading...',
                       style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -206,6 +219,35 @@ Future<void> updateProfilePicture(String imageUrl) async {
                 ),
               ),
               const SizedBox(height: 20),
+                 if (isWalker)
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const AboutMePage()),
+                  );
+                },
+                child: const Row(
+                  children: [
+                    SizedBox(width: 10),
+                    Icon(Icons.person, color: Colors.black),
+                    SizedBox(width: 15),
+                    Text(
+                      'About me',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.normal,
+                        fontSize: 16,
+                      ),
+                    ),
+                    SizedBox(width: 8),
+                    Expanded(child: SizedBox()),
+                    Icon(Icons.arrow_forward_ios, color: Colors.black),
+                    SizedBox(width: 10),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
               TextButton(
                 onPressed: () {
                   Navigator.push(
@@ -223,7 +265,38 @@ Future<void> updateProfilePicture(String imageUrl) async {
                       style: TextStyle(
                         color: Colors.black,
                         fontWeight: FontWeight.normal,
-                        fontSize: 16,
+                        fontSize
+: 16,
+                      ),
+                    ),
+                    SizedBox(width: 8),
+                    Expanded(child: SizedBox()),
+                    Icon(Icons.arrow_forward_ios, color: Colors.black),
+                    SizedBox(width: 10),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+                 if (isWalker)
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const MyBusinessPage()),
+                  );
+                },
+                child: const Row(
+                  children: [
+                    SizedBox(width: 10),
+                    Icon(Icons.business_center_sharp, color: Colors.black),
+                    SizedBox(width: 15),
+                    Text(
+                      'My business',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.normal,
+                        fontSize
+: 16,
                       ),
                     ),
                     SizedBox(width: 8),
