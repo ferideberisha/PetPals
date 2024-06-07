@@ -9,9 +9,10 @@ class MyTextField extends StatefulWidget {
   final VoidCallback? onTap;
   final bool readOnly;
   final Widget? suffixIcon;
+  final Widget? prefixIcon; // Add prefixIcon property
 
   const MyTextField({
-    super.key,
+    Key? key,
     required this.controller,
     required this.hintText,
     required this.obscureText,
@@ -20,10 +21,10 @@ class MyTextField extends StatefulWidget {
     this.onTap,
     this.suffixIcon,
     this.readOnly = false,
-  });
+    this.prefixIcon,
+  }) : super(key: key);
 
   @override
-  // ignore: library_private_types_in_public_api
   _MyTextFieldState createState() => _MyTextFieldState();
 }
 
@@ -36,7 +37,7 @@ class _MyTextFieldState extends State<MyTextField> {
         padding: const EdgeInsets.symmetric(horizontal: 0),
         child: TextFormField(
           controller: widget.controller,
-          obscureText: widget.obscureText, // Use widget.obscureText here
+          obscureText: widget.obscureText,
           readOnly: widget.readOnly,
           onTap: widget.onTap,
           decoration: InputDecoration(
@@ -63,6 +64,7 @@ class _MyTextFieldState extends State<MyTextField> {
             filled: true,
             hintStyle: TextStyle(color: Colors.grey[300]),
             suffixIcon: widget.suffixIcon,
+            prefixIcon: widget.prefixIcon, // Use prefixIcon property
           ),
           validator: widget.validator,
         ),

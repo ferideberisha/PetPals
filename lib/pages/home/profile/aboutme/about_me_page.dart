@@ -5,7 +5,6 @@ class AboutMePage extends StatefulWidget {
   const AboutMePage({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _AboutMePageState createState() => _AboutMePageState();
 }
 
@@ -17,7 +16,6 @@ class _AboutMePageState extends State<AboutMePage> {
   bool _isAboutMeError = false;
   bool _isSizeError = false;
   bool _isPetNumberError = false;
-  
 
   final _formKey = GlobalKey<FormState>();
 
@@ -69,30 +67,27 @@ class _AboutMePageState extends State<AboutMePage> {
     // For example, you can save the form data, navigate to another screen, or perform any other action
   }
 
-void _toggleSize(String size) {
-  setState(() {
-    if (_selectedSizes.contains(size)) {
-      _selectedSizes.remove(size);
-    } else {
-      _selectedSizes.add(size);
-    }
-    _isSizeError = false; // Clear the error flag
-  });
-}
+  void _toggleSize(String size) {
+    setState(() {
+      if (_selectedSizes.contains(size)) {
+        _selectedSizes.remove(size);
+      } else {
+        _selectedSizes.add(size);
+      }
+      _isSizeError = false; // Clear the error flag
+    });
+  }
 
-
-
-void _togglePetNumber(String number) {
-  setState(() {
-    if (_selectedPetNumbers.contains(number)) {
-      _selectedPetNumbers.remove(number);
-    } else {
-      _selectedPetNumbers.add(number);
-    }
-    _isPetNumberError = false; // Clear the error flag
-  });
-}
-
+  void _togglePetNumber(String number) {
+    setState(() {
+      if (_selectedPetNumbers.contains(number)) {
+        _selectedPetNumbers.remove(number);
+      } else {
+        _selectedPetNumbers.add(number);
+      }
+      _isPetNumberError = false; // Clear the error flag
+    });
+  }
 
   void _toggleSkill(String skill) {
     setState(() {
@@ -117,48 +112,32 @@ void _togglePetNumber(String number) {
                 _buildSizeTile('5-10 kg', setState),
                 _buildSizeTile('10-15 kg', setState),
                 _buildSizeTile('15-20 kg', setState),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 80), // Adjust the horizontal padding as needed
-                child: MyButton(
-                  onTap: () {
-                    // Your onTap function
-                    Navigator.pop(context); // Close the bottom sheet
-                    // You can perform any action here when the submit button is pressed
-                    // For example, you can trigger form submission or update state
-                  },
-                  text: 'Submit',
-                  textColor: Colors.white,
-                  color: const Color(0xFFCAADEE),
-                  borderColor: const Color(0xFFCAADEE),
-                  borderWidth: 1,
-                  width: 350,
-                  height: 45,
-                ),
-              ),
-
-                  SizedBox(height: 16),
-
+                const SizedBox(height: 16),
               ],
             );
-            
           },
         );
       },
     );
   }
-ListTile _buildSizeTile(String size, StateSetter setState) {
-  return ListTile(
-    title: Text(size),
-    trailing: _selectedSizes.contains(size)
-        ? const Icon(Icons.check, color: Colors.blue)
-        : null,
-    onTap: () {
-      _toggleSize(size); // Call _toggleSize function
-    },
-  );
-}
 
-
+  ListTile _buildSizeTile(String size, StateSetter setState,) {
+    return ListTile(
+      title: Text(size),
+      trailing: _selectedSizes.contains(size)
+          ? const Icon(Icons.check, color: Colors.blue)
+          : null,
+      onTap: () {
+        setState(() {
+          _toggleSize(size);
+        });
+      },
+        hoverColor: Colors.transparent, // Remove hover color
+    focusColor: Colors.transparent, // Remove focus color
+    splashColor: Colors.transparent, // Remove splash color
+    
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -168,26 +147,25 @@ ListTile _buildSizeTile(String size, StateSetter setState) {
             style: TextStyle(fontWeight: FontWeight.bold)),
         shadowColor: Colors.white,
         actions: [
-  TextButton(
-    onPressed: () {
-      // Call _submitForm only when the Save button is pressed
-      _submitForm();
-    },
-    style: ButtonStyle(
-      overlayColor: MaterialStateProperty.all(
-          Colors.transparent), // Remove hover effect
-    ),
-    child: const Text(
-      'Save',
-      style: TextStyle(
-        color: Color(0xFF967BB6), // Set the text color to the desired color
-        fontWeight: FontWeight.bold,
-        fontSize: 18, // Optional: make the text bold
-      ),
-    ),
-  ),
-],
-
+          TextButton(
+            onPressed: () {
+              // Call _submitForm only when the Save button is pressed
+              _submitForm();
+            },
+            style: ButtonStyle(
+              overlayColor: MaterialStateProperty.all(
+                  Colors.transparent), // Remove hover effect
+            ),
+            child: const Text(
+              'Save',
+              style: TextStyle(
+                color: Color(0xFF967BB6), // Set the text color to the desired color
+                fontWeight: FontWeight.bold,
+                fontSize: 18, // Optional: make the text bold
+              ),
+            ),
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -304,7 +282,6 @@ ListTile _buildSizeTile(String size, StateSetter setState) {
                             label: Text(size),
                           ))
                       .toList(),
-                    
                 ),
                 const SizedBox(height: 20),
                 const Text(
@@ -478,4 +455,3 @@ ListTile _buildSizeTile(String size, StateSetter setState) {
     );
   }
 }
-
