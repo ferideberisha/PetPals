@@ -7,8 +7,7 @@ import 'package:petpals/pages/home/profile/profile_page.dart';
 class CustomBottomNavigationBar extends StatelessWidget {
   final int selectedIndex;
 
-  const CustomBottomNavigationBar({Key? key, required this.selectedIndex})
-      : super(key: key);
+  const CustomBottomNavigationBar({super.key, required this.selectedIndex});
 
   void _onItemTapped(BuildContext context, int index) {
     if (index == selectedIndex) return;

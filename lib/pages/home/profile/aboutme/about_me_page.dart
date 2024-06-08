@@ -5,6 +5,7 @@ class AboutMePage extends StatefulWidget {
   const AboutMePage({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _AboutMePageState createState() => _AboutMePageState();
 }
 

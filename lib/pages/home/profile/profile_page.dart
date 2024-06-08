@@ -17,7 +17,7 @@ import 'package:petpals/service/auth_service.dart';
 import 'package:petpals/pages/home/profile/basicinfo/basic_info_page.dart'; // Import the BasicInfoPage
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({Key? key}) : super(key: key);
+  const ProfilePage({super.key});
 
   @override
   _ProfilePageState createState() => _ProfilePageState();
@@ -97,7 +97,7 @@ class _ProfilePageState extends State<ProfilePage> {
       await ref.putFile(image);
       return await ref.getDownloadURL();
     } catch (e) {
-      throw e;
+      rethrow;
     }
   }
 
@@ -111,7 +111,7 @@ class _ProfilePageState extends State<ProfilePage> {
             .update({'profilePicture': imageUrl});
       }
     } catch (e) {
-      throw e;
+      rethrow;
     }
   }
 

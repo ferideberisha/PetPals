@@ -12,7 +12,7 @@ class MyTextField extends StatefulWidget {
   final Widget? prefixIcon; // Add prefixIcon property
 
   const MyTextField({
-    Key? key,
+    super.key,
     required this.controller,
     required this.hintText,
     required this.obscureText,
@@ -22,9 +22,10 @@ class MyTextField extends StatefulWidget {
     this.suffixIcon,
     this.readOnly = false,
     this.prefixIcon,
-  }) : super(key: key);
+  });
 
   @override
+  // ignore: library_private_types_in_public_api
   _MyTextFieldState createState() => _MyTextFieldState();
 }
 

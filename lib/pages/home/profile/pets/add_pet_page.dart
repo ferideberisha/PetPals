@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:petpals/components/custom_switch.dart';
 import 'package:petpals/components/my_button.dart'; // Import MyButton
 import 'package:petpals/components/circle_avatar.dart'; // Import CircleAvatarWidget
 import 'package:petpals/components/my_textfield.dart'; // Import your custom text field
@@ -445,96 +446,61 @@ class _AddPetPageState extends State<AddPetPage> {
                     ),
                   ),
                 const SizedBox(height: 15),
-                SwitchListTile(
-                  title: const Text(
-                    'Microchipped',
-                    style:
-                        TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
-                  ),
-                  value: _isMicrochipped,
+                  CustomSwitchTile(
+                  title: 'Microchipped',
+                  initialValue: _isMicrochipped,
                   onChanged: (bool value) {
                     setState(() {
                       _isMicrochipped = value;
                     });
                   },
-                  activeColor: Colors.white,
-                  activeTrackColor: const Color(0xFF967BB6),
                 ),
-                SwitchListTile(
-                  title: const Text(
-                    'Friendly with children',
-                    style:
-                        TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
-                  ),
-                  value: _isFriendlyWithChildren,
+                CustomSwitchTile(
+                  title: 'Friendly with children',
+                  initialValue: _isFriendlyWithChildren,
                   onChanged: (bool value) {
                     setState(() {
                       _isFriendlyWithChildren = value;
                     });
                   },
-                  activeColor: Colors.white,
-                  activeTrackColor: const Color(0xFF967BB6),
                 ),
-                SwitchListTile(
-                  title: const Text(
-                    'Spayed or neutered',
-                    style:
-                        TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
-                  ),
-                  value: _isSpayedOrNeutered,
+                CustomSwitchTile(
+                  title: 'Spayed or neutered',
+                  initialValue: _isSpayedOrNeutered,
                   onChanged: (bool value) {
                     setState(() {
                       _isSpayedOrNeutered = value;
                     });
                   },
-                  activeColor: Colors.white,
-                  activeTrackColor: const Color(0xFF967BB6),
                 ),
-                SwitchListTile(
-                  title: const Text(
-                    'Friendly with dogs',
-                    style:
-                        TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
-                  ),
-                  value: _isFriendlyWithDogs,
+                CustomSwitchTile(
+                  title: 'Friendly with dogs',
+                  initialValue: _isFriendlyWithDogs,
                   onChanged: (bool value) {
                     setState(() {
                       _isFriendlyWithDogs = value;
                     });
                   },
-                  activeColor: Colors.white,
-                  activeTrackColor: const Color(0xFF967BB6),
                 ),
-                SwitchListTile(
-                  title: const Text(
-                    'House trained',
-                    style:
-                        TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
-                  ),
-                  value: _isHouseTrained,
+                CustomSwitchTile(
+                  title: 'House trained',
+                  initialValue: _isHouseTrained,
                   onChanged: (bool value) {
                     setState(() {
                       _isHouseTrained = value;
                     });
                   },
-                  activeColor: Colors.white,
-                  activeTrackColor: const Color(0xFF967BB6),
                 ),
-                SwitchListTile(
-                  title: const Text(
-                    'Friendly with cats',
-                    style:
-                        TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
-                  ),
-                  value: _isFriendlyWithCats,
+                CustomSwitchTile(
+                  title: 'Friendly with cats',
+                  initialValue: _isFriendlyWithCats,
                   onChanged: (bool value) {
                     setState(() {
                       _isFriendlyWithCats = value;
                     });
                   },
-                  activeColor: Colors.white,
-                  activeTrackColor: const Color(0xFF967BB6),
                 ),
+
                 const SizedBox(height: 5),
                 const Divider(),
                 const SizedBox(height: 10),
