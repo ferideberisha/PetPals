@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:petpals/components/my_button.dart';
-import 'package:petpals/pages/home/home_page.dart';
+import 'package:petpals/pages/home/search_page.dart';
 import 'package:petpals/pages/auth/login/login_page.dart';
 
 class VerifyEmailPage extends StatefulWidget {
@@ -74,7 +74,7 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
 
   @override
   Widget build(BuildContext context) => isEmailVerified
-      ? HomePage(
+      ? SearchPage(
           context: context,
         ) // Navigate to HomePage if email is verified
       : Scaffold(

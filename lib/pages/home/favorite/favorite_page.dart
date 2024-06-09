@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:petpals/components/my_button.dart';
-import 'package:petpals/pages/home/home_page.dart';
+import 'package:petpals/pages/home/search_page.dart';
 import '../../../components/my_bottom_bar.dart';
 
 class FavoritePage extends StatefulWidget {
@@ -66,7 +66,7 @@ class _FavoritePageState extends State<FavoritePage>
                   Navigator.pushReplacement(
                     context,
                     PageRouteBuilder(
-                      pageBuilder: (_, __, ___) => HomePage(context: context),
+                      pageBuilder: (_, __, ___) => SearchPage(context: context),
                       transitionDuration: Duration.zero,
                     ),
                   );

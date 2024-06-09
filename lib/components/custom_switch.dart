@@ -6,13 +6,14 @@ class CustomSwitchTile extends StatefulWidget {
   final ValueChanged<bool> onChanged;
 
   const CustomSwitchTile({
-    Key? key,
+    super.key,
     required this.title,
     required this.initialValue,
     required this.onChanged,
-  }) : super(key: key);
+  });
 
   @override
+  // ignore: library_private_types_in_public_api
   _CustomSwitchTileState createState() => _CustomSwitchTileState();
 }
 
@@ -30,7 +31,7 @@ class _CustomSwitchTileState extends State<CustomSwitchTile> {
     return SwitchListTile(
       title: Text(
         widget.title,
-        style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
+        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
       ),
       value: _value,
       onChanged: (value) {

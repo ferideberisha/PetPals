@@ -10,9 +10,10 @@ class OTPVerificationPage extends StatefulWidget {
   final String verificationId;
   final String phoneNumber;
 
-  OTPVerificationPage({Key? key, required this.verifyOTP, required this.verificationId, required this.phoneNumber}) : super(key: key);
+  const OTPVerificationPage({super.key, required this.verifyOTP, required this.verificationId, required this.phoneNumber});
 
   @override
+  // ignore: library_private_types_in_public_api
   _OTPVerificationPageState createState() => _OTPVerificationPageState();
 }
 
@@ -59,11 +60,13 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
 
                         // Navigate to the next page after successful verification
                         Navigator.pushReplacement(
+                          // ignore: use_build_context_synchronously
                           context,
                           MaterialPageRoute(builder: (context) => const BasicInfoPage()), // Ensure HomePage is correctly implemented
                         );
                       } catch (e) {
                         log(e.toString()); // Print the error message
+                        // ignore: use_build_context_synchronously
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text('Verification failed. Please try again.'),
@@ -99,7 +102,7 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
             .update({'phoneNumber': phoneNumber});
       }
     } catch (e) {
-      throw e; // Handle error appropriately
+      rethrow; // Handle error appropriately
     }
   }
 }

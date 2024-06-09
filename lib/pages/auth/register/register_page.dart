@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:petpals/components/my_button.dart'; // Import MyButton
 import 'package:petpals/components/my_textfield.dart';
 import 'package:petpals/pages/auth/register/email_verification.dart';
@@ -366,7 +365,7 @@ class _RegisterPageState extends State<RegisterPage> {
           password: passwordController.text,
         );
 
-        userModel user = userModel(
+        UserModel user = UserModel(
           uid: userCredential.user!.uid,
           firstName: firstNameController.text,
           lastName: lastNameController.text,

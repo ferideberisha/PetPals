@@ -4,7 +4,7 @@ import 'package:petpals/components/my_button.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class MyCalendar extends StatefulWidget {
-  const MyCalendar({Key? key}) : super(key: key);
+  const MyCalendar({super.key});
 
   @override
   State<MyCalendar> createState() => _MyCalendarState();
@@ -15,7 +15,7 @@ class _MyCalendarState extends State<MyCalendar> {
   CalendarFormat _calendarFormat = CalendarFormat.month;
   bool _showAddButton = false;
   bool _busyAllDay = false; // Define the variable to track the state of the switch
-  Set<DateTime> _unavailableDates = {};
+  final Set<DateTime> _unavailableDates = {};
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +49,7 @@ class _MyCalendarState extends State<MyCalendar> {
               // Pass the set of unavailable dates to the calendar
               daysOfWeekVisible: true,
               weekendDays: const [DateTime.saturday],
-              headerStyle: HeaderStyle(
+              headerStyle: const HeaderStyle(
                 formatButtonVisible: false,
               ),
               eventLoader: (date) => _unavailableDates.contains(date)
@@ -85,16 +85,9 @@ class _MyCalendarState extends State<MyCalendar> {
     // Create a list to hold the text controllers for each text field
     List<TextEditingController> controllers = [];
 
-    // Function to add a new time period text field
-    void _addTimePeriodTextField() {
-      setState(() {
-        controllers.add(TextEditingController());
-      });
-    }
-
     return SingleChildScrollView(
       child: Container(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
@@ -102,20 +95,20 @@ class _MyCalendarState extends State<MyCalendar> {
             Column(
               children: controllers.map((controller) {
                 return Padding(
-                  padding: EdgeInsets.only(bottom: 8.0),
+                  padding: const EdgeInsets.only(bottom: 8.0),
                   child: Row(
                     children: [
                       Expanded(
                         child: TextField(
                           controller: controller,
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             labelText: 'From',
                             border: OutlineInputBorder(),
                           ),
                         ),
                       ),
-                      SizedBox(width: 8.0),
-                      Expanded(
+                      const SizedBox(width: 8.0),
+                      const Expanded(
                         child: TextField(
                           decoration: InputDecoration(
                             labelText: 'To',
@@ -145,7 +138,7 @@ class _MyCalendarState extends State<MyCalendar> {
               },
               title: 'Busy all day',
             ),
-            SizedBox(height: 10.0),
+            const SizedBox(height: 10.0),
 
             // Button to save changes
             MyButton(

@@ -4,14 +4,14 @@ import 'package:petpals/pages/home/business/my_calendar.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class AvailabilityPage extends StatefulWidget {
-  const AvailabilityPage({Key? key}) : super(key: key);
+  const AvailabilityPage({super.key});
 
   @override
   State<AvailabilityPage> createState() => _AvailabilityPageState();
 }
 
 class _AvailabilityPageState extends State<AvailabilityPage> {
-  bool _isEditing = false;
+  final bool _isEditing = false;
   DateTime? _selectedDate;
   CalendarFormat _calendarFormat = CalendarFormat.month;
 

@@ -1,9 +1,11 @@
+// ignore_for_file: avoid_print
+
 import 'package:flutter/material.dart';
 import 'package:petpals/components/my_button.dart';
 import 'package:petpals/components/my_textfield.dart';
 
 class PricesPage extends StatefulWidget {
-  const PricesPage({Key? key}) : super(key: key);
+  const PricesPage({super.key});
 
   @override
   State<PricesPage> createState() => _PricesPageState();
@@ -13,10 +15,10 @@ class _PricesPageState extends State<PricesPage> {
   bool _dayCareEnabled = false;
   bool _houseSittingEnabled = false;
   bool _walkingEnabled = false;
-  TextEditingController _dayCarePriceController = TextEditingController();
-  TextEditingController _houseSittingPriceController =
+  final TextEditingController _dayCarePriceController = TextEditingController();
+  final TextEditingController _houseSittingPriceController =
       TextEditingController();
-  TextEditingController _walkingPriceController = TextEditingController();
+  final TextEditingController _walkingPriceController = TextEditingController();
   final _formKey = GlobalKey<FormState>(); // Add a GlobalKey
   bool _showErrorMessage = false;
 
@@ -97,7 +99,7 @@ class _PricesPageState extends State<PricesPage> {
               width: 390,
               height: 60,
             ),
-            SizedBox(height: 10), // Add some space
+            const SizedBox(height: 10), // Add some space
           ],
         ),
       ),
@@ -122,7 +124,7 @@ Widget _buildOptionTile({
   required ValueChanged<bool> onChanged,
   required TextEditingController controller,
 }) {
-  Widget suffixIcon = SizedBox(); // Default empty Widget
+  Widget suffixIcon = const SizedBox(); // Default empty Widget
 
   // Check if the value is true, meaning the option is enabled
   if (value) {
@@ -150,7 +152,7 @@ Widget _buildOptionTile({
         trailing: Switch(
           value: value,
           onChanged: onChanged,
-          activeColor: Color(0xFF967BB6),
+          activeColor: const Color(0xFF967BB6),
         ),
       ),
       if (value)

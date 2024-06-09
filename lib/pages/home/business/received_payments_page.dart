@@ -22,7 +22,7 @@ class _ReceivedPaymentPageState extends State<ReceivedPaymentPage> {
             Container(
               padding: const EdgeInsets.all(16.0),
               decoration: BoxDecoration(
-                border: Border.all(color: Color(0xFFCAADEE)),
+                border: Border.all(color: const Color(0xFFCAADEE)),
                 borderRadius: BorderRadius.circular(20.0),
               ),
               child: Column(

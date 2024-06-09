@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:petpals/pages/auth/login_or_register.dart';
-import '../home/home_page.dart';
+import '../home/search_page.dart';
 
 class AuthPage extends StatelessWidget {
   const AuthPage({super.key});
@@ -14,7 +14,7 @@ class AuthPage extends StatelessWidget {
         builder: (context, snapshot) {
           // user is logged in
           if (snapshot.hasData) {
-            return HomePage(context: context); // Pass context here
+            return SearchPage(context: context); // Pass context here
           }
 
           // user is NOT logged in
