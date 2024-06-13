@@ -4,7 +4,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:petpals/components/custom_switch.dart';
 import 'package:petpals/components/my_button.dart'; // Import MyButton
 import 'package:petpals/components/circle_avatar.dart'; // Import CircleAvatarWidget
-import 'package:petpals/components/my_textfield.dart'; // Import your custom text field
+import 'package:petpals/components/my_textfield.dart';
+import 'package:petpals/models/petModel.dart';
+import 'package:petpals/service/firestore_service.dart'; // Import your custom text field
 
 class AddPetPage extends StatefulWidget {
   const AddPetPage({super.key});
@@ -15,9 +17,13 @@ class AddPetPage extends StatefulWidget {
 }
 
 class _AddPetPageState extends State<AddPetPage> {
+  final FirestoreService _firestoreService = FirestoreService();
   File? _image;
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _ageController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController(); // Add this line
+  final TextEditingController _vetInfoController = TextEditingController();
+
   bool _isMaleSelected = false;
   bool _isFemaleSelected = false;
   String? _selectedSizeRange;
@@ -29,6 +35,9 @@ class _AddPetPageState extends State<AddPetPage> {
   bool _isFriendlyWithCats = false;
   bool _isEnergyLevelError = false;
 
+  String? _energyLevel; // Define _energyLevel here
+
+  String? _numberOfWalksPerDay; // Define _energyLevel here
   bool _isNumberOfWalksError = false; // Add this boolean flag
   bool _isGenderError =
       false; // Flag to determine if gender error should be displayed
@@ -47,40 +56,109 @@ class _AddPetPageState extends State<AddPetPage> {
     }
   }
 
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _ageController.dispose();
-    super.dispose();
+@override
+void dispose() {
+  _nameController.dispose();
+  _ageController.dispose();
+  _descriptionController.dispose(); // Dispose the _descriptionController
+  super.dispose();
+}
+
+
+ void _submitForm() {
+  // Reset error flags and messages before validating the form
+  setState(() {
+    _isGenderError = false;
+    _isSizeError = false;
+    _isDescriptionError = false;
+    _isNumberOfWalksError = false;
+    _isEnergyLevelError = false;
+  });
+
+  // Validate the form
+  if (!_formKey.currentState!.validate()) {
+    return;
   }
 
-  void _submitForm() {
-    // Reset error flags and messages before validating the form
+  // Check if gender is selected
+  if (!_isMaleSelected && !_isFemaleSelected) {
     setState(() {
-      _isGenderError = false;
-      _isSizeError = false;
-      _isDescriptionError = false;
-      _isNumberOfWalksError = false;
-      _isEnergyLevelError = false;
+      _isGenderError = true; // Set flag to display error
     });
-
-    _formKey.currentState!.validate();
-    // Check if gender is selected
-    if (!_isMaleSelected && !_isFemaleSelected) {
-      setState(() {
-        _isGenderError = true; // Set flag to display error
-      });
-      // Scroll to the gender buttons to make the error visible
-      Scrollable.ensureVisible(context);
-    }
-
-    // Check if size range is selected
-    if (_selectedSizeRange == null) {
-      setState(() {
-        _isSizeError = true; // Set flag to display error
-      });
-    }
+    // Scroll to the gender buttons to make the error visible
+    Scrollable.ensureVisible(context);
+    return;
   }
+
+  // Check if size range is selected
+  if (_selectedSizeRange == null) {
+    setState(() {
+      _isSizeError = true; // Set flag to display error
+    });
+    return;
+  }
+
+  // Save the form data
+  Pet newPet = Pet(
+    name: _nameController.text,
+    imagePath: _image?.path ?? '',
+    age: int.parse(_ageController.text),
+    gender: _isMaleSelected ? 'Male' : 'Female',
+    sizeRange: _selectedSizeRange ?? '',
+    description: _descriptionController.text, // Save description here
+    microchipped: _isMicrochipped,
+    friendlyWithChildren: _isFriendlyWithChildren,
+    spayedOrNeutered: _isSpayedOrNeutered,
+    friendlyWithDogs: _isFriendlyWithDogs,
+    houseTrained: _isHouseTrained,
+    friendlyWithCats: _isFriendlyWithCats,
+    numberOfWalksPerDay: _numberOfWalksPerDay ?? 'Not specified', // Save number of walks here
+    energyLevel: _energyLevel ?? 'Not specified', // Save energy level here
+    vetInfo: _vetInfoController.text,
+  );
+
+    // Save the pet to Firestore
+    _firestoreService.addPet(newPet).then((_) {
+      // After saving to Firestore, return the newPet object to previous screen
+      Navigator.pop(context, newPet);
+    }).catchError((error) {
+      // Handle error if saving fails
+      print('Failed to add pet: $error');
+      // Optionally show an error message to the user
+    });
+  
+
+
+  setState(() {
+      // Clear the form fields after successful submission
+  _nameController.clear();
+  _ageController.clear();
+  _descriptionController.clear();
+  _vetInfoController.clear();
+    _image = null;
+    _isMaleSelected = false;
+    _isFemaleSelected = false;
+    _selectedSizeRange = null;
+    _isMicrochipped = false;
+    _isFriendlyWithChildren = false;
+    _isSpayedOrNeutered = false;
+    _isFriendlyWithDogs = false;
+    _isHouseTrained = false;
+    _isFriendlyWithCats = false;
+    _numberOfWalksPerDay = null;
+    _energyLevel = null;
+  });
+
+  // Optionally, show a success message (you can use a SnackBar for this)
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+      content: Text('Pet added successfully'),
+      duration: Duration(seconds: 2),
+    ),
+  );
+}
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -399,6 +477,7 @@ class _AddPetPageState extends State<AddPetPage> {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
                     child: TextFormField(
+                        controller: _descriptionController,
                       maxLines:
                           null, // Allows the text field to expand vertically
                       keyboardType: TextInputType.multiline,
@@ -414,19 +493,19 @@ class _AddPetPageState extends State<AddPetPage> {
                         focusedErrorBorder:
                             InputBorder.none, // Remove focused error border
                       ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          setState(() {
-                            _isDescriptionError =
-                                true; // Set flag to display error
-                          });
-                          return null;
-                        }
+                     validator: (value) {
+                      if (value == null || value.isEmpty) {
                         setState(() {
-                          _isDescriptionError = false; // Reset error flag
+                          _isDescriptionError = true; // Set flag to display error
                         });
-                        return null;
-                      },
+                        return ;
+                      }
+                      setState(() {
+                        _isDescriptionError = false; // Reset error flag
+                      });
+                      return null;
+                    },
+
                     ),
                   ),
                 ),
@@ -447,6 +526,7 @@ class _AddPetPageState extends State<AddPetPage> {
                   ),
                 const SizedBox(height: 15),
                   CustomSwitchTile(
+                  key: UniqueKey(), // Ensure widget rebuilds correctly
                   title: 'Microchipped',
                   initialValue: _isMicrochipped,
                   onChanged: (bool value) {
@@ -455,7 +535,9 @@ class _AddPetPageState extends State<AddPetPage> {
                     });
                   },
                 ),
+
                 CustomSwitchTile(
+                   key: UniqueKey(),
                   title: 'Friendly with children',
                   initialValue: _isFriendlyWithChildren,
                   onChanged: (bool value) {
@@ -465,6 +547,7 @@ class _AddPetPageState extends State<AddPetPage> {
                   },
                 ),
                 CustomSwitchTile(
+                   key: UniqueKey(),
                   title: 'Spayed or neutered',
                   initialValue: _isSpayedOrNeutered,
                   onChanged: (bool value) {
@@ -474,6 +557,7 @@ class _AddPetPageState extends State<AddPetPage> {
                   },
                 ),
                 CustomSwitchTile(
+                   key: UniqueKey(),
                   title: 'Friendly with dogs',
                   initialValue: _isFriendlyWithDogs,
                   onChanged: (bool value) {
@@ -483,6 +567,7 @@ class _AddPetPageState extends State<AddPetPage> {
                   },
                 ),
                 CustomSwitchTile(
+                   key: UniqueKey(),
                   title: 'House trained',
                   initialValue: _isHouseTrained,
                   onChanged: (bool value) {
@@ -492,6 +577,7 @@ class _AddPetPageState extends State<AddPetPage> {
                   },
                 ),
                 CustomSwitchTile(
+                   key: UniqueKey(),
                   title: 'Friendly with cats',
                   initialValue: _isFriendlyWithCats,
                   onChanged: (bool value) {
@@ -549,14 +635,12 @@ class _AddPetPageState extends State<AddPetPage> {
                       ),
                     ),
                   ),
-                  value: 'Not specified',
+                  value: _numberOfWalksPerDay ?? 'Not specified',
                   onChanged: (String? newValue) {
                     setState(() {
+                      _numberOfWalksPerDay = newValue;
                       _isNumberOfWalksError = false; // Reset error flag
-// Reset error message
                     });
-                    // Handle dropdown value change
-                    // Update the state with the new value
                   },
                   items: <String>[
                     'Not specified',
@@ -643,12 +727,14 @@ class _AddPetPageState extends State<AddPetPage> {
                       ),
                     ),
                   ),
-                  value: 'Not specified',
+                  value: _energyLevel ?? 'Not specified',
                   onChanged: (String? newValue) {
                     setState(() {
+                      _energyLevel = newValue;
                       _isEnergyLevelError = false; // Reset error flag
                     });
                   },
+
                   items: <String>[
                     'Not specified',
                     'High',
@@ -664,18 +750,18 @@ class _AddPetPageState extends State<AddPetPage> {
                     );
                   }).toList(),
                   validator: (value) {
-                    if (value == null || value == 'Not specified') {
-                      setState(() {
-                        _isEnergyLevelError = true; // Set error flag
-                      });
-                    } else {
-                      setState(() {
-                        _isEnergyLevelError = false; // Reset error flag
-                      });
-                      return null;
-                    }
-                    return null;
-                  },
+                  if (value == null || value == 'Not specified') {
+                    setState(() {
+                      _isEnergyLevelError = true; // Set error flag
+                    });
+                    return 'Please select energy level';
+                  }
+                  setState(() {
+                    _isEnergyLevelError = false; // Reset error flag
+                  });
+                  return null;
+                },
+
                 ),
                 if (_isEnergyLevelError)
                   Container(
@@ -713,14 +799,14 @@ class _AddPetPageState extends State<AddPetPage> {
                     borderRadius: BorderRadius.circular(8.0),
                     border: Border.all(color: const Color(0xFFCAADEE)),
                   ),
-                  child: const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8.0),
-                    child: TextField(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: TextFormField(
+                      controller: _vetInfoController,
                       maxLines: null,
                       keyboardType: TextInputType.multiline,
-                      decoration: InputDecoration(
-                        hintText:
-                            'Specify the diseases, the address of the clinic and the \nnumber of the veterinarian',
+                      decoration: const InputDecoration(
+                        hintText: 'Specify the diseases, the address of the clinic and the \nnumber of the veterinarian',
                         hintStyle: TextStyle(fontSize: 14, color: Colors.grey),
                         border: InputBorder.none,
                       ),

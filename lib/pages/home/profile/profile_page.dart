@@ -8,7 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:petpals/components/circle_avatar.dart'; // Import CircleAvatarWidget
 import 'package:petpals/components/my_bottom_bar.dart';
 import 'package:petpals/pages/auth/auth.dart';
-import 'package:petpals/pages/home/business/my_bussines_page.dart';
+import 'package:petpals/pages/home/profile/business/my_bussines_page.dart';
 import 'package:petpals/pages/home/profile/aboutme/about_me_page.dart';
 import 'package:petpals/pages/home/profile/accountsettings/account_settings_page.dart';
 import 'package:petpals/pages/home/profile/payment/my_payment_page.dart';
@@ -254,7 +254,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const MyPetsPage()),
+                    MaterialPageRoute(builder: (context) => MyPetsPage()),
                   );
                 },
                 child: const Row(

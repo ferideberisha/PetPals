@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:petpals/pages/auth/login_or_register.dart';
-import '../home/search_page.dart';
+import '../home/search/search_page.dart';
 
 class AuthPage extends StatelessWidget {
   const AuthPage({super.key});

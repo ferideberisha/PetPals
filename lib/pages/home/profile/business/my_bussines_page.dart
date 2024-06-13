@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:petpals/components/my_bottom_bar.dart';
-import 'package:petpals/pages/home/business/availability_page.dart';
-import 'package:petpals/pages/home/business/prices_page.dart';
-import 'package:petpals/pages/home/business/received_payments_page.dart';
+import 'package:petpals/pages/home/profile/business/availability_page.dart';
+import 'package:petpals/pages/home/profile/business/prices_page.dart';
+import 'package:petpals/pages/home/profile/business/received_payments_page.dart';
 class MyBusinessPage extends StatefulWidget {
   const MyBusinessPage({super.key});
 

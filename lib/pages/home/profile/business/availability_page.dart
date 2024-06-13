@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:petpals/components/my_button.dart';
-import 'package:petpals/pages/home/business/my_calendar.dart';
+import 'package:petpals/pages/home/profile/business/my_calendar.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class AvailabilityPage extends StatefulWidget {

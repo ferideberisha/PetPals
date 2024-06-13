@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:petpals/pages/home/search_page.dart';
+import 'package:petpals/pages/home/search/search_page.dart';
 import 'package:petpals/pages/home/request/message_request_page.dart';
 import 'package:petpals/pages/home/favorite/favorite_page.dart';
 import 'package:petpals/pages/home/profile/profile_page.dart';

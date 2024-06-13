@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:petpals/components/my_button.dart';
-import 'package:petpals/pages/home/search_page.dart';
+import 'package:petpals/pages/home/search/search_page.dart';
 import '../../../components/my_bottom_bar.dart';
 
 class FavoritePage extends StatefulWidget {

@@ -160,20 +160,18 @@ class _SearchPageState extends State<SearchPage> {
                             ),
                           ),
                           Padding(
-  padding: EdgeInsets.all(4), // Adjust padding to create space between the background color and container edges
-  child: Container(
-    decoration: BoxDecoration(
-      color: Color.fromARGB(108, 174, 174, 211), // Background color for the filter icon
-      borderRadius: BorderRadius.circular(10),
-    ),
-    child: IconButton(
-      onPressed: _showSortingOptions,
-      icon: const Icon(Icons.tune, color: Colors.black, size: 25),
-    ),
-  ),
-),
-
-
+                            padding: EdgeInsets.all(4), // Adjust padding to create space between the background color and container edges
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Color.fromARGB(108, 174, 174, 211), // Background color for the filter icon
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: IconButton(
+                                onPressed: _showSortingOptions,
+                                icon: const Icon(Icons.tune, color: Colors.black, size: 25),
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -201,10 +199,7 @@ class _SearchPageState extends State<SearchPage> {
                             itemBuilder: (context, index) {
                               final user = _filteredUsers[index];
                               return UserCard(
-                                userName: '${user.firstName} ${user.lastName}',
-                                userImageURL: user.profilePicture.isNotEmpty
-                                    ? user.profilePicture
-                                    : 'https://via.placeholder.com/150',
+                                user: user,
                                 onFavoriteTap: () {
                                   print('Add ${user.firstName} ${user.lastName} to favorites');
                                 },
