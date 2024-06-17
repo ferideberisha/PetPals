@@ -1,15 +1,21 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:petpals/models/aboutmeModel.dart';
 import 'package:petpals/models/petModel.dart';
+import 'package:petpals/models/priceModel.dart';
 import 'package:petpals/models/userModel.dart';
+import 'package:petpals/models/paymentModel.dart'; // Import Payment model
 
 class FirestoreService {
   final CollectionReference petsCollection =
       FirebaseFirestore.instance.collection('pets');
   final CollectionReference aboutMeCollection =
-      FirebaseFirestore.instance.collection('aboutMeFormData');
+      FirebaseFirestore.instance.collection('aboutMe');
   final CollectionReference usersCollection =
       FirebaseFirestore.instance.collection('users');
+  final CollectionReference paymentsCollection =
+      FirebaseFirestore.instance.collection('payments'); // Add payments collection
+  final CollectionReference pricesCollection =
+      FirebaseFirestore.instance.collection('prices');
 
   // Add user to Firestore
   Future<void> addUser(UserModel user) async {
@@ -62,6 +68,44 @@ class FirestoreService {
     } catch (e) {
       print('Error updating About Me Data: $e');
       // Handle error appropriately, e.g., throw or log
+    }
+  }
+
+  // Add payment to Firestore
+  Future<void> addPayment(Payment payment) async {
+    try {
+      await paymentsCollection.add(payment.toMap());
+    } catch (e) {
+      print('Error adding payment: $e');
+      // Handle error appropriately, e.g., throw or log
+    }
+  }
+
+
+
+  Future<void> addPrices(Prices prices) async {
+    try {
+      print('Adding prices to Firestore: ${prices.toMap()}');
+      await pricesCollection.add(prices.toMap());
+      print('Prices added successfully');
+    } catch (e) {
+      print('Error adding prices to Firestore: $e');
+      throw e; // Propagate the error
+    }
+  }
+
+  Future<Prices?> fetchPrices() async {
+    try {
+      QuerySnapshot snapshot = await pricesCollection.get();
+      if (snapshot.docs.isNotEmpty) {
+        return Prices.fromMap(snapshot.docs.first.data() as Map<String, dynamic>);
+      } else {
+        print('No prices data found');
+        return null;
+      }
+    } catch (e) {
+      print('Error fetching prices: $e');
+      return null;
     }
   }
 }

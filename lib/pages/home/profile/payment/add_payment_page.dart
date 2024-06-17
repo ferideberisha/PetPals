@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:petpals/components/my_button.dart'; // Import MyButton
-import 'package:petpals/components/my_textfield.dart'; // Import the new date picker
+import 'package:petpals/components/my_button.dart';
+import 'package:petpals/components/my_textfield.dart';
+import 'package:petpals/models/paymentModel.dart';
+import 'package:petpals/service/firestore_service.dart';
 
 class AddPaymentPage extends StatefulWidget {
   const AddPaymentPage({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _AddPaymentPageState createState() => _AddPaymentPageState();
 }
 
@@ -17,6 +18,35 @@ class _AddPaymentPageState extends State<AddPaymentPage> {
   final TextEditingController expiryDateController = TextEditingController();
   final TextEditingController cvvController = TextEditingController();
   bool isDefault = false;
+  final FirestoreService firestoreService = FirestoreService();
+
+  @override
+  void dispose() {
+    cardNumberController.dispose();
+    expiryDateController.dispose();
+    cvvController.dispose();
+    super.dispose();
+  }
+
+  Future<void> savePaymentToFirestore(Payment payment) async {
+    try {
+      await firestoreService.addPayment(payment);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Payment method added successfully')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to add payment method: $e')),
+      );
+    }
+
+        // Clear form fields after successful submission
+    setState(() {
+      cardNumberController.clear(); // Clear text in the text field
+      cvvController.clear();
+      expiryDateController.clear();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +62,6 @@ class _AddPaymentPageState extends State<AddPaymentPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Card Number TextField
               MyTextField(
                 controller: cardNumberController,
                 hintText: 'Card Number',
@@ -49,7 +78,6 @@ class _AddPaymentPageState extends State<AddPaymentPage> {
                 },
               ),
               const SizedBox(height: 15),
-              // Expiry Date and CVV2 Row
               Row(
                 children: [
                   Expanded(
@@ -123,7 +151,6 @@ class _AddPaymentPageState extends State<AddPaymentPage> {
                           return 'Please enter the CVV2';
                         }
                         if (value.length != 3) {
-                          // Check if length is not equal to 3
                           return 'CVV2 must be 3 digits';
                         }
                         return null;
@@ -133,7 +160,6 @@ class _AddPaymentPageState extends State<AddPaymentPage> {
                 ],
               ),
               const SizedBox(height: 20),
-              // Set as Default option
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -153,8 +179,6 @@ class _AddPaymentPageState extends State<AddPaymentPage> {
                 ],
               ),
               const SizedBox(height: 20),
-              // Submit Button
-              // Submit Button
               MyButton(
                 onTap: () {
                   if (_formKey.currentState!.validate()) {
@@ -176,7 +200,14 @@ class _AddPaymentPageState extends State<AddPaymentPage> {
                         ),
                       );
                     } else {
-                      // Your logic to handle form submission goes here
+                      final payment = Payment(
+                        cardNumber: cardNumberController.text,
+                        expiryDate: expiryDateController.text,
+                        cvv: cvvController.text,
+                        isDefault: isDefault,
+                      );
+
+                      savePaymentToFirestore(payment);
                     }
                   }
                 },
