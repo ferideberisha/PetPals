@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:petpals/components/my_button.dart'; // Import MyButton
+import 'package:petpals/components/my_button.dart';
+import 'package:petpals/models/aboutmeModel.dart';
+import 'package:petpals/service/firestore_service.dart'; // Import MyButton
 
 class AboutMePage extends StatefulWidget {
   const AboutMePage({super.key});
@@ -11,6 +13,7 @@ class AboutMePage extends StatefulWidget {
 
 class _AboutMePageState extends State<AboutMePage> {
   final TextEditingController _aboutmeController = TextEditingController();
+  final TextEditingController _otherinfoController = TextEditingController();
   final List<String> _selectedSizes = [];
   final List<String> _selectedPetNumbers = [];
   final List<String> _selectedSkills = [];
@@ -26,47 +29,79 @@ class _AboutMePageState extends State<AboutMePage> {
     super.dispose();
   }
 
-  void _submitForm() {
-    // Reset error flags before validating the form
+void _submitForm() async {
+  // Reset error flags before validating the form
+  setState(() {
+    _isAboutMeError = false;
+    _isSizeError = false;
+    _isPetNumberError = false;
+    // Add more error flags if needed for other fields
+  });
+
+  // Check if description is filled
+  if (_aboutmeController.text.isEmpty) {
     setState(() {
-      _isAboutMeError = false;
-      _isSizeError = false;
-      _isPetNumberError = false;
-      // Add more error flags if needed for other fields
+      _isAboutMeError = true; // Set flag to display description error
+    });
+  }
+
+  // Check if size is selected
+  if (_selectedSizes.isEmpty) {
+    setState(() {
+      _isSizeError = true; // Set flag to display size error
+    });
+  }
+
+  // Check if pet number is selected
+  if (_selectedPetNumbers.isEmpty) {
+    setState(() {
+      _isPetNumberError = true; // Set flag to display pet number error
+    });
+  }
+
+  // If any error flag is true, return without submitting the form
+  if (_isAboutMeError || _isSizeError || _isPetNumberError /* Add more conditions if needed */) {
+    // You can show a snackbar or set an error message for each field if needed
+    return;
+  }
+
+  // If all fields are filled, proceed with form submission logic
+  try {
+    // Prepare AboutMeFormData object to save in Firestore
+    AboutMeFormData aboutMeData = AboutMeFormData(
+      userId: '',
+      aboutMe: _aboutmeController.text,
+      otherInfo: _otherinfoController.text,
+      selectedSizes: _selectedSizes,
+      selectedPetNumbers: _selectedPetNumbers,
+      selectedSkills: _selectedSkills,
+    );
+
+    // Save or update AboutMeFormData in Firestore
+    await FirestoreService().updateAboutMeFormData(aboutMeData);
+
+    // Clear form fields after successful submission
+    setState(() {
+      _aboutmeController.clear(); // Clear text in the text field
+      _otherinfoController.clear();
+      _selectedSizes.clear(); // Clear selected sizes
+      _selectedPetNumbers.clear(); // Clear selected pet numbers
+      _selectedSkills.clear(); // Clear selected skills
     });
 
-    // Check if description is filled
-    if (_aboutmeController.text.isEmpty) {
-      setState(() {
-        _isAboutMeError = true; // Set flag to display description error
-      });
-    }
-
-    // Check if size is selected
-    if (_selectedSizes.isEmpty) {
-      setState(() {
-        _isSizeError = true; // Set flag to display size error
-      });
-    }
-
-    // Check if pet number is selected
-    if (_selectedPetNumbers.isEmpty) {
-      setState(() {
-        _isPetNumberError = true; // Set flag to display pet number error
-      });
-    }
-
-    // Check other fields if needed
-
-    // If any error flag is true, return without submitting the form
-    if (_isAboutMeError || _isSizeError || _isPetNumberError /* Add more conditions if needed */) {
-      // You can show a snackbar or set an error message for each field if needed
-      return;
-    }
-
-    // If all fields are filled, you can proceed with form submission logic here
-    // For example, you can save the form data, navigate to another screen, or perform any other action
+    // Show a success message to the user
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      content: Text('About Me information saved successfully!'),
+      duration: Duration(seconds: 2),
+    ));
+  } catch (e) {
+    print('Error saving About Me information: $e');
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      content: Text('Failed to save About Me information.'),
+      duration: Duration(seconds: 2),
+    ));
   }
+}
 
   void _toggleSize(String size) {
     setState(() {
@@ -285,7 +320,7 @@ class _AboutMePageState extends State<AboutMePage> {
                       .toList(),
                 ),
                 const SizedBox(height: 20),
-                const Text(
+                   const Text(
                   'Other information',
                   style: TextStyle(
                     color: Colors.black,
@@ -300,12 +335,13 @@ class _AboutMePageState extends State<AboutMePage> {
                     borderRadius: BorderRadius.circular(8.0),
                     border: Border.all(color: const Color(0xFFCAADEE)),
                   ),
-                  child: const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8.0),
-                    child: TextField(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: TextFormField(
+                      controller: _otherinfoController,
                       maxLines: null,
                       keyboardType: TextInputType.multiline,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         border: InputBorder.none,
                       ),
                     ),

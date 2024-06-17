@@ -30,6 +30,7 @@ class MyApp extends StatelessWidget {
       home: SafeArea( // Wrap your home widget with SafeArea
         child: AuthPage(),
       ),
+      
     );
   }
 }

@@ -32,4 +32,16 @@ class UserModel {
       phoneNumber: data['phoneNumber'] ?? '',
     );
   }
+
+    // Method to convert UserModel to Map for Firestore
+  Map<String, dynamic> toMap() {
+    return {
+      'firstName': firstName,
+      'lastName': lastName,
+      'email': email,
+      'userType': userType,
+      'profilePicture': profilePicture,
+      'phoneNumber': phoneNumber,
+    };
+  }
 }
