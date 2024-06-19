@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:petpals/models/aboutmeModel.dart';
+import 'package:petpals/models/availabilityModel.dart';
 import 'package:petpals/models/petModel.dart';
 import 'package:petpals/models/priceModel.dart';
 import 'package:petpals/models/userModel.dart';
@@ -16,7 +17,8 @@ class FirestoreService {
       FirebaseFirestore.instance.collection('payments'); // Add payments collection
   final CollectionReference pricesCollection =
       FirebaseFirestore.instance.collection('prices');
-
+  final CollectionReference availabilityCollection =
+      FirebaseFirestore.instance.collection('availability');
   // Add user to Firestore
   Future<void> addUser(UserModel user) async {
     try {
@@ -81,8 +83,6 @@ class FirestoreService {
     }
   }
 
-
-
   Future<void> addPrices(Prices prices) async {
     try {
       print('Adding prices to Firestore: ${prices.toMap()}');
@@ -108,4 +108,56 @@ class FirestoreService {
       return null;
     }
   }
+
+ // Add availability to Firestore
+  Future<void> addAvailability(Availability availability) async {
+    try {
+      // Create a reference to the availability document using the date
+      DocumentReference availabilityRef =
+          availabilityCollection.doc(availability.date.toString());
+
+      // Check if the document exists
+      DocumentSnapshot snapshot = await availabilityRef.get();
+      if (snapshot.exists) {
+        // Document exists, update it with new availability data
+        await availabilityRef.update({
+          'timeSlots': availability.timeSlots.map((slot) => slot.toMap()).toList(),
+          'isBusyAllDay': availability.isBusyAllDay,
+        });
+      } else {
+        // Document does not exist, create a new one
+        await availabilityRef.set({
+          'date': availability.date,
+          'timeSlots': availability.timeSlots.map((slot) => slot.toMap()).toList(),
+          'isBusyAllDay': availability.isBusyAllDay,
+        });
+      }
+
+      print('Availability added successfully');
+    } catch (e) {
+      print('Error adding availability: $e');
+      throw e; // Propagate the error
+    }
+  }
+
+  // Fetch availability for a specific date
+  Future<Availability?> fetchAvailability(DateTime date) async {
+    try {
+      DocumentSnapshot snapshot =
+          await availabilityCollection.doc(date.toString()).get();
+
+      if (snapshot.exists) {
+        // Convert Firestore data to Availability object
+        return Availability.fromMap(snapshot.data() as Map<String, dynamic>);
+      } else {
+        print('No availability data found for date: $date');
+        return null;
+      }
+    } catch (e) {
+      print('Error fetching availability: $e');
+      return null;
+    }
+  }
+
+  
 }
