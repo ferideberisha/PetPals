@@ -5,19 +5,24 @@ import 'package:petpals/components/custom_switch.dart';
 import 'package:petpals/components/my_button.dart'; // Import MyButton
 import 'package:petpals/components/circle_avatar.dart'; // Import CircleAvatarWidget
 import 'package:petpals/components/my_textfield.dart';
+import 'package:petpals/controllers/pet_controller.dart';
 import 'package:petpals/models/petModel.dart';
-import 'package:petpals/service/firestore_service.dart'; // Import your custom text field
 
 class AddPetPage extends StatefulWidget {
-  const AddPetPage({super.key});
+    final String userId;
+ final String role;
+  const AddPetPage({Key? key, required this.userId, required this.role}) : super(key: key);
 
   @override
   // ignore: library_private_types_in_public_api
   _AddPetPageState createState() => _AddPetPageState();
+  
 }
 
 class _AddPetPageState extends State<AddPetPage> {
-  final FirestoreService _firestoreService = FirestoreService();
+  
+ final PetController _petController = PetController();
+
   File? _image;
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _ageController = TextEditingController();
@@ -58,6 +63,7 @@ class _AddPetPageState extends State<AddPetPage> {
 
 @override
 void dispose() {
+  
   _nameController.dispose();
   _ageController.dispose();
   _descriptionController.dispose(); // Dispose the _descriptionController
@@ -65,7 +71,8 @@ void dispose() {
 }
 
 
- void _submitForm() {
+void _submitForm() {
+     
   // Reset error flags and messages before validating the form
   setState(() {
     _isGenderError = false;
@@ -98,43 +105,38 @@ void dispose() {
     return;
   }
 
-  // Save the form data
+  // Create a new Pet instance
   Pet newPet = Pet(
     name: _nameController.text,
     imagePath: _image?.path ?? '',
     age: int.parse(_ageController.text),
     gender: _isMaleSelected ? 'Male' : 'Female',
     sizeRange: _selectedSizeRange ?? '',
-    description: _descriptionController.text, // Save description here
+    description: _descriptionController.text,
     microchipped: _isMicrochipped,
     friendlyWithChildren: _isFriendlyWithChildren,
     spayedOrNeutered: _isSpayedOrNeutered,
     friendlyWithDogs: _isFriendlyWithDogs,
     houseTrained: _isHouseTrained,
     friendlyWithCats: _isFriendlyWithCats,
-    numberOfWalksPerDay: _numberOfWalksPerDay ?? 'Not specified', // Save number of walks here
-    energyLevel: _energyLevel ?? 'Not specified', // Save energy level here
+    numberOfWalksPerDay: _numberOfWalksPerDay ?? 'Not specified',
+    energyLevel: _energyLevel ?? 'Not specified',
     vetInfo: _vetInfoController.text,
   );
 
-    // Save the pet to Firestore
-    _firestoreService.addPet(newPet).then((_) {
-      // After saving to Firestore, return the newPet object to previous screen
-      Navigator.pop(context, newPet);
-    }).catchError((error) {
-      // Handle error if saving fails
-      print('Failed to add pet: $error');
-      // Optionally show an error message to the user
-    });
-  
+// Save the pet to Firestore
+_petController.addPet(newPet, widget.userId, widget.role).then((_) {
+  Navigator.pop(context, newPet);
+}).catchError((error) {
+  print('Failed to add pet: $error');
+});
 
-
+  // Clear form fields after successful submission
   setState(() {
-      // Clear the form fields after successful submission
-  _nameController.clear();
-  _ageController.clear();
-  _descriptionController.clear();
-  _vetInfoController.clear();
+    _nameController.clear();
+    _ageController.clear();
+    _descriptionController.clear();
+    _vetInfoController.clear();
     _image = null;
     _isMaleSelected = false;
     _isFemaleSelected = false;
@@ -149,13 +151,14 @@ void dispose() {
     _energyLevel = null;
   });
 
-  // Optionally, show a success message (you can use a SnackBar for this)
+  // Show success message
   ScaffoldMessenger.of(context).showSnackBar(
     const SnackBar(
       content: Text('Pet added successfully'),
       duration: Duration(seconds: 2),
     ),
   );
+
 }
 
 

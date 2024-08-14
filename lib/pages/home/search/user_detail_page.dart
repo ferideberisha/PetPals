@@ -1,11 +1,32 @@
 import 'package:flutter/material.dart';
+//import 'package:petpals/controllers/price_controller.dart';
 import 'package:petpals/models/userModel.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class UserDetailPage extends StatelessWidget {
+class UserDetailPage extends StatefulWidget {
   final UserModel user;
 
   const UserDetailPage({Key? key, required this.user}) : super(key: key);
+
+  @override
+  _UserDetailPageState createState() => _UserDetailPageState();
+}
+
+class _UserDetailPageState extends State<UserDetailPage> {
+  double? _walkingPrice;
+//final PriceController _priceController = PriceController();
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  // Future<void> _fetchWalkingPrice() async {
+  //   final price = await _priceController.fetchWalkingPrice(widget.user.uid);
+  //   setState(() {
+  //     _walkingPrice = price;
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -91,13 +112,21 @@ class UserDetailPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '${user.firstName} ${user.lastName}',
+                      '${widget.user.firstName} ${widget.user.lastName}',
                       style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
                         color: Colors.black,
                       ),
                     ),
+                    if (_walkingPrice != null)
+                      Text(
+                        'Walking: €${_walkingPrice!.toStringAsFixed(2)} per walk',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.black,
+                        ),
+                      ),
                   ],
                 ),
                 // Adding padding around CircleAvatar
@@ -109,8 +138,8 @@ class UserDetailPage extends StatelessWidget {
                   ),
                   child: CircleAvatar(
                     backgroundImage: NetworkImage(
-                      user.profilePicture.isNotEmpty
-                          ? user.profilePicture
+                      widget.user.profilePicture.isNotEmpty
+                          ? widget.user.profilePicture
                           : 'https://via.placeholder.com/150',
                     ),
                     radius: 50,

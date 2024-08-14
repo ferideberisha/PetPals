@@ -5,7 +5,7 @@ class UserModel {
   final String firstName;
   final String lastName;
   final String email;
-  final String userType;
+  final String role;
   final String profilePicture;
   final String phoneNumber;
 
@@ -14,7 +14,7 @@ class UserModel {
     required this.firstName,
     required this.lastName,
     required this.email,
-    required this.userType,
+    required this.role,
     required this.profilePicture,
     required this.phoneNumber,
   });
@@ -27,19 +27,19 @@ class UserModel {
       firstName: data['firstName'] ?? '',
       lastName: data['lastName'] ?? '',
       email: data['email'] ?? '',
-      userType: data['userType'] ?? '',
+      role: data['role'] ?? '',
       profilePicture: data['profilePicture'] ?? '',
       phoneNumber: data['phoneNumber'] ?? '',
     );
   }
 
-    // Method to convert UserModel to Map for Firestore
+  // Method to convert UserModel to Map for Firestore
   Map<String, dynamic> toMap() {
     return {
       'firstName': firstName,
       'lastName': lastName,
       'email': email,
-      'userType': userType,
+      'role': role,
       'profilePicture': profilePicture,
       'phoneNumber': phoneNumber,
     };

@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:petpals/components/my_button.dart';
 import 'package:petpals/components/my_textfield.dart';
+import 'package:petpals/controllers/payment_controller.dart';
 import 'package:petpals/models/paymentModel.dart';
-import 'package:petpals/service/firestore_service.dart';
 
 class AddPaymentPage extends StatefulWidget {
-  const AddPaymentPage({super.key});
+  final String userId;
+  final String role;
+
+  const AddPaymentPage({super.key, required this.userId, required this.role});
 
   @override
   _AddPaymentPageState createState() => _AddPaymentPageState();
@@ -18,7 +21,7 @@ class _AddPaymentPageState extends State<AddPaymentPage> {
   final TextEditingController expiryDateController = TextEditingController();
   final TextEditingController cvvController = TextEditingController();
   bool isDefault = false;
-  final FirestoreService firestoreService = FirestoreService();
+  final PaymentController _paymentController = PaymentController();
 
   @override
   void dispose() {
@@ -28,25 +31,28 @@ class _AddPaymentPageState extends State<AddPaymentPage> {
     super.dispose();
   }
 
-  Future<void> savePaymentToFirestore(Payment payment) async {
-    try {
-      await firestoreService.addPayment(payment);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Payment method added successfully')),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to add payment method: $e')),
-      );
-    }
-
-        // Clear form fields after successful submission
-    setState(() {
-      cardNumberController.clear(); // Clear text in the text field
-      cvvController.clear();
-      expiryDateController.clear();
-    });
+Future<void> savePaymentToFirestore(Payment payment) async {
+  try {
+    // Log path and payment data
+    print('Saving payment: ${payment.toMap()} to Firestore');
+    await _paymentController.addPayment(payment, widget.userId, widget.role);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Payment method added successfully')),
+    );
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Failed to add payment method: $e')),
+    );
   }
+
+  // Clear form fields after successful submission
+  setState(() {
+    cardNumberController.clear();
+    cvvController.clear();
+    expiryDateController.clear();
+  });
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +77,9 @@ class _AddPaymentPageState extends State<AddPaymentPage> {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your card number';
                   }
-                  if (value.length != 16) {
+                  // Remove any spaces from the card number
+                  final cleanedValue = value.replaceAll(RegExp(r'\s+'), '');
+                  if (cleanedValue.length != 16) {
                     return 'Invalid card number';
                   }
                   return null;

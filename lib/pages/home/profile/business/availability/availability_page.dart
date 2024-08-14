@@ -4,7 +4,9 @@ import 'package:petpals/pages/home/profile/business/availability/my_calendar.dar
 import 'package:table_calendar/table_calendar.dart';
 
 class AvailabilityPage extends StatefulWidget {
-  const AvailabilityPage({super.key});
+  final String userId;
+  final String role;
+  const AvailabilityPage({super.key, required this.userId, required this.role});
 
   @override
   State<AvailabilityPage> createState() => _AvailabilityPageState();
@@ -47,7 +49,7 @@ class _AvailabilityPageState extends State<AvailabilityPage> {
                 // Navigate to the AddPetPage
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const MyCalendar()),
+                  MaterialPageRoute(builder: (context) => const MyCalendar(userId: '', role: '',)),
                 );
               },
                text: 'Edit Calendar',

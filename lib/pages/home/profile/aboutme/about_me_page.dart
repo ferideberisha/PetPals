@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:petpals/components/my_button.dart';
+import 'package:petpals/controllers/aboutme_controller.dart';
 import 'package:petpals/models/aboutmeModel.dart';
-import 'package:petpals/service/firestore_service.dart'; // Import MyButton
 
 class AboutMePage extends StatefulWidget {
-  const AboutMePage({super.key});
+      final String userId;
+ final String role;
+  const AboutMePage({super.key, required this.userId, required this.role});
 
   @override
   // ignore: library_private_types_in_public_api
@@ -12,7 +14,8 @@ class AboutMePage extends StatefulWidget {
 }
 
 class _AboutMePageState extends State<AboutMePage> {
-  final TextEditingController _aboutmeController = TextEditingController();
+  final AboutMeController _aboutMeController = AboutMeController();
+  final TextEditingController _aboutController = TextEditingController();
   final TextEditingController _otherinfoController = TextEditingController();
   final List<String> _selectedSizes = [];
   final List<String> _selectedPetNumbers = [];
@@ -25,11 +28,12 @@ class _AboutMePageState extends State<AboutMePage> {
 
   @override
   void dispose() {
-    _aboutmeController.dispose();
+    _aboutController.dispose();
     super.dispose();
   }
 
 void _submitForm() async {
+  
   // Reset error flags before validating the form
   setState(() {
     _isAboutMeError = false;
@@ -39,7 +43,7 @@ void _submitForm() async {
   });
 
   // Check if description is filled
-  if (_aboutmeController.text.isEmpty) {
+  if (_aboutController.text.isEmpty) {
     setState(() {
       _isAboutMeError = true; // Set flag to display description error
     });
@@ -69,8 +73,7 @@ void _submitForm() async {
   try {
     // Prepare AboutMeFormData object to save in Firestore
     AboutMeFormData aboutMeData = AboutMeFormData(
-      userId: '',
-      aboutMe: _aboutmeController.text,
+      aboutMe: _aboutController.text,
       otherInfo: _otherinfoController.text,
       selectedSizes: _selectedSizes,
       selectedPetNumbers: _selectedPetNumbers,
@@ -78,11 +81,15 @@ void _submitForm() async {
     );
 
     // Save or update AboutMeFormData in Firestore
-    await FirestoreService().updateAboutMeFormData(aboutMeData);
+_aboutMeController.saveAboutMeData(aboutMeData, widget.userId, widget.role).then((_) {
+  Navigator.pop(context, aboutMeData);
+}).catchError((error) {
+  print('Failed to save about me data: $error');
+});
 
     // Clear form fields after successful submission
     setState(() {
-      _aboutmeController.clear(); // Clear text in the text field
+      _aboutController.clear(); // Clear text in the text field
       _otherinfoController.clear();
       _selectedSizes.clear(); // Clear selected sizes
       _selectedPetNumbers.clear(); // Clear selected pet numbers
@@ -236,7 +243,7 @@ void _submitForm() async {
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
                         child: TextFormField(
-                          controller: _aboutmeController,
+                          controller: _aboutController,
                           maxLines: null, // Allows the text field to expand vertically
                           keyboardType: TextInputType.multiline,
                           decoration: const InputDecoration(

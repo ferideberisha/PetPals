@@ -1,40 +1,64 @@
 import 'package:flutter/material.dart';
 import 'package:petpals/components/pet_card.dart';
+import 'package:petpals/controllers/pet_controller.dart';
 import 'package:petpals/models/petModel.dart';
-import 'package:petpals/service/firestore_service.dart';
 import 'package:petpals/pages/home/profile/pets/add_pet_page.dart'; // Adjust import as per your project structure
 
 class MyPetsPage extends StatelessWidget {
+  final String userId;
+  final String role;
+  final PetController petController;
+
+  MyPetsPage({required this.userId, required this.role})
+      : petController = PetController();
+
   @override
   Widget build(BuildContext context) {
+    print('MyPetsPage - userId: $userId, role: $role');
+
+    if (userId.isEmpty || role.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('My Pets', style: TextStyle(fontWeight: FontWeight.bold)),
+        ),
+        body: Center(
+          child: Text(
+            'Invalid userId or role',
+            style: TextStyle(fontSize: 16, color: Colors.red),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Pets', style: TextStyle(fontWeight: FontWeight.bold)),
-          actions: [
-    Padding(
-      padding: const EdgeInsets.only(right: 16.0), // Adjust the right padding as needed
-      child: GestureDetector(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const AddPetPage()),
-          );
-        },
-        child: const Text(
-          '+ Add',
-          style: TextStyle(
-            color: Color(0xFF967BB6),
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AddPetPage(userId: userId, role: role),
+                  ),
+                );
+              },
+              child: const Text(
+                '+ Add',
+                style: TextStyle(
+                  color: Color(0xFF967BB6),
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
+            ),
           ),
-        ),
+        ],
       ),
-    ),
-  ],
-
-      ),
-      body: StreamBuilder<List<Pet>>(
-        stream: FirestoreService().getPetsStream(),
+         body: StreamBuilder<List<Pet>>(
+        stream: petController.getPetsStream(userId, role),
         builder: (context, snapshot) {
           if (snapshot.hasData && snapshot.data!.isNotEmpty) {
             return ListView.builder(

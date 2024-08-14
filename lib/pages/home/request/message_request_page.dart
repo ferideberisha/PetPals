@@ -18,7 +18,7 @@ class _MessageRequestPageState extends State<MessageRequestPage>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
   }
 
   @override
@@ -98,20 +98,7 @@ class _MessageRequestPageState extends State<MessageRequestPage>
                 ),
               ),
             ),
-            Container(
-              padding: const EdgeInsets.only(left: 0),
-              child: const Tab(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.done_all, color: Color(0xFF967BB6)),
-                    SizedBox(width: 8),
-                    Text('Completed'),
-                  ],
-                ),
-              ),
-            ),
+            
           ],
         ),
       ),
@@ -121,7 +108,6 @@ class _MessageRequestPageState extends State<MessageRequestPage>
           RequestList(status: 'Outgoing'),
           RequestList(status: 'Accepted'),
           RequestList(status: 'Rejected'),
-          RequestList(status: 'Completed'),
         ],
       ),
       bottomNavigationBar:

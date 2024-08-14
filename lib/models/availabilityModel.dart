@@ -11,21 +11,21 @@ class Availability {
     this.isBusyAllDay = false,
   });
 
-  factory Availability.fromMap(Map<String, dynamic> map) {
-    List<dynamic> timeSlotList = map['timeSlots'] ?? [];
-    List<TimeSlot> slots = timeSlotList
-        .map((slot) => TimeSlot(
-              from: (slot['from'] as Timestamp).toDate(),
-              to: (slot['to'] as Timestamp).toDate(),
-            ))
-        .toList();
-
-    return Availability(
-      date: (map['date'] as Timestamp).toDate(),
-      timeSlots: slots,
-      isBusyAllDay: map['isBusyAllDay'] ?? false,
-    );
+  factory Availability.fromMap(Map<String, dynamic>? map) {
+  if (map == null) {
+    throw ArgumentError("Map cannot be null");
   }
+
+  List<dynamic> timeSlotList = map['timeSlots'] ?? [];
+  List<TimeSlot> slots = timeSlotList.map((slot) => TimeSlot.fromMap(slot)).toList();
+
+  return Availability(
+    date: (map['date'] as Timestamp).toDate(),
+    timeSlots: slots,
+    isBusyAllDay: map['isBusyAllDay'] ?? false,
+  );
+}
+
 
   Map<String, dynamic> toMap() {
     return {
@@ -51,4 +51,15 @@ class TimeSlot {
       'to': to,
     };
   }
+
+static TimeSlot fromMap(Map<String, dynamic>? map) {
+  if (map == null) {
+    throw ArgumentError("Map cannot be null");
+  }
+  return TimeSlot(
+    from: (map['from'] as Timestamp).toDate(),
+    to: (map['to'] as Timestamp).toDate(),
+  );
+}
+
 }

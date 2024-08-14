@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:petpals/controllers/availability_controller.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:petpals/models/availabilityModel.dart'; // Assuming you have defined Availability and TimeSlot models
+import 'package:petpals/models/availabilityModel.dart';
 import 'package:petpals/components/custom_switch.dart';
 import 'package:petpals/components/my_button.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MyCalendar extends StatefulWidget {
-  const MyCalendar({Key? key}) : super(key: key);
+  final String userId;
+  final String role;
+
+  const MyCalendar({Key? key, required this.userId, required this.role}) : super(key: key);
 
   @override
   State<MyCalendar> createState() => _MyCalendarState();
@@ -19,9 +23,42 @@ class _MyCalendarState extends State<MyCalendar> {
   bool _showAddButton = false;
   final Set<DateTime> _unavailableDates = {};
   Map<DateTime, Availability> _availabilityMap = {};
-    Map<DateTime, List<String>> _partialAvailabilityDetails = {};
-
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  late final AvailabilityController _availabilityController;
+
+  @override
+  void initState() {
+    super.initState();
+    _availabilityController = AvailabilityController();
+    _fetchAvailability();
+  }
+
+  Future<void> _fetchAvailability() async {
+    try {
+      final path = 'users/${widget.userId}/walkerInfo/${widget.userId}/availability';
+      QuerySnapshot querySnapshot = await _firestore.collection(path).get();
+
+      _availabilityMap.clear();
+      _unavailableDates.clear();
+
+      print('Fetched ${querySnapshot.docs.length} documents');
+
+      querySnapshot.docs.forEach((doc) {
+        print('Document ID: ${doc.id}');
+        Availability availability = Availability.fromMap(doc.data() as Map<String, dynamic>);
+        print('Availability: $availability');
+        _availabilityMap[availability.date] = availability;
+        if (availability.isBusyAllDay) {
+          _unavailableDates.add(availability.date);
+        }
+      });
+
+      setState(() {}); // Trigger UI refresh
+    } catch (e) {
+      print('Error fetching availability: $e');
+      // Optionally, show an error message to the user
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +79,7 @@ class _MyCalendarState extends State<MyCalendar> {
               onDaySelected: (selectedDay, focusedDay) {
                 setState(() {
                   _selectedDate = selectedDay;
-                  _showAddButton = true; // Show the add button when a date is selected
+                  _showAddButton = true;
                 });
               },
               onFormatChanged: (format) {
@@ -52,11 +89,19 @@ class _MyCalendarState extends State<MyCalendar> {
                   });
                 }
               },
-              // Event loader to show unavailable dates
-              eventLoader: (date) =>
-                  _availabilityMap.containsKey(date) ? [_availabilityMap[date]!] : [],
+              eventLoader: (day) {
+                if (_availabilityMap.containsKey(day)) {
+                  Availability availability = _availabilityMap[day]!;
+                  if (availability.isBusyAllDay) {
+                    return [availability];
+                  } else {
+                    return availability.timeSlots;
+                  }
+                } else {
+                  return [];
+                }
+              },
             ),
-
             const SizedBox(height: 20.0),
             if (_showAddButton && _selectedDate != null)
               MyButton(
@@ -85,9 +130,9 @@ class _MyCalendarState extends State<MyCalendar> {
   Widget _buildBottomSheet() {
     TextEditingController _fromController = TextEditingController();
     TextEditingController _toController = TextEditingController();
-    bool _busyAllDaySwitch = false; // Track all-day busy switch state
+    bool _busyAllDaySwitch = false;
 
-return SingleChildScrollView(
+    return SingleChildScrollView(
       child: Container(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -152,17 +197,18 @@ return SingleChildScrollView(
                 }
                 _fromController.clear();
                 _toController.clear();
-                Navigator.pop(context); // Close the bottom sheet
+                Navigator.pop(context);
               },
               child: const Text('Save'),
             ),
             const SizedBox(height: 20.0),
-            if (_partialAvailabilityDetails.containsKey(_selectedDate))
+            if (_selectedDate != null && _availabilityMap.containsKey(_selectedDate!))
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: _partialAvailabilityDetails[_selectedDate]!
-                    .map((detail) => Text(detail))
-                    .toList(),
+                children: [
+                  for (TimeSlot slot in _availabilityMap[_selectedDate!]!.timeSlots)
+                    _buildTimeSlotWidget(slot),
+                ],
               ),
           ],
         ),
@@ -170,6 +216,11 @@ return SingleChildScrollView(
     );
   }
 
+  Widget _buildTimeSlotWidget(TimeSlot slot) {
+    String fromTime = DateFormat.Hm().format(slot.from);
+    String toTime = DateFormat.Hm().format(slot.to);
+    return Text('Busy from $fromTime to $toTime');
+  }
 
   Future<void> _selectTime(BuildContext context, TextEditingController controller) async {
     TimeOfDay? selectedTime = await showTimePicker(
@@ -186,7 +237,6 @@ return SingleChildScrollView(
   void _addTimeSlot(String from, String to) async {
     if (_selectedDate != null) {
       try {
-        // Parse the time strings
         TimeOfDay fromTime = TimeOfDay(
           hour: int.parse(from.split(":")[0]),
           minute: int.parse(from.split(":")[1]),
@@ -196,7 +246,6 @@ return SingleChildScrollView(
           minute: int.parse(to.split(":")[1]),
         );
 
-        // Create DateTime objects for the selected date with the parsed times
         DateTime fromDateTime = DateTime(
           _selectedDate!.year,
           _selectedDate!.month,
@@ -215,33 +264,22 @@ return SingleChildScrollView(
 
         TimeSlot newTimeSlot = TimeSlot(from: fromDateTime, to: toDateTime);
 
-        DocumentReference availabilityRef =
-            _firestore.collection('availability').doc(_selectedDate!.toIso8601String());
+        await _availabilityController.addTimeSlot(widget.userId, _selectedDate!.toIso8601String(), newTimeSlot);
 
-        DocumentSnapshot snapshot = await availabilityRef.get();
-        if (snapshot.exists) {
-          await availabilityRef.update({
-            'timeSlots': FieldValue.arrayUnion([newTimeSlot.toMap()]),
-          });
-        } else {
-          await availabilityRef.set({
-            'date': _selectedDate!,
-            'timeSlots': [newTimeSlot.toMap()],
-            'isBusyAllDay': false,
-          });
-        }
-
-        _unavailableDates.add(_selectedDate!);
         setState(() {
-          // Update state to reflect new time slot
-          _availabilityMap[_selectedDate!] = Availability(
-            date: _selectedDate!,
-            timeSlots: [newTimeSlot],
-            isBusyAllDay: false,
-          );
+          if (_availabilityMap.containsKey(_selectedDate!)) {
+            _availabilityMap[_selectedDate!]!.timeSlots.add(newTimeSlot);
+          } else {
+            _availabilityMap[_selectedDate!] = Availability(
+              date: _selectedDate!,
+              timeSlots: [newTimeSlot],
+              isBusyAllDay: false,
+            );
+          }
         });
       } catch (e) {
         print('Error adding time slot: $e');
+        // Optionally, show an error message to the user
       }
     }
   }
@@ -255,7 +293,7 @@ return SingleChildScrollView(
           isBusyAllDay: true,
         );
 
-        await _updateAvailability(allDayAvailability);
+        await _availabilityController.updateAvailability(widget.userId, _selectedDate!.toIso8601String(), allDayAvailability);
 
         setState(() {
           _availabilityMap[_selectedDate!] = allDayAvailability;
@@ -263,33 +301,8 @@ return SingleChildScrollView(
         });
       } catch (e) {
         print('Error marking day as busy all day: $e');
+        // Optionally, show an error message to the user
       }
-    }
-  }
-
-  Future<void> _updateAvailability(Availability availability) async {
-    try {
-      DocumentReference availabilityRef =
-          _firestore.collection('availability').doc(availability.date.toIso8601String());
-
-      DocumentSnapshot snapshot = await availabilityRef.get();
-      if (snapshot.exists) {
-        await availabilityRef.update({
-          'timeSlots': availability.timeSlots.map((slot) => slot.toMap()).toList(),
-          'isBusyAllDay': availability.isBusyAllDay,
-        });
-      } else {
-        await availabilityRef.set({
-          'date': availability.date,
-          'timeSlots': availability.timeSlots.map((slot) => slot.toMap()).toList(),
-          'isBusyAllDay': availability.isBusyAllDay,
-        });
-      }
-
-      print('Availability updated successfully');
-    } catch (e) {
-      print('Error updating availability: $e');
-      throw e;
     }
   }
 }

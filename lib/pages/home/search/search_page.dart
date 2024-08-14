@@ -44,69 +44,69 @@ class _SearchPageState extends State<SearchPage> {
     return snapshot.docs.map((doc) => UserModel.fromDocument(doc)).toList();
   }
 
-  void _showSortingOptions() {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) {
-        return Container(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Text(
-                'Sort By',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              TextButton(
-                onPressed: () {
-                  setState(() {
-                    _filteredUsers.sort((a, b) => a.firstName.compareTo(b.firstName));
-                  });
-                  Navigator.pop(context);
-                },
-                child: const Text(
-                  'Cost low to high',
-                  style: TextStyle(
-                    color: Colors.grey,
-                  ),
-                ),
-              ),
-              TextButton(
-                onPressed: () {
-                  setState(() {
-                    _filteredUsers.sort((a, b) => a.lastName.compareTo(b.lastName));
-                  });
-                  Navigator.pop(context);
-                },
-                child: const Text(
-                  'Cost high to low',
-                  style: TextStyle(
-                    color: Colors.grey,
-                  ),
-                ),
-              ),
-              TextButton(
-                onPressed: () {
-                  // Implement logic for sorting by other criteria
-                  Navigator.pop(context);
-                },
-                child: const Text(
-                  'Rating high to low',
-                  style: TextStyle(
-                    color: Colors.grey,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
+  // void _showSortingOptions() {
+  //   showModalBottomSheet(
+  //     context: context,
+  //     builder: (context) {
+  //       return Container(
+  //         padding: const EdgeInsets.all(16),
+  //         child: Column(
+  //           mainAxisSize: MainAxisSize.min,
+  //           crossAxisAlignment: CrossAxisAlignment.stretch,
+  //           children: [
+  //             const Text(
+  //               'Sort By',
+  //               style: TextStyle(
+  //                 fontSize: 18,
+  //                 fontWeight: FontWeight.bold,
+  //               ),
+  //             ),
+  //             TextButton(
+  //               onPressed: () {
+  //                 setState(() {
+  //                   _filteredUsers.sort((a, b) => a.firstName.compareTo(b.firstName));
+  //                 });
+  //                 Navigator.pop(context);
+  //               },
+  //               child: const Text(
+  //                 'Cost low to high',
+  //                 style: TextStyle(
+  //                   color: Colors.grey,
+  //                 ),
+  //               ),
+  //             ),
+  //             TextButton(
+  //               onPressed: () {
+  //                 setState(() {
+  //                   _filteredUsers.sort((a, b) => a.lastName.compareTo(b.lastName));
+  //                 });
+  //                 Navigator.pop(context);
+  //               },
+  //               child: const Text(
+  //                 'Cost high to low',
+  //                 style: TextStyle(
+  //                   color: Colors.grey,
+  //                 ),
+  //               ),
+  //             ),
+  //             TextButton(
+  //               onPressed: () {
+  //                 // Implement logic for sorting by other criteria
+  //                 Navigator.pop(context);
+  //               },
+  //               child: const Text(
+  //                 'Rating high to low',
+  //                 style: TextStyle(
+  //                   color: Colors.grey,
+  //                 ),
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
 
   void _onSearchChanged(String query) {
     setState(() {
@@ -159,19 +159,19 @@ class _SearchPageState extends State<SearchPage> {
                               ),
                             ),
                           ),
-                          Padding(
-                            padding: EdgeInsets.all(4), // Adjust padding to create space between the background color and container edges
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Color.fromARGB(108, 174, 174, 211), // Background color for the filter icon
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: IconButton(
-                                onPressed: _showSortingOptions,
-                                icon: const Icon(Icons.tune, color: Colors.black, size: 25),
-                              ),
-                            ),
-                          ),
+                          // Padding(
+                          //   padding: EdgeInsets.all(4), // Adjust padding to create space between the background color and container edges
+                          //   child: Container(
+                          //     decoration: BoxDecoration(
+                          //       color: Color.fromARGB(108, 174, 174, 211), // Background color for the filter icon
+                          //       borderRadius: BorderRadius.circular(10),
+                          //     ),
+                          //     child: IconButton(
+                          //       onPressed: _showSortingOptions,
+                          //       icon: const Icon(Icons.tune, color: Colors.black, size: 25),
+                          //     ),
+                          //   ),
+                          // ),
                         ],
                       ),
                     ),

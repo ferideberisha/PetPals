@@ -73,7 +73,7 @@ class SignUpTypePage extends StatelessWidget {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => RegisterPage(
-                                    userType: 'owner',
+                                    role: 'owner',
                                     onTap: onTap, // Pass onTap to RegisterPage
                                   ),
                                 ),
@@ -136,7 +136,7 @@ class SignUpTypePage extends StatelessWidget {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => RegisterPage(
-                                    userType: 'walker',
+                                    role: 'walker',
                                     onTap: onTap, // Pass onTap to RegisterPage
                                   ),
                                 ),

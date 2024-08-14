@@ -8,8 +8,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:petpals/components/circle_avatar.dart'; // Import CircleAvatarWidget
 import 'package:petpals/components/my_bottom_bar.dart';
 import 'package:petpals/pages/auth/auth.dart';
-import 'package:petpals/pages/home/profile/business/my_bussines_page.dart';
 import 'package:petpals/pages/home/profile/aboutme/about_me_page.dart';
+import 'package:petpals/pages/home/profile/business/my_bussines_page.dart';
 import 'package:petpals/pages/home/profile/accountsettings/account_settings_page.dart';
 import 'package:petpals/pages/home/profile/payment/my_payment_page.dart';
 import 'package:petpals/pages/home/profile/pets/my_pets_page.dart';
@@ -20,20 +20,42 @@ class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _ProfilePageState createState() => _ProfilePageState();
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  late String _userName = "Loading..."; // Initialize _userName with "Loading..."
-  dynamic _image; // Can be a File or a String URL
-  bool isWalker = false; // Variable to store if the user is a walker
-
+  late String _userName = "Loading...";
+  dynamic _image;
+  bool isWalker = false;
+  String? userId;
+  String? role;
   @override
   void initState() {
     super.initState();
     _getUserDisplayName();
-    _checkUserRole(); // Check user role when the widget initializes
+    _checkUserRole();
+     _fetchUserRole();
+  }
+
+    Future<void> _fetchUserRole() async {
+    // Get the current user ID
+    userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) return;
+
+    try {
+      // Fetch user role from Firestore or wherever you store it
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get();
+
+      if (userDoc.exists) {
+        role = userDoc.get('role') as String?;
+        setState(() {}); // Trigger rebuild
+      }
+    } catch (e) {
+      print('Error fetching user role: $e');
+    }
   }
 
   void _getUserDisplayName() async {
@@ -43,8 +65,7 @@ class _ProfilePageState extends State<ProfilePage> {
           .collection('users')
           .doc(user.uid)
           .get();
-      Map<String, dynamic> userData =
-          userDoc.data() as Map<String, dynamic>;
+      Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
       String firstName = userData['firstName'] ?? '';
       String lastName = userData['lastName'] ?? '';
       String profilePictureUrl = userData['profilePicture'] ?? '';
@@ -57,7 +78,6 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  // Function to check if the user is a walker
   void _checkUserRole() async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
@@ -65,10 +85,9 @@ class _ProfilePageState extends State<ProfilePage> {
           .collection('users')
           .doc(user.uid)
           .get();
-      Map<String, dynamic> userData =
-          userDoc.data() as Map<String, dynamic>;
+      Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
       setState(() {
-        isWalker = userData['userType'] == 'walker'; // Check if user role is 'walker'
+        isWalker = userData['role'] == 'walker';
       });
     }
   }
@@ -86,7 +105,6 @@ class _ProfilePageState extends State<ProfilePage> {
           _image = image;
         });
       } catch (e) {
-        // ignore: avoid_print
         print('Error uploading image: $e');
       }
     }
@@ -151,7 +169,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 142),
+                  const SizedBox(width: 110),
                   Row(
                     children: [
                       CircleAvatarWidget(
@@ -197,7 +215,8 @@ class _ProfilePageState extends State<ProfilePage> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const BasicInfoPage()),
+                    MaterialPageRoute(
+                        builder: (context) => const BasicInfoPage()),
                   );
                 },
                 child: const Row(
@@ -221,99 +240,124 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ),
               const SizedBox(height: 20),
-                 if (isWalker)
-              TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const AboutMePage()),
-                  );
-                },
-                child: const Row(
-                  children: [
-                    SizedBox(width: 10),
-                    Icon(Icons.person, color: Colors.black),
-                    SizedBox(width: 15),
-                    Text(
-                      'About me',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.normal,
-                        fontSize: 16,
+              if (isWalker) ...[
+                TextButton(
+  onPressed: () {
+    if (userId != null && role != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => AboutMePage(
+            userId: userId!,
+            role: role!,
+          ),
+        ),
+      );
+    } else {
+      // Handle the case where userId or role is null
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Unable to load user information.'),
+        ),
+      );
+    }
+  },
+  child: const Row(
+    children: [
+      SizedBox(width: 10),
+      Icon(Icons.person, color: Colors.black),
+      SizedBox(width: 15),
+      Text(
+        'About me',
+        style: TextStyle(
+          color: Colors.black,
+          fontWeight: FontWeight.normal,
+          fontSize: 16,
+        ),
+      ),
+      SizedBox(width: 8),
+      Expanded(child: SizedBox()),
+      Icon(Icons.arrow_forward_ios, color: Colors.black),
+      SizedBox(width: 10),
+    ],
+  ),
+),
+
+                const SizedBox(height: 20),
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const MyBusinessPage()),
+                    );
+                  },
+                  child: const Row(
+                    children: [
+                      SizedBox(width: 10),
+                      Icon(Icons.business_center_sharp, color: Colors.black),
+                      SizedBox(width: 15),
+                      Text(
+                        'My business',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.normal,
+                          fontSize: 16,
+                        ),
                       ),
-                    ),
-                    SizedBox(width: 8),
-                    Expanded(child: SizedBox()),
-                    Icon(Icons.arrow_forward_ios, color: Colors.black),
-                    SizedBox(width: 10),
-                  ],
+                      SizedBox(width: 8),
+                      Expanded(child: SizedBox()),
+                      Icon(Icons.arrow_forward_ios, color: Colors.black),
+                      SizedBox(width: 10),
+                    ],
+                  ),
                 ),
-              ),
+                const SizedBox(height: 20),
+              ],
+              TextButton(
+  onPressed: () {
+    Navigator.push(
+      context,
+     MaterialPageRoute(
+                        builder: (context) => MyPetsPage(
+                          userId: userId!,
+                          role: role!,
+                        ),
+                      ),
+    );
+  },
+  child: const Row(
+    children: [
+      SizedBox(width: 10),
+      Icon(Icons.pets, color: Colors.black),
+      SizedBox(width: 15),
+      Text(
+        'My pets',
+        style: TextStyle(
+          color: Colors.black,
+          fontWeight: FontWeight.normal,
+          fontSize: 16,
+        ),
+      ),
+      SizedBox(width: 8),
+      Expanded(child: SizedBox()),
+      Icon(Icons.arrow_forward_ios, color: Colors.black),
+      SizedBox(width: 10),
+    ],
+  ),
+),
+
               const SizedBox(height: 20),
               TextButton(
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => MyPetsPage()),
-                  );
-                },
-                child: const Row(
-                  children: [
-                    SizedBox(width: 10),
-                    Icon(Icons.pets, color: Colors.black),
-                    SizedBox(width: 15),
-                    Text(
-                      'My pets',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.normal,
-                        fontSize
-: 16,
+                               MaterialPageRoute(
+                        builder: (context) => MyPaymentsPage(
+                          userId: userId!,
+                          role: role!,
+                        ),
                       ),
-                    ),
-                    SizedBox(width: 8),
-                    Expanded(child: SizedBox()),
-                    Icon(Icons.arrow_forward_ios, color: Colors.black),
-                    SizedBox(width: 10),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-                 if (isWalker)
-              TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const MyBusinessPage()),
-                  );
-                },
-                child: const Row(
-                  children: [
-                    SizedBox(width: 10),
-                    Icon(Icons.business_center_sharp, color: Colors.black),
-                    SizedBox(width: 15),
-                    Text(
-                      'My business',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.normal,
-                        fontSize
-: 16,
-                      ),
-                    ),
-                    SizedBox(width: 8),
-                    Expanded(child: SizedBox()),
-                    Icon(Icons.arrow_forward_ios, color: Colors.black),
-                    SizedBox(width: 10),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-              TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const MyPaymentsPage()),
                   );
                 },
                 child: const Row(
@@ -341,7 +385,8 @@ class _ProfilePageState extends State<ProfilePage> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const AccountSettingsPage()),
+                    MaterialPageRoute(
+                        builder: (context) => const AccountSettingsPage()),
                   );
                 },
                 child: const Row(

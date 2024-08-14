@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:petpals/components/my_button.dart';
 import 'package:petpals/components/my_textfield.dart';
+import 'package:petpals/controllers/price_controller.dart';
 import 'package:petpals/models/priceModel.dart';
-import 'package:petpals/service/firestore_service.dart';
 
 class PricesPage extends StatefulWidget {
-  const PricesPage({super.key});
+  final String userId;
+  final String role;
+
+  const PricesPage({Key? key, required this.userId, required this.role}) : super(key: key);
 
   @override
   State<PricesPage> createState() => _PricesPageState();
@@ -20,7 +23,37 @@ class _PricesPageState extends State<PricesPage> {
   final TextEditingController _walkingPriceController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _showErrorMessage = false;
-  final FirestoreService firestoreService = FirestoreService();
+  final PriceController _priceController = PriceController();
+
+@override
+void initState() {
+  super.initState();
+  print('userId: ${widget.userId}, role: ${widget.role}');
+  _loadPrices();
+}
+
+
+  Future<void> _loadPrices() async {
+    try {
+      if (widget.userId.isEmpty || widget.role.isEmpty) {
+        throw Exception('userId or role cannot be empty');
+      }
+
+      Prices? prices = (await _priceController.getPrices(widget.userId, widget.role)) as Prices?;
+      if (prices != null) {
+        setState(() {
+          _dayCareEnabled = prices.dayCareEnabled;
+          _houseSittingEnabled = prices.houseSittingEnabled;
+          _walkingEnabled = prices.walkingEnabled;
+          _dayCarePriceController.text = prices.dayCarePrice?.toString() ?? '';
+          _houseSittingPriceController.text = prices.houseSittingPrice?.toString() ?? '';
+          _walkingPriceController.text = prices.walkingPrice?.toString() ?? '';
+        });
+      }
+    } catch (e) {
+      print('Error loading prices from Firestore: $e');
+    }
+  }
 
   @override
   void dispose() {
@@ -30,22 +63,17 @@ class _PricesPageState extends State<PricesPage> {
     super.dispose();
   }
 
-Future<void> savePricesToFirestore(Prices prices, BuildContext context) async {
+void _savePricesToFirestore(Prices prices) async {
   try {
-    print('Attempting to save prices to Firestore: ${prices.toMap()}');
-    await firestoreService.addPrices(prices);
+    print('Saving prices for userId: ${widget.userId}, role: ${widget.role}');
+    if (widget.userId.isEmpty || widget.role.isEmpty) {
+      throw Exception('userId or role cannot be empty');
+    }
+
+    await _priceController.addPrices(prices, widget.userId, widget.role);
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Prices saved successfully')),
     );
-    print('Prices saved successfully');
-    setState(() {
-      _dayCarePriceController.clear();
-      _houseSittingPriceController.clear();
-      _walkingPriceController.clear();
-      _dayCareEnabled = false;
-      _houseSittingEnabled = false;
-      _walkingEnabled = false;
-    });
   } catch (e) {
     print('Error saving prices to Firestore: $e');
     ScaffoldMessenger.of(context).showSnackBar(
@@ -55,27 +83,24 @@ Future<void> savePricesToFirestore(Prices prices, BuildContext context) async {
 }
 
 
+  void _saveButtonOnTap(BuildContext context) {
+    setState(() {
+      _showErrorMessage = !_dayCareEnabled && !_houseSittingEnabled && !_walkingEnabled;
+    });
 
+    if (_formKey.currentState!.validate() && !_showErrorMessage) {
+      final prices = Prices(
+        dayCareEnabled: _dayCareEnabled,
+        houseSittingEnabled: _houseSittingEnabled,
+        walkingEnabled: _walkingEnabled,
+        dayCarePrice: _dayCareEnabled ? double.tryParse(_dayCarePriceController.text) : null,
+        houseSittingPrice: _houseSittingEnabled ? double.tryParse(_houseSittingPriceController.text) : null,
+        walkingPrice: _walkingEnabled ? double.tryParse(_walkingPriceController.text) : null,
+      );
 
-void _saveButtonOnTap(BuildContext context) {
-  setState(() {
-    _showErrorMessage = !_dayCareEnabled && !_houseSittingEnabled && !_walkingEnabled;
-  });
-
-  if (_formKey.currentState!.validate() && !_showErrorMessage) {
-    final prices = Prices(
-      dayCarePrice: _dayCareEnabled ? double.tryParse(_dayCarePriceController.text) : null,
-      houseSittingPrice: _houseSittingEnabled ? double.tryParse(_houseSittingPriceController.text) : null,
-      walkingPrice: _walkingEnabled ? double.tryParse(_walkingPriceController.text) : null,
-    );
-
-    print('Form is valid. Saving...');
-    savePricesToFirestore(prices, context); // Pass context here
-  } else {
-    print('Form is invalid or no options selected.');
+      _savePricesToFirestore(prices);
+    }
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -137,7 +162,7 @@ void _saveButtonOnTap(BuildContext context) {
               ),
             const SizedBox(height: 20),
             MyButton(
-               onTap: () => _saveButtonOnTap(context), // Pass context here
+              onTap: () => _saveButtonOnTap(context),
               text: 'Save',
               color: const Color(0xFF967BB6),
               textColor: Colors.white,

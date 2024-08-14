@@ -8,9 +8,9 @@ import 'package:petpals/models/userModel.dart';
 
 class RegisterPage extends StatefulWidget {
   final Function()? onTap;
-  final String userType; // Add userType parameter
+  final String role; // Add userType parameter
 
-  const RegisterPage({super.key, required this.onTap, required this.userType});
+  const RegisterPage({super.key, required this.onTap, required this.role});
 
   @override
   State<RegisterPage> createState() => _RegisterPageState();
@@ -331,96 +331,103 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   void signUserUp(BuildContext context) async {
-    if (_formKey.currentState!.validate()) {
-      if (!isPrivacyPolicyChecked || !isUserAgreementChecked) {
-        // If either checkbox is not checked, display an error message
-        displayMessage(context,
-            "Please agree to both the Privacy Policy and User Agreement.");
-        return;
-      }
+  if (_formKey.currentState!.validate()) {
+    if (!isPrivacyPolicyChecked || !isUserAgreementChecked) {
+      // If either checkbox is not checked, display an error message
+      displayMessage(context,
+          "Please agree to both the Privacy Policy and User Agreement.");
+      return;
+    }
 
-      showDialog(
-        context: context,
-        builder: (context) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        },
+    showDialog(
+      context: context,
+      builder: (context) {
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      },
+    );
+
+    // Make sure passwords match
+    if (passwordController.text != confirmPasswordController.text) {
+      // Pop loading circle
+      Navigator.pop(context);
+      // Show error to user
+      displayMessage(context, "Passwords don't match!");
+      return; // Exit function early if passwords don't match
+    }
+
+    try {
+      // Create user with email and password
+      UserCredential userCredential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: emailController.text,
+        password: passwordController.text,
       );
 
-      // Make sure passwords match
-      if (passwordController.text != confirmPasswordController.text) {
-        // Pop loading circle
-        Navigator.pop(context);
-        // Show error to user
-        displayMessage(context, "Passwords don't match!");
-        return; // Exit function early if passwords don't match
+      UserModel user = UserModel(
+        uid: userCredential.user!.uid,
+        firstName: firstNameController.text,
+        lastName: lastNameController.text,
+        email: emailController.text,
+        role: widget.role, 
+        profilePicture: '', 
+        phoneNumber: '',
+      );
+
+      // Save user data to Firestore
+      DocumentReference userDoc = FirebaseFirestore.instance.collection('users').doc(user.uid);
+      await userDoc.set(user.toMap());
+
+      // Create subcollections based on the role
+      if (widget.role == 'walker') {
+        await userDoc.collection('walkerInfo').doc('price').set({
+          'dayCareEnabled': false,
+          'houseSittingEnabled': false,
+          'walkingEnabled': false,
+          'dayCarePrice': 0,
+          'houseSittingPrice': 0,
+          'walkingPrice': 0,
+        });
+        // Create other sub-collections for walker if needed
+      } else if (widget.role == 'owner') {
+        await userDoc.collection('ownerInfo').doc('preferences').set({
+          // Default preferences or empty object
+        });
+        // Create other sub-collections for owner if needed
       }
 
-      try {
-        // Create user with email and password
-        UserCredential userCredential =
-            await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: emailController.text,
-          password: passwordController.text,
-        );
+      // Clear text fields
+      firstNameController.clear();
+      lastNameController.clear();
+      emailController.clear();
+      passwordController.clear();
+      confirmPasswordController.clear();
 
-        UserModel user = UserModel(
-          uid: userCredential.user!.uid,
-          firstName: firstNameController.text,
-          lastName: lastNameController.text,
-          email: emailController.text,
-          userType: widget.userType, profilePicture: '', phoneNumber: '',
-        );
+      // Pop loading circle
+      Navigator.pop(context);
 
-        // Save user data to Firestore
-          await FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .set({
-      'firstName': user.firstName,
-      'lastName': user.lastName,
-      'email': user.email,
-      'userType': user.userType,
-    });
-
-
-        // Clear text fields
-        firstNameController.clear();
-        lastNameController.clear();
-        emailController.clear();
-        passwordController.clear();
-        confirmPasswordController.clear();
-
-        // Pop loading circle
-        // ignore: use_build_context_synchronously
-        Navigator.pop(context);
-
-        // Navigate to the email verification page
-        Navigator.pushReplacement(
-          // ignore: use_build_context_synchronously
-          context,
-          MaterialPageRoute(
-            builder: (context) => VerifyEmailPage(
-              onTap: () {}, // Provide an appropriate onTap callback
-            ),
+      // Navigate to the email verification page
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => VerifyEmailPage(
+            onTap: () {}, // Provide an appropriate onTap callback
           ),
-        );
-      } on FirebaseAuthException catch (e) {
-        // Pop loading circle
-        // ignore: use_build_context_synchronously
-        Navigator.pop(context);
-        // Show error to user
-        // ignore: use_build_context_synchronously
-        displayMessage(context, e.code);
-      } catch (e) {
-        // Pop loading circle
-        // ignore: use_build_context_synchronously
-        Navigator.pop(context);
-        // Handle other exceptions
-        // ignore: use_build_context_synchronously
-        displayMessage(context, "An error occurred. Please try again later.");
-      }
+        ),
+      );
+    } on FirebaseAuthException catch (e) {
+      // Pop loading circle
+      Navigator.pop(context);
+      // Show error to user
+      displayMessage(context, e.code);
+    } catch (e) {
+      // Pop loading circle
+      Navigator.pop(context);
+      // Handle other exceptions
+      displayMessage(context, "An error occurred. Please try again later.");
     }
   }
+}
+
 }
