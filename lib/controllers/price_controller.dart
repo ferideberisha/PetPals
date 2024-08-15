@@ -4,17 +4,24 @@ import 'package:petpals/models/priceModel.dart';
 class PriceController {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
-  // Adds or updates prices based on the user role
   Future<void> addPrices(Prices prices, String userId, String role) async {
     final subCollection = role == 'walker' ? 'walkerInfo' : 'ownerInfo';
-    final path = 'users/$userId/$subCollection/$userId/price';
+    final path = 'users/$userId/$subCollection/price'; // Correct path for price collection
 
-   try {
-      // Create a new document with an auto-generated ID
-      DocumentReference priceRef = _db.collection(path).doc();
+    try {
+      final priceCollection = _db.collection(path);
 
-      // Set prices data in the new document
-      await priceRef.set(prices.toMap());
+      // Check if there are existing documents
+      final querySnapshot = await priceCollection.get();
+
+      if (querySnapshot.docs.isEmpty) {
+        // Create a new document with an auto-generated ID if none exists
+        DocumentReference priceRef = priceCollection.doc(); // or specify a document ID
+        await priceRef.set(prices.toMap());
+      } else {
+        // Optionally update existing documents if needed
+        print('Price document already exists.');
+      }
     } catch (e) {
       print('Error adding prices: $e');
     }

@@ -1,20 +1,18 @@
-// ignore_for_file: avoid_print
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; // Import Firestore
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:petpals/components/my_bottom_bar.dart';
-import 'package:petpals/components/my_button.dart'; // Import MyButton
-import 'package:petpals/components/my_phone_number.dart';
-import 'package:petpals/components/my_textfield.dart'; // Import MyTextField
-import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart'; // Import the new date picker
+import 'package:petpals/components/my_button.dart';
+import 'package:petpals/components/my_textfield.dart';
+import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
+import 'package:petpals/pages/auth/auth.dart';
+import 'package:petpals/pages/home/profile/basicinfo/add_phone_number_page.dart'; // Import the new page
 
 class BasicInfoPage extends StatefulWidget {
   const BasicInfoPage({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _BasicInfoPageState createState() => _BasicInfoPageState();
 }
 
@@ -22,10 +20,10 @@ class _BasicInfoPageState extends State<BasicInfoPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
-  final TextEditingController _phoneNumberController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _birthdayController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
+  //final TextEditingController _phoneController = TextEditingController(); // Add phone number controller
 
   @override
   void initState() {
@@ -43,19 +41,80 @@ class _BasicInfoPageState extends State<BasicInfoPage> {
           .get();
 
       if (userDoc.exists) {
-        print('User document found');
-        print('First Name: ${userDoc['firstName']}');
-        print('Last Name: ${userDoc['lastName']}');
         setState(() {
           _firstNameController.text = userDoc['firstName'] ?? '';
           _lastNameController.text = userDoc['lastName'] ?? '';
           _emailController.text = user.email ?? '';
+          _addressController.text = userDoc['address'] ?? '';
+       //   _phoneController.text = userDoc['phoneNumber'] ?? ''; // Load phone number
         });
-      } else {
-        print('User document does not exist');
       }
-    } else {
-      print('No user logged in');
+    }
+  }
+
+  Future<void> _updateUserInfo() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      try {
+        final Map<String, dynamic> updateData = {
+          'firstName': _firstNameController.text,
+          'lastName': _lastNameController.text,
+          'email': _emailController.text,
+          'birthday': _birthdayController.text,
+          'address': _addressController.text,
+        //  'phoneNumber': _phoneController.text, // Update phone number
+        };
+
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .update(updateData);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Changes saved')),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Error saving changes')),
+        );
+      }
+    }
+  }
+
+  Future<void> _deleteUser() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      try {
+        final userDoc = FirebaseFirestore.instance.collection('users').doc(user.uid);
+
+        final subCollectionRefs = ['walkerInfo', 'ownerInfo'];
+        for (String subCollection in subCollectionRefs) {
+          final subCollectionSnap = await userDoc.collection(subCollection).get();
+          for (var doc in subCollectionSnap.docs) {
+            await doc.reference.delete();
+          }
+        }
+
+        await userDoc.delete();
+        await user.delete();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Account deleted successfully')),
+        );
+
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => const AuthPage()),
+          (route) => false,
+        );
+      } on FirebaseAuthException catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Firebase Auth error: ${e.message}')),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Error deleting account')),
+        );
+      }
     }
   }
 
@@ -81,12 +140,22 @@ class _BasicInfoPageState extends State<BasicInfoPage> {
     );
   }
 
+  // void _navigateToAddPhoneNumberPage() async {
+  //   final result = await Navigator.of(context).push(
+  //     MaterialPageRoute(builder: (context) => AddPhoneNumberPage()),
+  //   );
+  //   if (result != null && result is String) {
+  //     setState(() {
+  //     //  _phoneController.text = result; // Update phone number with the result
+  //     });
+  //   }
+  // }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Basic Info',
-            style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text('Basic Info', style: TextStyle(fontWeight: FontWeight.bold)),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -107,13 +176,6 @@ class _BasicInfoPageState extends State<BasicInfoPage> {
                 hintText: 'Last Name',
                 obscureText: false,
                 fillColor: Colors.white,
-              ),
-              const SizedBox(height: 10),
-              MyPhoneNumberButton(
-                hintText: 'Phone Number',
-                controller: _phoneNumberController,
-                enabled:
-                    true, // Set to false when the phone number is confirmed
               ),
               const SizedBox(height: 10),
               MyTextField(
@@ -144,13 +206,19 @@ class _BasicInfoPageState extends State<BasicInfoPage> {
                   return null;
                 },
               ),
+              const SizedBox(height: 10),
+              // MyTextField(
+              //   controller: _phoneController,
+              //   hintText: 'Phone Number',
+              //   obscureText: false,
+              //   fillColor: Colors.white,
+              //   readOnly: true, // Make the phone number field read-only
+              // ),
               const SizedBox(height: 20),
               MyButton(
                 onTap: () {
                   if (_formKey.currentState!.validate()) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Changes saved')),
-                    );
+                    _updateUserInfo(); // Call the method to update user info
                   }
                 },
                 text: 'Save Changes',
@@ -161,6 +229,17 @@ class _BasicInfoPageState extends State<BasicInfoPage> {
                 width: 390,
                 height: 60,
               ),
+              SizedBox(height: 10),
+              // MyButton(
+              //   onTap: _navigateToAddPhoneNumberPage,
+              //   text: 'Add Phone Number',
+              //   color: const Color(0xffffffff),
+              //   textColor: Color(0xFF967BB6),
+              //   borderColor: const Color(0xFF967BB6),
+              //   borderWidth: 1.0,
+              //   width: 390,
+              //   height: 60,
+              // ),
               MyButton(
                 onTap: () {
                   showDialog(
@@ -173,14 +252,14 @@ class _BasicInfoPageState extends State<BasicInfoPage> {
                         actions: [
                           TextButton(
                             onPressed: () {
-                              Navigator.of(context).pop();
+                              Navigator.of(context).pop(); // Close the dialog
                             },
                             child: const Text("Cancel"),
                           ),
                           TextButton(
                             onPressed: () {
-                              // Add code here to delete the account
-                              Navigator.of(context).pop();
+                              Navigator.of(context).pop(); // Close the dialog
+                              _deleteUser(); // Call the delete user method
                             },
                             child: const Text("Delete",
                                 style: TextStyle(color: Colors.red)),
@@ -191,11 +270,10 @@ class _BasicInfoPageState extends State<BasicInfoPage> {
                   );
                 },
                 text: 'Delete My Account',
-                color: Colors.transparent, // Transparent background
-                textColor: Colors.red, // Red text color
-                borderColor: Colors.transparent, // Transparent border
-                borderWidth: 0, // No border width
-                
+                color: Colors.transparent,
+                textColor: Colors.red,
+                borderColor: Colors.transparent,
+                borderWidth: 0,
               ),
             ],
           ),

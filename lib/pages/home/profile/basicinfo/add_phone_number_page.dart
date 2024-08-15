@@ -1,145 +1,133 @@
-import 'package:flutter/material.dart';
-import 'package:intl_phone_number_input/intl_phone_number_input.dart';
-import 'package:petpals/components/my_button.dart';
+// import 'package:flutter/material.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
 
-class AddPhoneNumberPage extends StatefulWidget {
-  const AddPhoneNumberPage({super.key});
+// class AddPhoneNumberPage extends StatefulWidget {
+//   @override
+//   _AddPhoneNumberPageState createState() => _AddPhoneNumberPageState();
+// }
 
-  @override
-  // ignore: library_private_types_in_public_api
-  _AddPhoneNumberPageState createState() => _AddPhoneNumberPageState();
-}
+// class _AddPhoneNumberPageState extends State<AddPhoneNumberPage> {
+//   final TextEditingController _phoneController = TextEditingController();
+//   final TextEditingController _otpController = TextEditingController(); // Add OTP controller
+//   final FirebaseAuth _auth = FirebaseAuth.instance;
+//   String? _verificationId; // Store the verification ID
 
-class _AddPhoneNumberPageState extends State<AddPhoneNumberPage> {
-  bool _sendSms = false;
-  bool _sendWhatsApp = false;
-  final TextEditingController _phoneNumberController = TextEditingController();
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  bool _isPhoneNumberValid = true;
+//   void _signInWithPhoneNumber() async {
+//     final phoneNumber = _phoneController.text;
 
-  void _getCode() {
-    if (_formKey.currentState?.validate() ?? false) {
-      // Handle valid phone number
-      setState(() {
-        _isPhoneNumberValid = true;
-      });
-    } else {
-      setState(() {
-        _isPhoneNumberValid = false;
-      });
-    }
-  }
+//     await _auth.verifyPhoneNumber(
+//       phoneNumber: phoneNumber,
+//       verificationCompleted: (PhoneAuthCredential credential) async {
+//         await _auth.signInWithCredential(credential);
+//         Navigator.of(context).pop(phoneNumber); // Return the phone number
+//       },
+//       verificationFailed: (FirebaseAuthException e) {
+//         print('Verification failed: ${e.message}');
+//         ScaffoldMessenger.of(context).showSnackBar(
+//           SnackBar(content: Text('Verification failed: ${e.message}')),
+//         );
+//       },
+//       codeSent: (String verificationId, int? resendToken) {
+//         setState(() {
+//           _verificationId = verificationId; // Store the verification ID
+//         });
+//         ScaffoldMessenger.of(context).showSnackBar(
+//           SnackBar(content: Text('Verification code sent to $phoneNumber')),
+//         );
+//         _showOtpDialog(); // Show OTP input dialog
+//       },
+//       codeAutoRetrievalTimeout: (String verificationId) {
+//         // Handle timeout
+//         setState(() {
+//           _verificationId = verificationId;
+//         });
+//       },
+//     );
+//   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Add phone number',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'You need to verify the phone number as it is a means of communication between the walker and the owner:',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
-              ),
-              const SizedBox(height: 10),
-              InternationalPhoneNumberInput(
-                onInputChanged: (PhoneNumber number) {
-                  // Handle manual input
-                },
-                selectorConfig: const SelectorConfig(),
-                ignoreBlank: true,
-                autoValidateMode: AutovalidateMode
-                    .onUserInteraction, // Allow manual input without automatic validation
-                textFieldController: _phoneNumberController,
-                inputDecoration: const InputDecoration(
-                  hintText: 'Enter Phone Number',
-                ),
-                selectorTextStyle: const TextStyle(color: Colors.black),
-                formatInput: true,
-                keyboardType: TextInputType.phone,
-                inputBorder: const OutlineInputBorder(),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please write your number';
-                  } else {
-                    // Regular expression to match Kosovo phone numbers starting with 49, 44, 43, or 45 followed by 6 other digits
-                    final kosovoRegex = RegExp(r'^(49|44|43|45)\d{6}$');
-                    if (!kosovoRegex.hasMatch(value)) {
-                      return 'Invalid Kosovo phone number';
-                    }
-                  }
-                  return null;
-                },
+//   void _verifyOtp(String otp) async {
+//     if (_verificationId != null) {
+//       final credential = PhoneAuthProvider.credential(
+//         verificationId: _verificationId!,
+//         smsCode: otp,
+//       );
 
-                searchBoxDecoration: const InputDecoration(
-                  labelText: 'Search country',
-                  hintText: 'Search country',
-                  prefixIcon: Icon(Icons.search),
-                ),
-              ),
-              if (!_isPhoneNumberValid)
-                const Padding(
-                  padding: EdgeInsets.only(top: 8.0),
-                  child: Text(
-                    'Invalid phone number',
-                    style: TextStyle(color: Colors.red),
-                  ),
-                ),
-              const SizedBox(height: 20),
-              Row(
-                children: [
-                  Checkbox(
-                    value: _sendSms,
-                    shape: const CircleBorder(),
-                    onChanged: (value) {
-                      setState(() {
-                        _sendSms = value ?? false;
-                        _sendWhatsApp = false; // Uncheck WhatsApp
-                      });
-                    },
-                  ),
-                  const Text('Send SMS'),
-                ],
-              ),
-              Row(
-                children: [
-                  Checkbox(
-                    value: _sendWhatsApp,
-                    shape: const CircleBorder(),
-                    onChanged: (value) {
-                      setState(() {
-                        _sendWhatsApp = value ?? false;
-                        _sendSms = false; // Uncheck SMS
-                      });
-                    },
-                  ),
-                  const Text('Send to WhatsApp'),
-                ],
-              ),
-              const SizedBox(height: 20),
-              MyButton(
-                onTap: _getCode,
-                text: 'Get Code',
-                color: const Color(0xFF967BB6),
-                textColor: Colors.white,
-                borderColor: const Color(0xFF967BB6),
-                borderWidth: 1.0,
-                width: 390,
-                height: 60,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
+//       try {
+//         await _auth.signInWithCredential(credential);
+//         Navigator.of(context).pop(_phoneController.text); // Return the phone number
+//       } catch (e) {
+//         print('OTP verification failed: $e');
+//         ScaffoldMessenger.of(context).showSnackBar(
+//           SnackBar(content: Text('OTP verification failed')),
+//         );
+//       }
+//     }
+//   }
+
+//   void _showOtpDialog() {
+//     showDialog(
+//       context: context,
+//       builder: (BuildContext context) {
+//         return AlertDialog(
+//           title: Text('Enter OTP'),
+//           content: Column(
+//             mainAxisSize: MainAxisSize.min,
+//             children: [
+//               TextField(
+//                 controller: _otpController,
+//                 decoration: InputDecoration(
+//                   hintText: 'Enter OTP code',
+//                 ),
+//                 keyboardType: TextInputType.number,
+//               ),
+//             ],
+//           ),
+//           actions: [
+//             TextButton(
+//               onPressed: () {
+//                 final otp = _otpController.text;
+//                 _verifyOtp(otp); // Verify the OTP code
+//                 Navigator.of(context).pop(); // Close the dialog
+//               },
+//               child: Text('Verify'),
+//             ),
+//             TextButton(
+//               onPressed: () {
+//                 Navigator.of(context).pop(); // Close the dialog
+//               },
+//               child: Text('Cancel'),
+//             ),
+//           ],
+//         );
+//       },
+//     );
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: const Text('Add Phone Number'),
+//       ),
+//       body: Padding(
+//         padding: const EdgeInsets.all(16.0),
+//         child: Column(
+//           children: [
+//             TextField(
+//               controller: _phoneController,
+//               decoration: InputDecoration(
+//                 hintText: 'Enter phone number',
+//                 border: OutlineInputBorder(),
+//               ),
+//             ),
+//             SizedBox(height: 20),
+//             ElevatedButton(
+//               onPressed: _signInWithPhoneNumber,
+//               child: Text('Send OTP'),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }

@@ -373,6 +373,7 @@ class _RegisterPageState extends State<RegisterPage> {
         role: widget.role, 
         profilePicture: '', 
         phoneNumber: '',
+        address: ''
       );
 
       // Save user data to Firestore

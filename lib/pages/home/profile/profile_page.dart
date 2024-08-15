@@ -145,6 +145,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+          automaticallyImplyLeading: false, // Prevents automatic back button
         title: const Text(
           'Profile',
           style: TextStyle(fontWeight: FontWeight.bold),

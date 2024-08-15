@@ -55,4 +55,54 @@ class UserController {
       print('Error adding user: $e');
     }
   }
+
+  // Update user information in Firestore
+  Future<void> updateUser(
+    String userId, {
+    String? firstName,
+    String? lastName,
+    String? email,
+    String? birthday,
+    String? address, required String phoneNumber,
+  }) async {
+    try {
+      // Create a map with the fields to update
+      final Map<String, dynamic> updateData = {};
+      if (firstName != null) updateData['firstName'] = firstName;
+      if (lastName != null) updateData['lastName'] = lastName;
+      // if (phoneNumber != null) updateData['phoneNumber'] = phoneNumber;
+      if (email != null) updateData['email'] = email;
+      if (birthday != null) updateData['birthday'] = birthday;
+      if (address != null) updateData['address'] = address;
+
+      if (updateData.isNotEmpty) {
+        await _firestore.collection('users').doc(userId).update(updateData);
+      }
+    } catch (e) {
+      print('Error updating user info: $e');
+    }
+  }
+
+  // Delete a user from Firestore
+  Future<void> deleteUser(String userId) async {
+    try {
+      final userDoc = _firestore.collection('users').doc(userId);
+
+      // Example: Delete sub-collections (if any)
+      final subCollectionRefs = ['walkerInfo', 'ownerInfo'];
+      for (String subCollection in subCollectionRefs) {
+        final subCollectionSnap = await userDoc.collection(subCollection).get();
+        for (var doc in subCollectionSnap.docs) {
+          await doc.reference
+              .delete(); // Use doc.reference to delete the document
+        }
+      }
+
+      // Delete the user document
+      await userDoc.delete();
+      print('User deleted successfully');
+    } catch (e) {
+      print('Error deleting user: $e');
+    }
+  }
 }

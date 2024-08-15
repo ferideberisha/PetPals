@@ -5,6 +5,7 @@ import 'package:petpals/pages/auth/auth.dart';
 import 'firebase_options.dart';
 
 void main() async {
+  
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -26,6 +27,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
+      
       debugShowCheckedModeBanner: false,
       home: SafeArea( // Wrap your home widget with SafeArea
         child: AuthPage(),

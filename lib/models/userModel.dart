@@ -8,6 +8,7 @@ class UserModel {
   final String role;
   final String profilePicture;
   final String phoneNumber;
+  final String address;
 
   UserModel({
     required this.uid,
@@ -17,6 +18,7 @@ class UserModel {
     required this.role,
     required this.profilePicture,
     required this.phoneNumber,
+    required this.address
   });
 
   // Factory constructor to create a UserModel from a Firestore document
@@ -30,6 +32,7 @@ class UserModel {
       role: data['role'] ?? '',
       profilePicture: data['profilePicture'] ?? '',
       phoneNumber: data['phoneNumber'] ?? '',
+      address: data['address'] ?? ''
     );
   }
 
@@ -42,6 +45,7 @@ class UserModel {
       'role': role,
       'profilePicture': profilePicture,
       'phoneNumber': phoneNumber,
+      'address':address
     };
   }
 }

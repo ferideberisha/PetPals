@@ -118,104 +118,105 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey.shade100,
-      body: SingleChildScrollView(
-        child: Container(
-          decoration: const BoxDecoration(
-            color: Color(0xFF967BB6),
-          ),
-          child: SafeArea(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 25),
-                  child: AppBar(
-                    backgroundColor: const Color(0xFF967BB6),
-                    title: Container(
-                      height: 50,
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.grey.shade100,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: TextField(
-                                controller: _searchController,
-                                onChanged: _onSearchChanged,
-                                decoration: const InputDecoration(
-                                  hintText: 'Search...',
-                                  border: InputBorder.none,
-                                  contentPadding: EdgeInsets.symmetric(horizontal: 16),
-                                ),
+Widget build(BuildContext context) {
+  return Scaffold(
+    backgroundColor: Colors.grey.shade100,
+    body: SingleChildScrollView(
+      child: Container(
+        decoration: const BoxDecoration(
+          color: Color(0xFF967BB6),
+        ),
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 25),
+                child: AppBar(
+                    automaticallyImplyLeading: false, // Prevents automatic back button
+                  backgroundColor: const Color(0xFF967BB6),
+                  leading: null, // Removes the default back button
+                  title: Container(
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade100,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: TextField(
+                              controller: _searchController,
+                              onChanged: _onSearchChanged,
+                              decoration: const InputDecoration(
+                                hintText: 'Search...',
+                                border: InputBorder.none,
+                                contentPadding: EdgeInsets.symmetric(horizontal: 16),
                               ),
                             ),
                           ),
-                          // Padding(
-                          //   padding: EdgeInsets.all(4), // Adjust padding to create space between the background color and container edges
-                          //   child: Container(
-                          //     decoration: BoxDecoration(
-                          //       color: Color.fromARGB(108, 174, 174, 211), // Background color for the filter icon
-                          //       borderRadius: BorderRadius.circular(10),
-                          //     ),
-                          //     child: IconButton(
-                          //       onPressed: _showSortingOptions,
-                          //       icon: const Icon(Icons.tune, color: Colors.black, size: 25),
-                          //     ),
-                          //   ),
-                          // ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                Container(
-                  decoration: const BoxDecoration(
-                    color: Color.fromRGBO(245, 245, 245, 1),
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30),
-                    ),
-                  ),
-                  child: Center(
-                    child: Column(
-                      children: [
-                        const SizedBox(height: 10),
-                        if (_filteredUsers.isEmpty)
-                          const Text('No users found')
-                        else
-                          ListView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: _filteredUsers.length,
-                            itemBuilder: (context, index) {
-                              final user = _filteredUsers[index];
-                              return UserCard(
-                                user: user,
-                                onFavoriteTap: () {
-                                  print('Add ${user.firstName} ${user.lastName} to favorites');
-                                },
-                              );
-                            },
-                          ),
+                        ),
+                        // Padding(
+                        //   padding: EdgeInsets.all(4), // Adjust padding to create space between the background color and container edges
+                        //   child: Container(
+                        //     decoration: BoxDecoration(
+                        //       color: Color.fromARGB(108, 174, 174, 211), // Background color for the filter icon
+                        //       borderRadius: BorderRadius.circular(10),
+                        //     ),
+                        //     child: IconButton(
+                        //       onPressed: _showSortingOptions,
+                        //       icon: const Icon(Icons.tune, color: Colors.black, size: 25),
+                        //     ),
+                        //   ),
+                        // ),
                       ],
                     ),
                   ),
                 ),
-              ],
-            ),
+              ),
+              Container(
+                decoration: const BoxDecoration(
+                  color: Color.fromRGBO(245, 245, 245, 1),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(30),
+                    topRight: Radius.circular(30),
+                  ),
+                ),
+                child: Center(
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 10),
+                      if (_filteredUsers.isEmpty)
+                        const Text('No users found')
+                      else
+                        ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: _filteredUsers.length,
+                          itemBuilder: (context, index) {
+                            final user = _filteredUsers[index];
+                            return UserCard(
+                              user: user,
+                              onFavoriteTap: () {
+                                print('Add ${user.firstName} ${user.lastName} to favorites');
+                              },
+                            );
+                          },
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
-      bottomNavigationBar: CustomBottomNavigationBar(selectedIndex: _selectedIndex),
-    );
-  }
-}
+    ),
+    bottomNavigationBar: CustomBottomNavigationBar(selectedIndex: _selectedIndex),
+  );
+}}
