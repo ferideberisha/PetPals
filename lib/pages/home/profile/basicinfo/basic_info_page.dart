@@ -7,7 +7,6 @@ import 'package:petpals/components/my_button.dart';
 import 'package:petpals/components/my_textfield.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:petpals/pages/auth/auth.dart';
-import 'package:petpals/pages/home/profile/basicinfo/add_phone_number_page.dart'; // Import the new page
 
 class BasicInfoPage extends StatefulWidget {
   const BasicInfoPage({super.key});

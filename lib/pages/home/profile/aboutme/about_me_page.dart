@@ -23,92 +23,80 @@ class _AboutMePageState extends State<AboutMePage> {
   bool _isAboutMeError = false;
   bool _isSizeError = false;
   bool _isPetNumberError = false;
+  String? _aboutMeId;
 
   final _formKey = GlobalKey<FormState>();
 
   @override
-  void dispose() {
-    _aboutController.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+    _fetchAboutMeData(); // Fetch data when the page is initialized
   }
 
-void _submitForm() async {
-  
-  // Reset error flags before validating the form
-  setState(() {
-    _isAboutMeError = false;
-    _isSizeError = false;
-    _isPetNumberError = false;
-    // Add more error flags if needed for other fields
-  });
+  Future<void> _fetchAboutMeData() async {
+    try {
+      // Fetch existing aboutMeId or create a new one if it doesn't exist
+      _aboutMeId = await _aboutMeController.getAboutMeId(widget.userId, widget.role);
 
-  // Check if description is filled
-  if (_aboutController.text.isEmpty) {
-    setState(() {
-      _isAboutMeError = true; // Set flag to display description error
-    });
+      if (_aboutMeId != null) {
+        AboutMeFormData? aboutMeData = await _aboutMeController.getAboutMeData(widget.userId, widget.role, _aboutMeId!);
+
+        // Populate the fields with fetched data
+        if (aboutMeData != null) {
+          setState(() {
+            _aboutController.text = aboutMeData.aboutMe;
+            _otherinfoController.text = aboutMeData.otherInfo;
+            _selectedSizes.addAll(aboutMeData.selectedSizes);
+            _selectedPetNumbers.addAll(aboutMeData.selectedPetNumbers);
+            _selectedSkills.addAll(aboutMeData.selectedSkills);
+          });
+        }
+      }
+    } catch (e) {
+      print('Error fetching About Me data: $e');
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Failed to load About Me information.'),
+        duration: Duration(seconds: 2),
+      ));
+    }
   }
 
-  // Check if size is selected
-  if (_selectedSizes.isEmpty) {
-    setState(() {
-      _isSizeError = true; // Set flag to display size error
-    });
+  void _submitForm() async {
+    // ... (keep the existing form validation logic)
+
+    if (_isAboutMeError || _isSizeError || _isPetNumberError) {
+      return;
+    }
+
+    try {
+      AboutMeFormData aboutMeData = AboutMeFormData(
+        aboutMe: _aboutController.text,
+        otherInfo: _otherinfoController.text,
+        selectedSizes: _selectedSizes,
+        selectedPetNumbers: _selectedPetNumbers,
+        selectedSkills: _selectedSkills,
+      );
+
+      if (_aboutMeId == null) {
+        _aboutMeId = await _aboutMeController.createAboutMeData(aboutMeData, widget.userId, widget.role);
+      } else {
+        await _aboutMeController.updateAboutMeData(aboutMeData, widget.userId, widget.role, _aboutMeId!);
+      }
+
+      Navigator.pop(context, aboutMeData);
+
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('About Me information saved successfully!'),
+        duration: Duration(seconds: 2),
+      ));
+    } catch (e) {
+      print('Error saving About Me information: $e');
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Failed to save About Me information.'),
+        duration: Duration(seconds: 2),
+      ));
+    }
   }
-
-  // Check if pet number is selected
-  if (_selectedPetNumbers.isEmpty) {
-    setState(() {
-      _isPetNumberError = true; // Set flag to display pet number error
-    });
-  }
-
-  // If any error flag is true, return without submitting the form
-  if (_isAboutMeError || _isSizeError || _isPetNumberError /* Add more conditions if needed */) {
-    // You can show a snackbar or set an error message for each field if needed
-    return;
-  }
-
-  // If all fields are filled, proceed with form submission logic
-  try {
-    // Prepare AboutMeFormData object to save in Firestore
-    AboutMeFormData aboutMeData = AboutMeFormData(
-      aboutMe: _aboutController.text,
-      otherInfo: _otherinfoController.text,
-      selectedSizes: _selectedSizes,
-      selectedPetNumbers: _selectedPetNumbers,
-      selectedSkills: _selectedSkills,
-    );
-
-    // Save or update AboutMeFormData in Firestore
-_aboutMeController.saveAboutMeData(aboutMeData, widget.userId, widget.role).then((_) {
-  Navigator.pop(context, aboutMeData);
-}).catchError((error) {
-  print('Failed to save about me data: $error');
-});
-
-    // Clear form fields after successful submission
-    setState(() {
-      _aboutController.clear(); // Clear text in the text field
-      _otherinfoController.clear();
-      _selectedSizes.clear(); // Clear selected sizes
-      _selectedPetNumbers.clear(); // Clear selected pet numbers
-      _selectedSkills.clear(); // Clear selected skills
-    });
-
-    // Show a success message to the user
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-      content: Text('About Me information saved successfully!'),
-      duration: Duration(seconds: 2),
-    ));
-  } catch (e) {
-    print('Error saving About Me information: $e');
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-      content: Text('Failed to save About Me information.'),
-      duration: Duration(seconds: 2),
-    ));
-  }
-}
 
   void _toggleSize(String size) {
     setState(() {

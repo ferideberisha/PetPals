@@ -190,24 +190,7 @@ Future<void> savePaymentToFirestore(Payment payment) async {
               MyButton(
                 onTap: () {
                   if (_formKey.currentState!.validate()) {
-                    if (!isDefault) {
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text('Error'),
-                          content: const Text(
-                              'Please set this payment method as default if you want to proceed.'),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              child: const Text('OK'),
-                            ),
-                          ],
-                        ),
-                      );
-                    } else {
+                  
                       final payment = Payment(
                         cardNumber: cardNumberController.text,
                         expiryDate: expiryDateController.text,
@@ -217,7 +200,7 @@ Future<void> savePaymentToFirestore(Payment payment) async {
 
                       savePaymentToFirestore(payment);
                     }
-                  }
+                  
                 },
                 text: 'Submit',
                 color: const Color(0xFF967BB6),
