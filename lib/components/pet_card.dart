@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 
 class PetCard extends StatelessWidget {
@@ -20,7 +19,7 @@ class PetCard extends StatelessWidget {
     return Card(
       elevation: 0,
       margin: const EdgeInsets.symmetric(vertical: 10),
-      color: Color(0xF5F5F5F5),
+      color: const Color(0xF5F5F5F5),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Row(
@@ -33,7 +32,7 @@ class PetCard extends StatelessWidget {
                 child: SizedBox(
                   height: 70,
                   width: 70,
-                  child: imagePath != null
+                  child: imagePath != null && imagePath!.isNotEmpty
                       ? Image.file(
                           File(imagePath!), // Assuming imagePath is a file path
                           fit: BoxFit.cover,

@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:petpals/components/my_button.dart';
 import 'package:petpals/components/my_textfield.dart';
@@ -24,14 +25,26 @@ class _PricesPageState extends State<PricesPage> {
   final _formKey = GlobalKey<FormState>();
   bool _showErrorMessage = false;
   final PriceController _priceController = PriceController();
+  String? _priceId; // To store the price ID
 
-@override
-void initState() {
-  super.initState();
-  print('userId: ${widget.userId}, role: ${widget.role}');
-  _loadPrices();
-}
+  @override
+  void initState() {
+    super.initState();
+    print('userId: ${widget.userId}, role: ${widget.role}');
+    _loadPrices();
+  }
 
+  Future<List<String>> _fetchPriceIds() async {
+    try {
+      final subCollection = widget.role == 'walker' ? 'walkerInfo' : 'ownerInfo';
+      final path = 'users/${widget.userId}/$subCollection/${widget.userId}/price';
+      final querySnapshot = await FirebaseFirestore.instance.collection(path).get();
+      return querySnapshot.docs.map((doc) => doc.id).toList();
+    } catch (e) {
+      print('Error fetching price IDs: $e');
+      return [];
+    }
+  }
 
   Future<void> _loadPrices() async {
     try {
@@ -39,7 +52,20 @@ void initState() {
         throw Exception('userId or role cannot be empty');
       }
 
-      Prices? prices = (await _priceController.getPrices(widget.userId, widget.role)) as Prices?;
+      final priceIds = await _fetchPriceIds();
+      if (priceIds.isEmpty) {
+        print('No price documents found for user.');
+        return;
+      }
+
+      _priceId = priceIds.first; // Select the first priceId or implement your logic
+      if (_priceId == null) {
+        print('No priceId found');
+        return;
+      }
+
+      Prices? prices = await _priceController.getPrices(widget.userId, widget.role, _priceId!);
+
       if (prices != null) {
         setState(() {
           _dayCareEnabled = prices.dayCareEnabled;
@@ -49,6 +75,8 @@ void initState() {
           _houseSittingPriceController.text = prices.houseSittingPrice?.toString() ?? '';
           _walkingPriceController.text = prices.walkingPrice?.toString() ?? '';
         });
+      } else {
+        print('No prices found for the specified priceId.');
       }
     } catch (e) {
       print('Error loading prices from Firestore: $e');
@@ -63,25 +91,24 @@ void initState() {
     super.dispose();
   }
 
-void _savePricesToFirestore(Prices prices) async {
-  try {
-    print('Saving prices for userId: ${widget.userId}, role: ${widget.role}');
-    if (widget.userId.isEmpty || widget.role.isEmpty) {
-      throw Exception('userId or role cannot be empty');
+  void _savePricesToFirestore(Prices prices) async {
+    try {
+      print('Saving prices for userId: ${widget.userId}, role: ${widget.role}');
+      if (widget.userId.isEmpty || widget.role.isEmpty || _priceId == null) {
+        throw Exception('userId, role, or priceId cannot be empty');
+      }
+
+      await _priceController.setPrices(prices, widget.userId, widget.role, _priceId!);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Prices saved successfully')),
+      );
+    } catch (e) {
+      print('Error saving prices to Firestore: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to save prices: $e')),
+      );
     }
-
-    await _priceController.addPrices(prices, widget.userId, widget.role);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Prices saved successfully')),
-    );
-  } catch (e) {
-    print('Error saving prices to Firestore: $e');
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Failed to save prices: $e')),
-    );
   }
-}
-
 
   void _saveButtonOnTap(BuildContext context) {
     setState(() {

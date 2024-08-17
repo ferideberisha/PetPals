@@ -4,45 +4,44 @@ import 'package:petpals/models/priceModel.dart';
 class PriceController {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
-  Future<void> addPrices(Prices prices, String userId, String role) async {
+  Future<void> setPrices(Prices prices, String userId, String role, String priceId) async {
+    // Determine subcollection based on role
     final subCollection = role == 'walker' ? 'walkerInfo' : 'ownerInfo';
-    final path = 'users/$userId/$subCollection/price'; // Correct path for price collection
+
+    // Path to the specific price document inside the subcollection
+    final path = 'users/$userId/$subCollection/$userId/price/$priceId';
 
     try {
-      final priceCollection = _db.collection(path);
+      // Reference the specific price document
+      final priceDocument = _db.doc(path);
 
-      // Check if there are existing documents
-      final querySnapshot = await priceCollection.get();
-
-      if (querySnapshot.docs.isEmpty) {
-        // Create a new document with an auto-generated ID if none exists
-        DocumentReference priceRef = priceCollection.doc(); // or specify a document ID
-        await priceRef.set(prices.toMap());
-      } else {
-        // Optionally update existing documents if needed
-        print('Price document already exists.');
-      }
+      // Update the document with the Prices data
+      await priceDocument.set(prices.toMap(), SetOptions(merge: true));
+      print('Prices saved successfully');
     } catch (e) {
-      print('Error adding prices: $e');
+      print('Error setting prices: $e');
     }
   }
 
- // Fetches all price documents for a user based on their role
-  Future<List<Prices>> getPrices(String userId, String role) async {
+  Future<Prices?> getPrices(String userId, String role, String priceId) async {
     final subCollection = role == 'walker' ? 'walkerInfo' : 'ownerInfo';
-    final path = 'users/$userId/$subCollection/$userId/price';
+    final path = 'users/$userId/$subCollection/$userId/price/$priceId';
 
     try {
-      // Fetch all price documents
-      final querySnapshot = await _db.collection(path).get();
+      // Reference the specific price document
+      final docSnapshot = await _db.doc(path).get();
 
-      // Convert all fetched documents to a list of Prices
-      return querySnapshot.docs.map((doc) {
-        return Prices.fromMap(doc.data());
-      }).toList();
+      // Check if the document exists
+      if (docSnapshot.exists) {
+        // Return the Prices object from the document data
+        return Prices.fromMap(docSnapshot.data() as Map<String, dynamic>);
+      } else {
+        print('Price document does not exist');
+        return null;
+      }
     } catch (e) {
       print('Error fetching prices: $e');
-      return [];
+      return null;
     }
   }
 }
