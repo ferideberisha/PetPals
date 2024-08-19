@@ -13,6 +13,7 @@ void main() async {
   // Make navigation bar transparent
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
+          statusBarColor: Color(0xFF967BB6),
       systemNavigationBarColor: Colors.transparent,
     ),
   );

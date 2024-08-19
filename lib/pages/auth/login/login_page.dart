@@ -2,6 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:petpals/components/header.dart';
 import 'package:petpals/components/my_button.dart';
 import 'package:petpals/components/my_textfield.dart';
 import 'package:petpals/components/square_tile.dart';
@@ -24,6 +25,11 @@ class _LoginPageState extends State<LoginPage> {
   final passwordController = TextEditingController();
   bool isPasswordVisible = false;
 
+  @override
+  void initState() {
+    super.initState();
+  }
+
   void signUserIn() async {
     if (_formKey.currentState!.validate()) {
       showDialog(
@@ -40,17 +46,11 @@ class _LoginPageState extends State<LoginPage> {
           email: emailController.text,
           password: passwordController.text,
         );
-        // ignore: use_build_context_synchronously
         Navigator.pop(context);
       } on FirebaseAuthException catch (e) {
-        // ignore: use_build_context_synchronously
         Navigator.pop(context);
-        if (e.code == 'user-not-found') {
+        if (e.code == 'user-not-found' || e.code == 'wrong-password' || e.code == 'invalid-credential') {
           showErrorDialog('You have entered an invalid username or password.');
-        } else if (e.code == 'wrong-password') {
-          showErrorDialog('You have entered an invalid username or password.');
-        } else if (e.code == 'invalid-credential') {
-          showErrorDialog('Invalid email or password.');
         } else {
           showErrorDialog('An unexpected error occurred. Please try again.');
         }
@@ -86,28 +86,11 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       body: SingleChildScrollView(
         child: Container(
-          decoration: const BoxDecoration(
-            color: Color(0xFF967BB6),
-          ),
-          child: SafeArea(
+          color: Colors.white,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 25),
-                  child: Text(
-                    'PetPals',
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.exo2(
-                      textStyle: const TextStyle(
-                        fontSize: 40,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 2.0,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
+                const HeaderWidget(title: 'PetPals'), // Use HeaderWidget here
                 Container(
                   decoration: const BoxDecoration(
                     color: Colors.white,
@@ -116,6 +99,7 @@ class _LoginPageState extends State<LoginPage> {
                       topRight: Radius.circular(30),
                     ),
                   ),
+                  
                   child: Padding(
                     padding: const EdgeInsets.all(20.0),
                     child: Form(
@@ -143,10 +127,7 @@ class _LoginPageState extends State<LoginPage> {
                               if (value == null || value.isEmpty) {
                                 return 'Please enter your email';
                               }
-                              // Regular expression for email validation
-                              bool isValidEmail =
-                                  RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                                      .hasMatch(value);
+                              bool isValidEmail = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value);
                               if (!isValidEmail) {
                                 return 'Please enter a valid email address';
                               }
@@ -161,9 +142,7 @@ class _LoginPageState extends State<LoginPage> {
                             fillColor: Colors.white,
                             suffixIcon: IconButton(
                               icon: Icon(
-                                isPasswordVisible
-                                    ? Icons.visibility
-                                    : Icons.visibility_off,
+                                isPasswordVisible ? Icons.visibility : Icons.visibility_off,
                                 color: Colors.grey,
                               ),
                               onPressed: togglePasswordVisibility,
@@ -178,9 +157,7 @@ class _LoginPageState extends State<LoginPage> {
                               if (!value.contains(RegExp(r'[A-Z]'))) {
                                 return 'Password must contain at least one uppercase letter';
                               }
-                              int digitCount = value
-                                  .replaceAll(RegExp(r'[^0-9]'), '')
-                                  .length;
+                              int digitCount = value.replaceAll(RegExp(r'[^0-9]'), '').length;
                               if (digitCount < 2) {
                                 return 'Password must contain at least two digits';
                               }
@@ -196,9 +173,7 @@ class _LoginPageState extends State<LoginPage> {
                                 onTap: () {
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            const ForgotPasswordPage()),
+                                    MaterialPageRoute(builder: (context) => const ForgotPasswordPage()),
                                   );
                                 },
                                 child: Text(
@@ -218,7 +193,7 @@ class _LoginPageState extends State<LoginPage> {
                             textColor: Colors.white,
                             borderColor: const Color(0xFF967BB6),
                             borderWidth: 1.0,
-                            width: 390,
+                            width: double.infinity, // Full width button
                             height: 60,
                           ),
                           const SizedBox(height: 20),
@@ -264,8 +239,7 @@ class _LoginPageState extends State<LoginPage> {
                             child: RichText(
                               textAlign: TextAlign.justify,
                               text: TextSpan(
-                                text:
-                                    'By signing in or signing up, I agree to the ',
+                                text: 'By signing in or signing up, I agree to the ',
                                 style: const TextStyle(
                                   color: Colors.black,
                                   fontSize: 14,
@@ -301,8 +275,7 @@ class _LoginPageState extends State<LoginPage> {
                                       },
                                   ),
                                   const TextSpan(
-                                    text:
-                                        ', confirm that I am 18 years of age or older, and consent to receiving email communication. This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Service apply.',
+                                    text: ', confirm that I am 18 years of age or older, and consent to receiving email communication. This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Service apply.',
                                     style: TextStyle(
                                       color: Colors.black,
                                       fontFamily: 'OpenSans',
@@ -314,7 +287,7 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                             ),
                           ),
-                          const SizedBox(height: 40),
+                          const SizedBox(height: 30),
                           MyButton(
                             onTap: () {
                               Navigator.push(
@@ -342,10 +315,10 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
               ],
-            ),
+              ),
           ),
         ),
-      ),
     );
+    
   }
 }

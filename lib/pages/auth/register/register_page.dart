@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:petpals/components/header.dart';
 import 'package:petpals/components/my_button.dart'; // Import MyButton
 import 'package:petpals/components/my_textfield.dart';
 import 'package:petpals/pages/auth/register/email_verification.dart';
@@ -40,31 +41,16 @@ class _RegisterPageState extends State<RegisterPage> {
     });
   }
 
-  @override
+   @override
   Widget build(BuildContext context) {
-      return Scaffold(
+    return Scaffold(
       body: SingleChildScrollView(
         child: Container(
-          decoration: const BoxDecoration(
-            color: Color(0xFF967BB6),
-          ),
-          child: SafeArea(
+          color: Colors.white,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 25),
-                  child: Text(
-                    'PetPals',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 40,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 2.0,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
+                const HeaderWidget(title: 'PetPals'), // Use HeaderWidget here
                 Container(
                   decoration: const BoxDecoration(
                     color: Colors.white,
@@ -316,8 +302,8 @@ class _RegisterPageState extends State<RegisterPage> {
             ),
           ),
         ),
-      ),
-    );
+      );
+    
   }
 
   // Display a dialog message

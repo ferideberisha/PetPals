@@ -171,43 +171,64 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   ),
                   const SizedBox(width: 110),
-                  Row(
-                    children: [
-                      CircleAvatarWidget(
-                        pickImage: _pickImage,
-                        image: _image,
-                        onTap: () {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: const Text('Select Image Source'),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      _pickImage(ImageSource.camera);
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: const Text('Camera'),
-                                  ),
-                                  TextButton(
-                                    onPressed: () {
-                                      _pickImage(ImageSource.gallery);
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: const Text('Gallery'),
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-                        },
-                        icon: Icons.person,
-                      ),
-                      const SizedBox(width: 10),
-                    ],
-                  ),
-                ],
+                 Row(
+  children: [
+    Stack(
+      children: [
+        CircleAvatarWidget(
+          pickImage: _pickImage,
+          image: _image,
+          onTap: () {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: const Text('Select Image Source'),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        _pickImage(ImageSource.camera);
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text('Camera'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        _pickImage(ImageSource.gallery);
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text('Gallery'),
+                    ),
+                  ],
+                );
+              },
+            );
+          },
+          icon: Icons.person,
+        ),
+        const Positioned(
+          bottom: 0,
+          right: 0,
+          child: CircleAvatar(
+            backgroundColor: Colors.white,
+            radius: 18,  // Size of the circular background
+            child: CircleAvatar(
+              backgroundColor: Color(0xFFEFEAF8), // Background color of the icon
+              radius: 16,  // Size of the icon's circle
+              child: Icon(
+                Icons.edit,
+                size: 16,
+                color: Colors.black,
+              ),
+            ),
+          ),
+        ),
+      ],
+    ),
+    const SizedBox(width: 10),
+  ],
+)
+],
               ),
               const SizedBox(height: 20),
               const Divider(),
@@ -257,7 +278,7 @@ class _ProfilePageState extends State<ProfilePage> {
     } else {
       // Handle the case where userId or role is null
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Unable to load user information.'),
         ),
       );
