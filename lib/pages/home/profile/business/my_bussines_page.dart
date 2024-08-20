@@ -97,7 +97,8 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const ReceivedPaymentPage()),
+                    MaterialPageRoute(
+                        builder: (context) => const ReceivedPaymentPage()),
                   );
                 },
                 child: const Row(
@@ -125,12 +126,12 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                          MaterialPageRoute(
-                        builder: (context) => AvailabilityPage(
-                          userId: userId!,
-                          role: role!,
-                        ),
+                    MaterialPageRoute(
+                      builder: (context) => AvailabilityPage(
+                        userId: userId!,
+                        role: role!,
                       ),
+                    ),
                   );
                 },
                 child: const Row(

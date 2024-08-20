@@ -9,7 +9,7 @@ class PricesPage extends StatefulWidget {
   final String userId;
   final String role;
 
-  const PricesPage({Key? key, required this.userId, required this.role}) : super(key: key);
+  const PricesPage({super.key, required this.userId, required this.role});
 
   @override
   State<PricesPage> createState() => _PricesPageState();
@@ -20,7 +20,8 @@ class _PricesPageState extends State<PricesPage> {
   bool _houseSittingEnabled = false;
   bool _walkingEnabled = false;
   final TextEditingController _dayCarePriceController = TextEditingController();
-  final TextEditingController _houseSittingPriceController = TextEditingController();
+  final TextEditingController _houseSittingPriceController =
+      TextEditingController();
   final TextEditingController _walkingPriceController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _showErrorMessage = false;
@@ -36,9 +37,12 @@ class _PricesPageState extends State<PricesPage> {
 
   Future<List<String>> _fetchPriceIds() async {
     try {
-      final subCollection = widget.role == 'walker' ? 'walkerInfo' : 'ownerInfo';
-      final path = 'users/${widget.userId}/$subCollection/${widget.userId}/price';
-      final querySnapshot = await FirebaseFirestore.instance.collection(path).get();
+      final subCollection =
+          widget.role == 'walker' ? 'walkerInfo' : 'ownerInfo';
+      final path =
+          'users/${widget.userId}/$subCollection/${widget.userId}/price';
+      final querySnapshot =
+          await FirebaseFirestore.instance.collection(path).get();
       return querySnapshot.docs.map((doc) => doc.id).toList();
     } catch (e) {
       print('Error fetching price IDs: $e');
@@ -46,42 +50,47 @@ class _PricesPageState extends State<PricesPage> {
     }
   }
 
-  Future<void> _loadPrices() async {
-    try {
-      if (widget.userId.isEmpty || widget.role.isEmpty) {
-        throw Exception('userId or role cannot be empty');
-      }
-
-      final priceIds = await _fetchPriceIds();
-      if (priceIds.isEmpty) {
-        print('No price documents found for user.');
-        return;
-      }
-
-      _priceId = priceIds.first; // Select the first priceId or implement your logic
-      if (_priceId == null) {
-        print('No priceId found');
-        return;
-      }
-
-      Prices? prices = await _priceController.getPrices(widget.userId, widget.role, _priceId!);
-
-      if (prices != null) {
-        setState(() {
-          _dayCareEnabled = prices.dayCareEnabled;
-          _houseSittingEnabled = prices.houseSittingEnabled;
-          _walkingEnabled = prices.walkingEnabled;
-          _dayCarePriceController.text = prices.dayCarePrice?.toString() ?? '';
-          _houseSittingPriceController.text = prices.houseSittingPrice?.toString() ?? '';
-          _walkingPriceController.text = prices.walkingPrice?.toString() ?? '';
-        });
-      } else {
-        print('No prices found for the specified priceId.');
-      }
-    } catch (e) {
-      print('Error loading prices from Firestore: $e');
+Future<void> _loadPrices() async {
+  try {
+    if (widget.userId.isEmpty || widget.role.isEmpty) {
+      throw Exception('userId or role cannot be empty');
     }
+
+    final priceIds = await _fetchPriceIds();
+    if (priceIds.isEmpty) {
+      print('No price documents found for user.');
+      return; // Exit early if no price documents are found
+    }
+
+    _priceId = priceIds.first;
+    if (_priceId == null) {
+      print('No priceId found');
+      return;
+    }
+
+    Prices? prices = await _priceController.getPrices(
+      widget.userId,
+      widget.role,
+      _priceId!,
+    );
+
+    if (prices != null) {
+      setState(() {
+        _dayCareEnabled = prices.dayCareEnabled;
+        _houseSittingEnabled = prices.houseSittingEnabled;
+        _walkingEnabled = prices.walkingEnabled;
+        _dayCarePriceController.text = prices.dayCarePrice?.toString() ?? '';
+        _houseSittingPriceController.text =
+            prices.houseSittingPrice?.toString() ?? '';
+        _walkingPriceController.text = prices.walkingPrice?.toString() ?? '';
+      });
+    } else {
+      print('No prices found for the specified priceId.');
+    }
+  } catch (e) {
+    print('Error loading prices from Firestore: $e');
   }
+}
 
   @override
   void dispose() {
@@ -91,28 +100,35 @@ class _PricesPageState extends State<PricesPage> {
     super.dispose();
   }
 
-  void _savePricesToFirestore(Prices prices) async {
-    try {
-      print('Saving prices for userId: ${widget.userId}, role: ${widget.role}');
-      if (widget.userId.isEmpty || widget.role.isEmpty || _priceId == null) {
-        throw Exception('userId, role, or priceId cannot be empty');
-      }
+Future<void> _savePricesToFirestore(Prices prices) async {
+  try {
+    print('Saving prices for userId: ${widget.userId}, role: ${widget.role}');
+    if (widget.userId.isEmpty || widget.role.isEmpty) {
+      throw Exception('userId or role cannot be empty');
+    }
 
-      await _priceController.setPrices(prices, widget.userId, widget.role, _priceId!);
+    if (_dayCareEnabled || _houseSittingEnabled || _walkingEnabled) {
+      // Only create or update the price document if at least one service is enabled
+      await _priceController.setPrices(prices, widget.userId, widget.role,
+          priceId: _priceId);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Prices saved successfully')),
       );
-    } catch (e) {
-      print('Error saving prices to Firestore: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to save prices: $e')),
-      );
+    } else {
+      print('No services enabled, so no price document will be saved.');
     }
+  } catch (e) {
+    print('Error saving prices to Firestore: $e');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Failed to save prices: $e')),
+    );
   }
+}
 
   void _saveButtonOnTap(BuildContext context) {
     setState(() {
-      _showErrorMessage = !_dayCareEnabled && !_houseSittingEnabled && !_walkingEnabled;
+      _showErrorMessage =
+          !_dayCareEnabled && !_houseSittingEnabled && !_walkingEnabled;
     });
 
     if (_formKey.currentState!.validate() && !_showErrorMessage) {
@@ -120,9 +136,15 @@ class _PricesPageState extends State<PricesPage> {
         dayCareEnabled: _dayCareEnabled,
         houseSittingEnabled: _houseSittingEnabled,
         walkingEnabled: _walkingEnabled,
-        dayCarePrice: _dayCareEnabled ? double.tryParse(_dayCarePriceController.text) : null,
-        houseSittingPrice: _houseSittingEnabled ? double.tryParse(_houseSittingPriceController.text) : null,
-        walkingPrice: _walkingEnabled ? double.tryParse(_walkingPriceController.text) : null,
+        dayCarePrice: _dayCareEnabled
+            ? double.tryParse(_dayCarePriceController.text)
+            : null,
+        houseSittingPrice: _houseSittingEnabled
+            ? double.tryParse(_houseSittingPriceController.text)
+            : null,
+        walkingPrice: _walkingEnabled
+            ? double.tryParse(_walkingPriceController.text)
+            : null,
       );
 
       _savePricesToFirestore(prices);

@@ -20,7 +20,7 @@ class UserController {
 
       // Set up sub-collections based on role
       if (role == 'walker' || role == 'owner') {
-        await userDoc.collection(role + 'Info').doc('placeholder').set({});
+        await userDoc.collection('${role}Info').doc('placeholder').set({});
       }
 
       // Return the generated user ID

@@ -366,23 +366,7 @@ class _RegisterPageState extends State<RegisterPage> {
       DocumentReference userDoc = FirebaseFirestore.instance.collection('users').doc(user.uid);
       await userDoc.set(user.toMap());
 
-      // Create subcollections based on the role
-      if (widget.role == 'walker') {
-        await userDoc.collection('walkerInfo').doc('price').set({
-          'dayCareEnabled': false,
-          'houseSittingEnabled': false,
-          'walkingEnabled': false,
-          'dayCarePrice': 0,
-          'houseSittingPrice': 0,
-          'walkingPrice': 0,
-        });
-        // Create other sub-collections for walker if needed
-      } else if (widget.role == 'owner') {
-        await userDoc.collection('ownerInfo').doc('preferences').set({
-          // Default preferences or empty object
-        });
-        // Create other sub-collections for owner if needed
-      }
+
 
       // Clear text fields
       firstNameController.clear();

@@ -1,20 +1,33 @@
 class Prices {
-  bool dayCareEnabled;
-  bool houseSittingEnabled;
-  bool walkingEnabled;
-  double? dayCarePrice;
-  double? houseSittingPrice;
-  double? walkingPrice;
+  final bool dayCareEnabled;
+  final bool houseSittingEnabled;
+  final bool walkingEnabled;
+  final double? dayCarePrice;
+  final double? houseSittingPrice;
+  final double? walkingPrice;
 
   Prices({
-    this.dayCareEnabled = false,
-    this.houseSittingEnabled = false,
-    this.walkingEnabled = false,
+    required this.dayCareEnabled,
+    required this.houseSittingEnabled,
+    required this.walkingEnabled,
     this.dayCarePrice,
     this.houseSittingPrice,
     this.walkingPrice,
   });
 
+  // Create Prices from Firestore Document
+  factory Prices.fromMap(Map<String, dynamic> data) {
+    return Prices(
+      dayCareEnabled: data['dayCareEnabled'] ?? false,
+      houseSittingEnabled: data['houseSittingEnabled'] ?? false,
+      walkingEnabled: data['walkingEnabled'] ?? false,
+      dayCarePrice: data['dayCarePrice']?.toDouble(),
+      houseSittingPrice: data['houseSittingPrice']?.toDouble(),
+      walkingPrice: data['walkingPrice']?.toDouble(),
+    );
+  }
+
+  // Convert Prices to Map for Firestore
   Map<String, dynamic> toMap() {
     return {
       'dayCareEnabled': dayCareEnabled,
@@ -24,16 +37,5 @@ class Prices {
       'houseSittingPrice': houseSittingPrice,
       'walkingPrice': walkingPrice,
     };
-  }
-
-  factory Prices.fromMap(Map<String, dynamic> map) {
-    return Prices(
-      dayCareEnabled: map['dayCareEnabled'] ?? false,
-      houseSittingEnabled: map['houseSittingEnabled'] ?? false,
-      walkingEnabled: map['walkingEnabled'] ?? false,
-      dayCarePrice: map['dayCarePrice']?.toDouble(),
-      houseSittingPrice: map['houseSittingPrice']?.toDouble(),
-      walkingPrice: map['walkingPrice']?.toDouble(),
-    );
   }
 }

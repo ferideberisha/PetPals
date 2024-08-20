@@ -2,39 +2,50 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:petpals/models/priceModel.dart';
 
 class PriceController {
-  final FirebaseFirestore _db = FirebaseFirestore.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future<void> setPrices(Prices prices, String userId, String role, String priceId) async {
-    // Determine subcollection based on role
-    final subCollection = role == 'walker' ? 'walkerInfo' : 'ownerInfo';
-
-    // Path to the specific price document inside the subcollection
-    final path = 'users/$userId/$subCollection/$userId/price/$priceId';
-
+  Future<void> setPrices(
+    Prices prices,
+    String userId,
+    String role, {
+    String? priceId, // Optional parameter for existing priceId
+  }) async {
     try {
-      // Reference the specific price document
-      final priceDocument = _db.doc(path);
+      final subCollection = role == 'walker' ? 'walkerInfo' : 'ownerInfo';
+      var userDoc = _firestore.collection('users').doc(userId);
+      var infoCollection =
+          userDoc.collection(subCollection).doc(userId).collection('price');
 
-      // Update the document with the Prices data
-      await priceDocument.set(prices.toMap(), SetOptions(merge: true));
-      print('Prices saved successfully');
+      // Use the provided priceId or create a new document if priceId is null
+      var docRef =
+          priceId != null ? infoCollection.doc(priceId) : infoCollection.doc();
+
+      await docRef.set(
+          prices.toMap(),
+          SetOptions(
+              merge:
+                  true)); // Use merge to update existing fields or create new ones
+      print('Prices saved successfully at ${docRef.id}');
     } catch (e) {
-      print('Error setting prices: $e');
+      print('Error saving prices: $e');
+      rethrow;
     }
   }
 
   Future<Prices?> getPrices(String userId, String role, String priceId) async {
-    final subCollection = role == 'walker' ? 'walkerInfo' : 'ownerInfo';
-    final path = 'users/$userId/$subCollection/$userId/price/$priceId';
-
     try {
-      // Reference the specific price document
-      final docSnapshot = await _db.doc(path).get();
+      final subCollection = role == 'walker' ? 'walkerInfo' : 'ownerInfo';
+      final docRef = _firestore
+          .collection('users')
+          .doc(userId)
+          .collection(subCollection)
+          .doc(userId)
+          .collection('price')
+          .doc(priceId);
 
-      // Check if the document exists
-      if (docSnapshot.exists) {
-        // Return the Prices object from the document data
-        return Prices.fromMap(docSnapshot.data() as Map<String, dynamic>);
+      final doc = await docRef.get();
+      if (doc.exists) {
+        return Prices.fromMap(doc.data()!);
       } else {
         print('Price document does not exist');
         return null;

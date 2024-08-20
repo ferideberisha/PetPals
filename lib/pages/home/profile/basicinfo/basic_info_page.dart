@@ -24,34 +24,34 @@ class _BasicInfoPageState extends State<BasicInfoPage> {
   final TextEditingController _addressController = TextEditingController();
   //final TextEditingController _phoneController = TextEditingController(); // Add phone number controller
 
-  @override
-  void initState() {
-    super.initState();
-    _loadUserInfo();
-    _initializeBirthday();
-  }
+@override
+void initState() {
+  super.initState();
+  _loadUserInfo();
+}
 
-  Future<void> _loadUserInfo() async {
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      DocumentSnapshot userDoc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .get();
+Future<void> _loadUserInfo() async {
+  User? user = FirebaseAuth.instance.currentUser;
+  if (user != null) {
+    DocumentSnapshot userDoc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .get();
 
-      if (userDoc.exists) {
-        setState(() {
-          _firstNameController.text = userDoc['firstName'] ?? '';
-          _lastNameController.text = userDoc['lastName'] ?? '';
-          _emailController.text = user.email ?? '';
-          _addressController.text = userDoc['address'] ?? '';
-       //   _phoneController.text = userDoc['phoneNumber'] ?? ''; // Load phone number
-        });
-      }
+    if (userDoc.exists) {
+      setState(() {
+        _firstNameController.text = userDoc['firstName'] ?? '';
+        _lastNameController.text = userDoc['lastName'] ?? '';
+        _emailController.text = user.email ?? '';
+        _addressController.text = userDoc['address'] ?? '';
+        _birthdayController.text = userDoc['birthday'] ?? ''; // Load birthday
+      });
     }
   }
+}
 
-  Future<void> _updateUserInfo() async {
+
+ Future<void> _updateUserInfo() async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       try {
@@ -80,42 +80,103 @@ class _BasicInfoPageState extends State<BasicInfoPage> {
     }
   }
 
-  Future<void> _deleteUser() async {
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      try {
-        final userDoc = FirebaseFirestore.instance.collection('users').doc(user.uid);
 
-        final subCollectionRefs = ['walkerInfo', 'ownerInfo'];
-        for (String subCollection in subCollectionRefs) {
-          final subCollectionSnap = await userDoc.collection(subCollection).get();
-          for (var doc in subCollectionSnap.docs) {
-            await doc.reference.delete();
-          }
+Future<void> _deleteUser() async {
+  String? password = await _showPasswordDialog();
+
+  if (password == null || password.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Password is required for re-authentication')),
+    );
+    return;
+  }
+
+  await _reauthenticateUser(password);
+
+  User? user = FirebaseAuth.instance.currentUser;
+  if (user != null) {
+    try {
+      final userDoc = FirebaseFirestore.instance.collection('users').doc(user.uid);
+
+      final subCollectionRefs = ['walkerInfo', 'ownerInfo'];
+      for (String subCollection in subCollectionRefs) {
+        final subCollectionSnap = await userDoc.collection(subCollection).get();
+        for (var doc in subCollectionSnap.docs) {
+          await doc.reference.delete();
         }
-
-        await userDoc.delete();
-        await user.delete();
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Account deleted successfully')),
-        );
-
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => const AuthPage()),
-          (route) => false,
-        );
-      } on FirebaseAuthException catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Firebase Auth error: ${e.message}')),
-        );
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error deleting account')),
-        );
       }
+
+      await userDoc.delete();
+      await user.delete();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Account deleted successfully')),
+      );
+
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => const AuthPage()),
+        (route) => false,
+      );
+    } on FirebaseAuthException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Firebase Auth error: ${e.message}')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error deleting account')),
+      );
     }
   }
+}Future<void> _reauthenticateUser(String password) async {
+  User? user = FirebaseAuth.instance.currentUser;
+  if (user != null) {
+    try {
+      AuthCredential credential = EmailAuthProvider.credential(
+        email: user.email!,
+        password: password,
+      );
+
+      await user.reauthenticateWithCredential(credential);
+      print('Re-authentication successful.');
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error during re-authentication: $e')),
+      );
+    }
+  }
+}
+
+Future<String?> _showPasswordDialog() async {
+  TextEditingController passwordController = TextEditingController();
+
+  return showDialog<String>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('Re-authenticate'),
+      content: TextField(
+        controller: passwordController,
+        obscureText: true,
+        decoration: const InputDecoration(labelText: 'Enter your password'),
+      ),
+      actions: <Widget>[
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop(passwordController.text);
+          },
+          child: const Text('Submit'),
+        ),
+      ],
+    ),
+  );
+}
+
+
 
   void _initializeBirthday() {
     DateTime now = DateTime.now();
@@ -123,21 +184,22 @@ class _BasicInfoPageState extends State<BasicInfoPage> {
     _birthdayController.text = formattedDate;
   }
 
-  void _selectBirthday(BuildContext context) {
-    DatePicker.showDatePicker(
-      context,
-      showTitleActions: true,
-      minTime: DateTime(1900, 1, 1),
-      maxTime: DateTime.now(),
-      onConfirm: (date) {
-        setState(() {
-          _birthdayController.text = DateFormat('yyyy-MM-dd').format(date);
-        });
-      },
-      currentTime: DateTime.now(),
-      locale: LocaleType.en,
-    );
-  }
+void _selectBirthday(BuildContext context) {
+  DatePicker.showDatePicker(
+    context,
+    showTitleActions: true,
+    minTime: DateTime(1900, 1, 1),
+    maxTime: DateTime.now(),
+    onConfirm: (date) {
+      setState(() {
+        _birthdayController.text = DateFormat('yyyy-MM-dd').format(date);
+      });
+    },
+    currentTime: DateTime.now(),
+    locale: LocaleType.en,
+  );
+}
+
 
   // void _navigateToAddPhoneNumberPage() async {
   //   final result = await Navigator.of(context).push(

@@ -20,26 +20,35 @@ class MyPaymentsPage extends StatelessWidget {
         title: const Text('Payments',
             style: TextStyle(fontWeight: FontWeight.bold)),
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => AddPaymentPage(userId: userId, role: role),
+          StreamBuilder<List<Payment>>(
+            stream: paymentController.getPaymentsStream(userId, role),
+            builder: (context, snapshot) {
+              if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                return Padding(
+                  padding: const EdgeInsets.only(right: 16.0),
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AddPaymentPage(userId: userId, role: role),
+                        ),
+                      );
+                    },
+                    child: const Text(
+                      '+ Add',
+                      style: TextStyle(
+                        color: Color(0xFF967BB6),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
                   ),
                 );
-              },
-              child: const Text(
-                '+ Add',
-                style: TextStyle(
-                  color: Color(0xFF967BB6),
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                ),
-              ),
-            ),
+              } else {
+                return Container(); // Return an empty container if no payments exist
+              }
+            },
           ),
         ],
       ),

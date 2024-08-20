@@ -33,9 +33,13 @@ class UserCard extends StatelessWidget {
           child: Row(
             children: [
               CircleAvatar(
-                backgroundImage: NetworkImage(user.profilePicture.isNotEmpty
-                    ? user.profilePicture
-                    : 'https://via.placeholder.com/150'),
+                backgroundImage: user.profilePicture.isNotEmpty
+                    ? NetworkImage(user.profilePicture)
+                    : null,
+                backgroundColor: user.profilePicture.isEmpty ? Colors.grey.shade200 : null,
+                child: user.profilePicture.isEmpty
+                    ? const Icon(Icons.person, size: 40, color: Color.fromRGBO(158, 158, 158, 1))
+                    : null,
                 radius: 40,
               ),
               const SizedBox(width: 20),
@@ -45,7 +49,7 @@ class UserCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.only(bottom: 50.0),
+                      padding: const EdgeInsets.only(bottom: 10.0),
                       child: Text(
                         '${user.firstName} ${user.lastName}',
                         style: const TextStyle(

@@ -8,12 +8,11 @@ class PetController {
   Future<void> addPet(Pet pet, String userId, String role) async {
     try {
       String subCollection = role == 'walker' ? 'walkerInfo' : 'ownerInfo';
-      // Add pet directly to the pets collection under the user's role-specific subcollection
       DocumentReference petDocRef = _firestore
           .collection('users')
           .doc(userId)
           .collection(subCollection)
-          .doc(userId) // Use 'pets' document to create a pets collection
+          .doc(userId)
           .collection('pets')
           .doc(); // Auto-generated ID for each pet
 
@@ -23,8 +22,9 @@ class PetController {
     }
   }
 
-  // Get a stream of pets for a specific user
-  Stream<List<Pet>> getPetsStream(String userId, String role) {
+  // Get a stream of pets for a specific user with document IDs
+  Stream<List<Map<String, dynamic>>> getPetsStreamWithId(
+      String userId, String role) {
     if (userId.isEmpty || role.isEmpty) {
       throw ArgumentError('Invalid userId or role');
     }
@@ -34,11 +34,35 @@ class PetController {
         .collection('users')
         .doc(userId)
         .collection(subCollection)
-        .doc(userId) // Use 'pets' document to create a pets collection
+        .doc(userId)
         .collection('pets')
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => Pet.fromMap(doc.data() as Map<String, dynamic>))
-            .toList());
+        .map((snapshot) => snapshot.docs.map((doc) {
+              return {
+                'id': doc.id, // Store the document ID
+                'pet': Pet.fromMap(doc.data())
+              };
+            }).toList());
+  }
+
+  // Update a pet in Firestore using the document ID
+  Future<void> updatePet(
+      Pet pet, String userId, String role, String petId) async {
+    try {
+      String subCollection = role == 'walker' ? 'walkerInfo' : 'ownerInfo';
+
+      DocumentReference petDocRef = _firestore
+          .collection('users')
+          .doc(userId)
+          .collection(subCollection)
+          .doc(userId)
+          .collection('pets')
+          .doc(petId); // Use the provided petId to update the specific document
+
+      await petDocRef
+          .update(pet.toMap()); // Ensure using the correct method here
+    } catch (e) {
+      throw Exception('Failed to update pet: $e');
+    }
   }
 }
