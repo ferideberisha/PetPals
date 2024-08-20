@@ -1,11 +1,11 @@
 import 'dart:io';
 import 'dart:math' as math;
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:petpals/components/circle_avatar.dart'; // Import CircleAvatarWidget
+import 'package:path_provider/path_provider.dart';
+import 'package:petpals/components/circle_avatar.dart';
 import 'package:petpals/components/my_bottom_bar.dart';
 import 'package:petpals/pages/auth/auth.dart';
 import 'package:petpals/pages/home/profile/aboutme/about_me_page.dart';
@@ -14,7 +14,7 @@ import 'package:petpals/pages/home/profile/accountsettings/account_settings_page
 import 'package:petpals/pages/home/profile/payment/my_payment_page.dart';
 import 'package:petpals/pages/home/profile/pets/my_pets_page.dart';
 import 'package:petpals/service/auth_service.dart';
-import 'package:petpals/pages/home/profile/basicinfo/basic_info_page.dart'; // Import the BasicInfoPage
+import 'package:petpals/pages/home/profile/basicinfo/basic_info_page.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -29,21 +29,20 @@ class _ProfilePageState extends State<ProfilePage> {
   bool isWalker = false;
   String? userId;
   String? role;
+
   @override
   void initState() {
     super.initState();
     _getUserDisplayName();
     _checkUserRole();
-     _fetchUserRole();
+    _fetchUserRole();
   }
 
-    Future<void> _fetchUserRole() async {
-    // Get the current user ID
+  Future<void> _fetchUserRole() async {
     userId = FirebaseAuth.instance.currentUser?.uid;
     if (userId == null) return;
 
     try {
-      // Fetch user role from Firestore or wherever you store it
       DocumentSnapshot userDoc = await FirebaseFirestore.instance
           .collection('users')
           .doc(userId)
@@ -51,7 +50,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
       if (userDoc.exists) {
         role = userDoc.get('role') as String?;
-        setState(() {}); // Trigger rebuild
+        setState(() {});
       }
     } catch (e) {
       print('Error fetching user role: $e');
@@ -71,9 +70,7 @@ class _ProfilePageState extends State<ProfilePage> {
       String profilePictureUrl = userData['profilePicture'] ?? '';
       setState(() {
         _userName = '$firstName $lastName';
-        if (profilePictureUrl.isNotEmpty) {
-          _image = profilePictureUrl;
-        }
+        _image = profilePictureUrl.isNotEmpty ? profilePictureUrl : null;
       });
     }
   }
@@ -92,17 +89,38 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
+  Future<void> updateProfilePicture(String imagePath) async {
+    try {
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser != null) {
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(currentUser.uid)
+            .update({'profilePicture': imagePath});
+        print('Profile picture updated successfully.');
+      }
+    } catch (e) {
+      print('Error updating profile picture: $e');
+      rethrow;
+    }
+  }
+
   Future<void> _pickImage(ImageSource source) async {
     final pickedImage = await ImagePicker().pickImage(source: source);
 
     if (pickedImage != null) {
       final File image = File(pickedImage.path);
+      final Directory appDir = await getApplicationDocumentsDirectory();
+      final String fileName = '${DateTime.now().toIso8601String()}.jpg';
+      final File savedImage = await image.copy('${appDir.path}/$fileName');
 
       try {
-        final imageUrl = await uploadImageToStorage(image);
-        await updateProfilePicture(imageUrl);
+        // Save the file path to Firestore
+        await updateProfilePicture(savedImage.path);
+
+        // Update _image variable to display the new image
         setState(() {
-          _image = image;
+          _image = savedImage.path;
         });
       } catch (e) {
         print('Error uploading image: $e');
@@ -110,29 +128,8 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  Future<String> uploadImageToStorage(File image) async {
-    try {
-      final ref = FirebaseStorage.instance
-          .ref('Users/Images/Profile/${DateTime.now().millisecondsSinceEpoch}');
-      await ref.putFile(image);
-      return await ref.getDownloadURL();
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  Future<void> updateProfilePicture(String imageUrl) async {
-    try {
-      final currentUser = FirebaseAuth.instance.currentUser;
-      if (currentUser != null) {
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(currentUser.uid)
-            .update({'profilePicture': imageUrl});
-      }
-    } catch (e) {
-      rethrow;
-    }
+  Widget _buildProfileImage(String filePath) {
+    return Image.file(File(filePath));
   }
 
   void signUserOut() {
@@ -145,7 +142,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          automaticallyImplyLeading: false, // Prevents automatic back button
+        automaticallyImplyLeading: false,
         title: const Text(
           'Profile',
           style: TextStyle(fontWeight: FontWeight.bold),
@@ -171,64 +168,65 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   ),
                   const SizedBox(width: 110),
-                 Row(
-  children: [
-    Stack(
-      children: [
-        CircleAvatarWidget(
-          pickImage: _pickImage,
-          image: _image,
-          onTap: () {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  title: const Text('Select Image Source'),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        _pickImage(ImageSource.camera);
-                        Navigator.of(context).pop();
-                      },
-                      child: const Text('Camera'),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        _pickImage(ImageSource.gallery);
-                        Navigator.of(context).pop();
-                      },
-                      child: const Text('Gallery'),
-                    ),
-                  ],
-                );
+                  Row(
+                    children: [
+                      Stack(
+                        children: [
+                         CircleAvatarWidget(
+  pickImage: _pickImage,
+  image: _image is String ? File(_image) : null,
+  onTap: () {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Select Image Source'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                _pickImage(ImageSource.camera);
+                Navigator.of(context).pop();
               },
-            );
-          },
-          icon: Icons.person,
-        ),
-        const Positioned(
-          bottom: 0,
-          right: 0,
-          child: CircleAvatar(
-            backgroundColor: Colors.white,
-            radius: 18,  // Size of the circular background
-            child: CircleAvatar(
-              backgroundColor: Color(0xFFEFEAF8), // Background color of the icon
-              radius: 16,  // Size of the icon's circle
-              child: Icon(
-                Icons.edit,
-                size: 16,
-                color: Colors.black,
-              ),
+              child: const Text('Camera'),
             ),
-          ),
-        ),
-      ],
-    ),
-    const SizedBox(width: 10),
-  ],
-)
-],
+            TextButton(
+              onPressed: () {
+                _pickImage(ImageSource.gallery);
+                Navigator.of(context).pop();
+              },
+              child: const Text('Gallery'),
+            ),
+          ],
+        );
+      },
+    );
+  },
+  icon: Icons.person,
+),
+
+                          const Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: CircleAvatar(
+                              backgroundColor: Colors.white,
+                              radius: 18,
+                              child: CircleAvatar(
+                                backgroundColor: Color(0xFFEFEAF8),
+                                radius: 16,
+                                child: Icon(
+                                  Icons.edit,
+                                  size: 16,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(width: 10),
+                    ],
+                  )
+                ],
               ),
               const SizedBox(height: 20),
               const Divider(),
@@ -264,47 +262,45 @@ class _ProfilePageState extends State<ProfilePage> {
               const SizedBox(height: 20),
               if (isWalker) ...[
                 TextButton(
-  onPressed: () {
-    if (userId != null && role != null) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => AboutMePage(
-            userId: userId!,
-            role: role!,
-          ),
-        ),
-      );
-    } else {
-      // Handle the case where userId or role is null
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Unable to load user information.'),
-        ),
-      );
-    }
-  },
-  child: const Row(
-    children: [
-      SizedBox(width: 10),
-      Icon(Icons.person, color: Colors.black),
-      SizedBox(width: 15),
-      Text(
-        'About me',
-        style: TextStyle(
-          color: Colors.black,
-          fontWeight: FontWeight.normal,
-          fontSize: 16,
-        ),
-      ),
-      SizedBox(width: 8),
-      Expanded(child: SizedBox()),
-      Icon(Icons.arrow_forward_ios, color: Colors.black),
-      SizedBox(width: 10),
-    ],
-  ),
-),
-
+                  onPressed: () {
+                    if (userId != null && role != null) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AboutMePage(
+                            userId: userId!,
+                            role: role!,
+                          ),
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Unable to load user information.'),
+                        ),
+                      );
+                    }
+                  },
+                  child: const Row(
+                    children: [
+                      SizedBox(width: 10),
+                      Icon(Icons.person, color: Colors.black),
+                      SizedBox(width: 15),
+                      Text(
+                        'About me',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.normal,
+                          fontSize: 16,
+                        ),
+                      ),
+                      SizedBox(width: 8),
+                      Expanded(child: SizedBox()),
+                      Icon(Icons.arrow_forward_ios, color: Colors.black),
+                      SizedBox(width: 10),
+                    ],
+                  ),
+                ),
                 const SizedBox(height: 20),
                 TextButton(
                   onPressed: () {
@@ -337,49 +333,48 @@ class _ProfilePageState extends State<ProfilePage> {
                 const SizedBox(height: 20),
               ],
               TextButton(
-  onPressed: () {
-    Navigator.push(
-      context,
-     MaterialPageRoute(
-                        builder: (context) => MyPetsPage(
-                          userId: userId!,
-                          role: role!,
-                        ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MyPetsPage(
+                        userId: userId!,
+                        role: role!,
                       ),
-    );
-  },
-  child: const Row(
-    children: [
-      SizedBox(width: 10),
-      Icon(Icons.pets, color: Colors.black),
-      SizedBox(width: 15),
-      Text(
-        'My pets',
-        style: TextStyle(
-          color: Colors.black,
-          fontWeight: FontWeight.normal,
-          fontSize: 16,
-        ),
-      ),
-      SizedBox(width: 8),
-      Expanded(child: SizedBox()),
-      Icon(Icons.arrow_forward_ios, color: Colors.black),
-      SizedBox(width: 10),
-    ],
-  ),
-),
-
+                    ),
+                  );
+                },
+                child: const Row(
+                  children: [
+                    SizedBox(width: 10),
+                    Icon(Icons.pets, color: Colors.black),
+                    SizedBox(width: 15),
+                    Text(
+                      'My pets',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.normal,
+                        fontSize: 16,
+                      ),
+                    ),
+                    SizedBox(width: 8),
+                    Expanded(child: SizedBox()),
+                    Icon(Icons.arrow_forward_ios, color: Colors.black),
+                    SizedBox(width: 10),
+                  ],
+                ),
+              ),
               const SizedBox(height: 20),
               TextButton(
                 onPressed: () {
                   Navigator.push(
                     context,
-                               MaterialPageRoute(
-                        builder: (context) => MyPaymentsPage(
-                          userId: userId!,
-                          role: role!,
-                        ),
+                    MaterialPageRoute(
+                      builder: (context) => MyPaymentsPage(
+                        userId: userId!,
+                        role: role!,
                       ),
+                    ),
                   );
                 },
                 child: const Row(
