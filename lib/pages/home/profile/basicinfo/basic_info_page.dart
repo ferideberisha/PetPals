@@ -51,34 +51,54 @@ Future<void> _loadUserInfo() async {
 }
 
 
- Future<void> _updateUserInfo() async {
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      try {
-        final Map<String, dynamic> updateData = {
-          'firstName': _firstNameController.text,
-          'lastName': _lastNameController.text,
-          'email': _emailController.text,
-          'birthday': _birthdayController.text,
-          'address': _addressController.text,
-        //  'phoneNumber': _phoneController.text, // Update phone number
-        };
+Future<void> _updateUserInfo() async {
+  User? user = FirebaseAuth.instance.currentUser;
+  if (user != null) {
+    if (_isUnderage(_birthdayController.text)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('You must be at least 18 years old to use this app.')),
+      );
+      return;
+    }
 
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(user.uid)
-            .update(updateData);
+    try {
+      final Map<String, dynamic> updateData = {
+        'firstName': _firstNameController.text,
+        'lastName': _lastNameController.text,
+        'email': _emailController.text,
+        'birthday': _birthdayController.text,
+        'address': _addressController.text,
+        // 'phoneNumber': _phoneController.text, // Update phone number if needed
+      };
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Changes saved')),
-        );
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error saving changes')),
-        );
-      }
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .update(updateData);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Changes saved')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error saving changes')),
+      );
     }
   }
+}
+
+bool _isUnderage(String birthday) {
+  DateTime birthDate = DateFormat('yyyy-MM-dd').parse(birthday);
+  DateTime today = DateTime.now();
+  int age = today.year - birthDate.year;
+
+  if (birthDate.month > today.month ||
+      (birthDate.month == today.month && birthDate.day > today.day)) {
+    age--;
+  }
+
+  return age < 18;
+}
 
 
 Future<void> _deleteUser() async {
