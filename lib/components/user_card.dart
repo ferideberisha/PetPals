@@ -1,3 +1,4 @@
+import 'dart:io'; // For File
 import 'package:flutter/material.dart';
 import 'package:petpals/models/userModel.dart';
 import 'package:petpals/pages/home/search/user_detail_page.dart';
@@ -33,9 +34,7 @@ class UserCard extends StatelessWidget {
           child: Row(
             children: [
               CircleAvatar(
-                backgroundImage: user.profilePicture.isNotEmpty
-                    ? NetworkImage(user.profilePicture)
-                    : null,
+                backgroundImage: _getProfileImage(user.profilePicture),
                 backgroundColor: user.profilePicture.isEmpty ? Colors.grey.shade200 : null,
                 child: user.profilePicture.isEmpty
                     ? const Icon(Icons.person, size: 40, color: Color.fromRGBO(158, 158, 158, 1))
@@ -71,5 +70,19 @@ class UserCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  ImageProvider? _getProfileImage(String profilePicture) {
+    if (profilePicture.isEmpty) {
+      return null; // Placeholder icon is used if there's no profile picture
+    } else if (_isNetworkUrl(profilePicture)) {
+      return NetworkImage(profilePicture);
+    } else {
+      return FileImage(File(profilePicture)) as ImageProvider;
+    }
+  }
+
+  bool _isNetworkUrl(String url) {
+    return url.startsWith('http') || url.startsWith('https');
   }
 }

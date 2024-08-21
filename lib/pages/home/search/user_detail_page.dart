@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:petpals/components/my_button.dart';
 import 'package:petpals/controllers/aboutme_controller.dart';
 import 'package:petpals/controllers/price_controller.dart';
 import 'package:petpals/models/userModel.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 class UserDetailPage extends StatefulWidget {
   final UserModel user;
@@ -19,27 +22,33 @@ class _UserDetailPageState extends State<UserDetailPage> {
   late final PriceController _priceController;
   late Future<void> _fetchPricesFuture;
 
-  // Add state variables for About Me section
+  DateTime _selectedDate = DateTime.now();
+
   AboutMeController? _aboutMeController;
   Future<void>? _fetchAboutMeFuture;
   String? _aboutMeText;
 
-  // State variables for button selection
-  String _selectedButton = '';
+  String _selectedButton = 'info'; // Default to 'info'
 
-  // State variables for About Me section
   List<String>? _selectedSizes;
   List<String>? _selectedPetNumbers;
   List<String>? _selectedSkills;
-
+  String? _profilePictureUrl;
+  
   @override
   void initState() {
     super.initState();
     _priceController = PriceController();
     _fetchPricesFuture = _fetchPrices();
 
-    _aboutMeController = AboutMeController(); // Initialize AboutMeController
+    _aboutMeController = AboutMeController();
     _fetchAboutMeFuture = _fetchAboutMe();
+    _fetchProfilePicture();
+  }
+
+  Future<void> _fetchProfilePicture() async {
+    _profilePictureUrl = await fetchProfilePicture(widget.user.uid);
+    setState(() {});
   }
 
   Future<void> _fetchPrices() async {
@@ -93,7 +102,27 @@ class _UserDetailPageState extends State<UserDetailPage> {
     }
   }
 
-@override
+  Future<String?> fetchProfilePicture(String userId) async {
+    try {
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get();
+      if (userDoc.exists) {
+        String? profilePictureUrl = userDoc.get('profilePicture') as String?;
+        return profilePictureUrl;
+      }
+    } catch (e) {
+      print('Error fetching profile picture: $e');
+    }
+    return null;
+  }
+
+  bool _isNetworkUrl(String url) {
+    return url.startsWith('http') || url.startsWith('https');
+  }
+
+  @override
 Widget build(BuildContext context) {
   return Scaffold(
     body: FutureBuilder(
@@ -106,329 +135,394 @@ Widget build(BuildContext context) {
           return Center(child: Text('Error: ${snapshot.error}'));
         }
 
-        return SingleChildScrollView(
-          child: Column(
-            children: [
-              // Background header
-              Container(
-                height: 170,
-                decoration: const BoxDecoration(
-                  color: Color(0xFF967BB6),
-                ),
-                child: SafeArea(
-                  child: Stack(
-                    children: [
-                      // Back button
-                      Positioned(
-                        top: 8,
-                        left: 8,
-                        child: IconButton(
-                          icon: const Icon(Icons.arrow_back),
-                          color: Colors.white,
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                      ),
-
-                      // Heart icon
-                      Positioned(
-                        top: 8,
-                        right: 8,
-                        child: IconButton(
-                          icon: const Icon(Icons.favorite_border),
-                          color: Colors.white,
-                          onPressed: () {
-                            // Handle favorite action
-                          },
-                        ),
-                      ),
-
-                      // Title
-                      const Center(
-                        child: Text(
-                          'PetPals',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 40,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 2.0,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-  // Profile section
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+        return Stack(
+          children: [
+            SingleChildScrollView(
+              child: Column(
+                
+                children: [
+                  // Background header with overlapping profile section
+                  Container(
+                    color: Colors.white,
+                    height: 200,
+                    child: Stack(
+                      clipBehavior: Clip.none,
                       children: [
-                        Text(
-                          '${widget.user.firstName} ${widget.user.lastName}',
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
+                        // Header background
+                        Container(
+                          height: 170,
+                          decoration: const BoxDecoration(
+                            color: Color(0xFF967BB6),
                           ),
-                        ),
-                      ],
-                    ),
-                    Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white,
-                      ),
-                      child: CircleAvatar(
-                        backgroundImage: NetworkImage(
-                          widget.user.profilePicture.isNotEmpty
-                              ? widget.user.profilePicture
-                              : 'https://via.placeholder.com/150',
-                        ),
-                        radius: 50,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              // Info and Review buttons
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            _selectedButton = 'info';
-                          });
-                          // Handle Info button action
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: _selectedButton == 'info' ? const Color(0xFFEFEAF8) : Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                        ),
-                        child: const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 12.0),
-                          child: Text(
-                            'Info',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.normal,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            _selectedButton = 'reviews';
-                          });
-                          // Handle Review button action
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: _selectedButton == 'reviews' ? const Color(0xFFEFEAF8) : Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                        ),
-                        child: const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 12.0),
-                          child: Text(
-                            'Reviews',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.normal,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              // Services Section
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Container(
-                  padding: const EdgeInsets.all(12.0),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFEFEAF8),
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.directions_walk,
-                        color: Colors.green,
-                        size: 28.0,
-                      ),
-                      const SizedBox(width: 12.0),
-                      Expanded(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              'Walking',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.normal,
-                                color: Colors.black,
-                              ),
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
+                          child: SafeArea(
+                            child: Stack(
                               children: [
-                                Text(
-                                  '${_walkingPrice?.toStringAsFixed(0)} EUR',
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black,
+                                Positioned(
+                                  top: 8,
+                                  left: 8,
+                                  child: IconButton(
+                                    icon: const Icon(Icons.arrow_back),
+                                    color: Colors.white,
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
                                   ),
                                 ),
-                                const Text(
-                                  'per hour',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.black45,
+                                Positioned(
+                                  top: 8,
+                                  right: 8,
+                                  child: IconButton(
+                                    icon: const Icon(Icons.favorite_border),
+                                    color: Colors.white,
+                                    onPressed: () {
+                                      // Handle favorite action
+                                    },
+                                  ),
+                                ),
+                                const Center(
+                                  child: Text(
+                                    'PetPals',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 40,
+                                      fontWeight: FontWeight.w800,
+                                      letterSpacing: 2.0,
+                                      color: Colors.white,
+                                    ),
                                   ),
                                 ),
                               ],
                             ),
+                          ),
+                        ),
+                        // Profile section overlapping the header
+                        Positioned(
+                          top: 150,  // Adjust this value to control how much the profile overlaps the header
+                          left: 16,
+                          right: 16,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    '${widget.user.firstName} ${widget.user.lastName}',
+                                    style: const TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: const BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.white,
+                                ),
+                                child: CircleAvatar(
+                                  radius: 50,
+                                  backgroundImage: _profilePictureUrl != null
+                                      ? _isNetworkUrl(_profilePictureUrl!)
+                                          ? NetworkImage(_profilePictureUrl!)
+                                          : FileImage(File(_profilePictureUrl!)) as ImageProvider
+                                      : const AssetImage('assets/images/placeholder.png'),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 60),
+                  // Info and Review buttons
+                  Container(
+                    color: Colors.white,
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Info and Review buttons
+                        Row(
+                          children: [
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _selectedButton = 'info';
+                                  });
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: _selectedButton == 'info' ? const Color(0xFFEFEAF8) : Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                ),
+                                child: const Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 12.0),
+                                  child: Text(
+                                    'Info',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.normal,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _selectedButton = 'reviews';
+                                  });
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: _selectedButton == 'reviews' ? const Color(0xFFEFEAF8) : Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                ),
+                                child: const Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 12.0),
+                                  child: Text(
+                                    'Reviews',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.normal,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
                           ],
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 16.0),
+                        // Info Section
+                        Visibility(
+                          visible: _selectedButton == 'info',
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Services Section
+                                  Container(
+                                    padding: const EdgeInsets.all(20.0),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(15.0),
+                                      color: Colors.grey.shade100,
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.directions_walk,
+                                          color: Colors.green,
+                                          size: 28.0,
+                                        ),
+                                        const SizedBox(width: 12.0),
+                                        Expanded(
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              const Text(
+                                                'Walking',
+                                                style: TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.normal,
+                                                  color: Colors.black,
+                                                ),
+                                              ),
+                                              Column(
+                                                crossAxisAlignment: CrossAxisAlignment.end,
+                                                children: [
+                                                  Text(
+                                                    '${_walkingPrice?.toStringAsFixed(0)} EUR',
+                                                    style: const TextStyle(
+                                                      fontSize: 18,
+                                                      fontWeight: FontWeight.bold,
+                                                      color: Colors.black,
+                                                    ),
+                                                  ),
+                                                  const Text(
+                                                    'per hour',
+                                                    style: TextStyle(
+                                                      fontSize: 14,
+                                                      color: Colors.black45,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+
+                                  // Calendar Section
+                                  const SizedBox(height: 16.0),
+                                  _buildSectionTitle('Available Dates:'),
+                                  const SizedBox(height: 6.0),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(15.0),
+                                      color: Colors.grey.shade100,
+                                    ),
+                                    child: TableCalendar(
+                                      focusedDay: _selectedDate,
+                                      firstDay: DateTime.utc(DateTime.now().year - 1, 1, 1),
+                                      lastDay: DateTime.utc(DateTime.now().year + 1, 12, 31),
+                                      selectedDayPredicate: (day) => false, // No day should be selected
+                                    ),
+                                  ),
+
+                                  const SizedBox(height: 10.0),
+                                ],
+                              ),
+
+                              // About Me Section
+                              const SizedBox(height: 16.0),
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Container(
+                                  constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width - 32), // Ensure it doesn't exceed screen width
+                                  padding: const EdgeInsets.all(12.0),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(15.0),
+                                    color: Colors.grey.shade100,
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      _buildSectionTitle('About Me'),
+                                      const SizedBox(height: 8.0),
+                                      Text(
+                                        _aboutMeText ?? 'Loading...',
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.black54,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 16.0),
+                                      _buildSectionTitle('Prefers:'),
+                                      const SizedBox(height: 8.0),
+                                      Text(
+                                        _selectedSizes?.isNotEmpty == true
+                                            ? _selectedSizes!.join(', ')
+                                            : 'Loading...',
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.black54,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 16.0),
+                                      _buildSectionTitle('Additional Skills:'),
+                                      const SizedBox(height: 8.0),
+                                      Text(
+                                        _selectedSkills?.isNotEmpty == true
+                                            ? _selectedSkills!.join(', ')
+                                            : 'Loading...',
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.black54,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 16.0),
+                                      Text(
+                                        _selectedPetNumbers?.isNotEmpty == true
+                                            ? 'Can take care of ${_selectedPetNumbers!.join(' or ')} pets at the same time.'
+                                            : 'Loading...',
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8.0),
+                                      const Divider(
+                                        color: Color.fromRGBO(238, 238, 238, 1),
+                                        thickness: 0,
+                                        height: 5,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 100),
+                            ],
+                          ),
+                        ),
+
+                        // Reviews Section (Placeholder for actual reviews content)
+                        Visibility(
+                          visible: _selectedButton == 'reviews',
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 16.0),
+                            child: Container(
+                              padding: const EdgeInsets.all(12.0),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFEFEAF8),
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              child: const Text(
+                                'Reviews content will go here...',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
+                ],
+              ),
+            ),
+
+            Positioned(
+              bottom: 20,
+              left: 0,
+              right: 0,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: MyButton(
+                  onTap: () {
+                    // Handle button action here
+                  },
+                  text: 'Booking details',
+                  color: const Color(0xFF967BB6),
+                  textColor: Colors.white,
+                  borderColor: const Color(0xFF967BB6),
+                  borderWidth: 1.0,
+                  height: 60,
                 ),
               ),
-
-            
-
-              // About Me section
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Divider(
-                      color: Color.fromARGB(111, 186, 186, 186),
-                      thickness: 0.5,
-                      height: 0,
-                    ),
-                    Container(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'About Me',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.black,
-                            ),
-                          ),
-                          const SizedBox(height: 8.0),
-                          Text(
-                            _aboutMeText ?? 'Loading...',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              color: Colors.black54,
-                            ),
-                          ),
-                          const SizedBox(height: 16.0),
-                          _buildSectionTitle('Prefers:'),
-                          const SizedBox(height: 8.0),
-                          Text(
-                            _selectedSizes?.isNotEmpty == true
-                                ? _selectedSizes!.join(', ')
-                                : 'Loading...',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              color: Colors.black54,
-                            ),
-                          ),
-                          const SizedBox(height: 16.0),
-                          _buildSectionTitle('Additional Skills:'),
-                          const SizedBox(height: 8.0),
-                          Text(
-                            _selectedSkills?.isNotEmpty == true
-                                ? _selectedSkills!.join(', ')
-                                : 'Loading...',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              color: Colors.black54,
-                            ),
-                          ),
-                          const SizedBox(height: 16.0),
-                          Text(
-                            _selectedPetNumbers?.isNotEmpty == true
-                                ? 'Can take care of ${_selectedPetNumbers!.join(' or ')} pets at the same time.'
-                                : 'Loading...',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.black,
-                            ),
-                          ),
-                          const SizedBox(height: 8.0),
-                          const Divider(
-                            color: Colors.black38,
-                            thickness: 0.5,
-                            height: 20,
-                          ),
-                          const SizedBox(height: 25),
-                          MyButton(
-                            onTap: () {
-                              // Handle button action here
-                            },
-                            text: 'Booking details',
-                            color: const Color(0xFF967BB6),
-                            textColor: Colors.white,
-                            borderColor: const Color(0xFF967BB6),
-                            borderWidth: 1.0,
-                            width: 390,
-                            height: 60,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         );
       },
     ),
   );
 }
 
-  Widget _buildSectionTitle(String title) {
-    return Text(
-      title,
-      style: const TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.w500,
-        color: Colors.black87,
-      ),
-    );
-  }
+Widget _buildSectionTitle(String title) {
+  return Text(
+    title,
+    style: const TextStyle(
+      fontSize: 16,
+      fontWeight: FontWeight.w500,
+      color: Colors.black87,
+    ),
+  );
+}
 }

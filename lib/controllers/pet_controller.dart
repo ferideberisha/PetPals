@@ -65,4 +65,23 @@ class PetController {
       throw Exception('Failed to update pet: $e');
     }
   }
+
+  // Delete a pet from Firestore using the document ID
+  Future<void> deletePet(String userId, String role, String petId) async {
+    try {
+      String subCollection = role == 'walker' ? 'walkerInfo' : 'ownerInfo';
+
+      DocumentReference petDocRef = _firestore
+          .collection('users')
+          .doc(userId)
+          .collection(subCollection)
+          .doc(userId)
+          .collection('pets')
+          .doc(petId); // Use the provided petId to delete the specific document
+
+      await petDocRef.delete();
+    } catch (e) {
+      throw Exception('Failed to delete pet: $e');
+    }
+  }
 }

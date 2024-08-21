@@ -3,7 +3,7 @@ import 'package:petpals/components/pet_card.dart';
 import 'package:petpals/controllers/pet_controller.dart';
 import 'package:petpals/models/petModel.dart';
 import 'package:petpals/pages/home/profile/pets/add_pet_page.dart';
-import 'package:petpals/pages/home/profile/pets/edit_pet_page.dart'; // Import the edit pet page
+import 'package:petpals/pages/home/profile/pets/edit_pet_page.dart'; // Import EditPetPage
 
 class MyPetsPage extends StatelessWidget {
   final String userId;
@@ -15,23 +15,6 @@ class MyPetsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('MyPetsPage - userId: $userId, role: $role');
-
-    if (userId.isEmpty || role.isEmpty) {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text('My Pets',
-              style: TextStyle(fontWeight: FontWeight.bold)),
-        ),
-        body: const Center(
-          child: Text(
-            'Invalid userId or role',
-            style: TextStyle(fontSize: 16, color: Colors.red),
-          ),
-        ),
-      );
-    }
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Pets',
@@ -62,8 +45,7 @@ class MyPetsPage extends StatelessWidget {
         ],
       ),
       body: StreamBuilder<List<Map<String, dynamic>>>(
-        stream: petController.getPetsStreamWithId(
-            userId, role), // Using updated method
+        stream: petController.getPetsStreamWithId(userId, role),
         builder: (context, snapshot) {
           if (snapshot.hasData && snapshot.data!.isNotEmpty) {
             return ListView.builder(
@@ -71,14 +53,49 @@ class MyPetsPage extends StatelessWidget {
               itemBuilder: (context, index) {
                 final petData = snapshot.data![index];
                 final pet = petData['pet'] as Pet;
-                final petId =
-                    petData['id'] as String; // Extract the document ID
+                final petId = petData['id'] as String;
 
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: GestureDetector(
-                    onTap: () {
-                      // Navigate to edit pet page with the pet and its document ID
+                  child: PetCard(
+                    name: pet.name,
+                    gender: pet.gender,
+                    size: pet.sizeRange,
+                    imagePath: pet.imagePath,
+                    onDelete: () async {
+                      bool? confirm = await showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Confirm Delete'),
+                          content: const Text(
+                              'Are you sure you want to delete this pet?'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(false),
+                              child: const Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(true),
+                              child: const Text('Delete'),
+                            ),
+                          ],
+                        ),
+                      );
+
+                      if (confirm == true) {
+                        try {
+                          await petController.deletePet(userId, role, petId);
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Failed to delete pet: $e'),
+                            ),
+                          );
+                        }
+                      }
+                    },
+                    // Edit Button Logic
+                    onEdit: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -91,13 +108,6 @@ class MyPetsPage extends StatelessWidget {
                         ),
                       );
                     },
-                    child: PetCard(
-                      name: pet.name,
-                      gender: pet.gender,
-                      size: pet.sizeRange,
-                      imagePath:
-                          pet.imagePath, // Adjust imagePath as per your model
-                    ),
                   ),
                 );
               },

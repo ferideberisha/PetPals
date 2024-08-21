@@ -5,13 +5,17 @@ class PetCard extends StatelessWidget {
   final String name;
   final String gender;
   final String size;
-  final String? imagePath; // Make imagePath nullable in case no image is provided
+  final String? imagePath;
+  final VoidCallback onDelete; // Callback for delete action
+  final VoidCallback onEdit; // Callback for edit action
 
   const PetCard({
     required this.name,
     required this.gender,
     required this.size,
     this.imagePath,
+    required this.onDelete, // Require the onDelete callback
+    required this.onEdit, // Require the onEdit callback
   });
 
   @override
@@ -27,14 +31,14 @@ class PetCard extends StatelessWidget {
           children: [
             // Pet Image
             Padding(
-              padding: const EdgeInsets.only(right: 16.0), // Adjust as needed
+              padding: const EdgeInsets.only(right: 16.0),
               child: ClipOval(
                 child: SizedBox(
                   height: 70,
                   width: 70,
                   child: imagePath != null && imagePath!.isNotEmpty
                       ? Image.file(
-                          File(imagePath!), // Assuming imagePath is a file path
+                          File(imagePath!),
                           fit: BoxFit.cover,
                         )
                       : const CircleAvatar(
@@ -43,7 +47,7 @@ class PetCard extends StatelessWidget {
                             Icons.pets,
                             color: Colors.white,
                           ),
-                        ), // Circle avatar with paw icon when no image is available
+                        ),
                 ),
               ),
             ),
@@ -70,6 +74,16 @@ class PetCard extends StatelessWidget {
                   ),
                 ],
               ),
+            ),
+            // Edit Button
+            IconButton(
+              icon: const Icon(Icons.edit, color: Color.fromRGBO(97, 97, 97, 1)),
+              onPressed: onEdit, // Trigger the edit callback
+            ),
+            // Delete Button
+            IconButton(
+              icon: const Icon(Icons.delete, color: Color(0xFFAF1D1D)),
+              onPressed: onDelete, // Trigger the delete callback
             ),
           ],
         ),
