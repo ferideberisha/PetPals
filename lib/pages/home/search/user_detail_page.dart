@@ -3,9 +3,12 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:petpals/components/my_button.dart';
+import 'package:petpals/components/service.dart';
 import 'package:petpals/controllers/aboutme_controller.dart';
 import 'package:petpals/controllers/price_controller.dart';
+import 'package:petpals/models/priceModel.dart';
 import 'package:petpals/models/userModel.dart';
+import 'package:petpals/pages/home/booking/booking_details_page.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class UserDetailPage extends StatefulWidget {
@@ -18,10 +21,9 @@ class UserDetailPage extends StatefulWidget {
 }
 
 class _UserDetailPageState extends State<UserDetailPage> {
-  double? _walkingPrice;
   late final PriceController _priceController;
   late Future<void> _fetchPricesFuture;
-
+  Prices? _prices; // Add this field
   DateTime _selectedDate = DateTime.now();
 
   AboutMeController? _aboutMeController;
@@ -34,6 +36,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
   List<String>? _selectedPetNumbers;
   List<String>? _selectedSkills;
   String? _profilePictureUrl;
+  
   
   @override
   void initState() {
@@ -51,20 +54,32 @@ class _UserDetailPageState extends State<UserDetailPage> {
     setState(() {});
   }
 
-  Future<void> _fetchPrices() async {
-    try {
-      final priceIds = await _fetchPriceIds();
-      if (priceIds.isNotEmpty) {
-        final priceId = priceIds.first;
-        final prices = await _priceController.getPrices(widget.user.uid, widget.user.role, priceId);
-        setState(() {
-          _walkingPrice = prices?.walkingPrice;
-        });
-      }
-    } catch (e) {
-      print('Error fetching prices: $e');
+Future<void> _fetchPrices() async {
+  try {
+    final priceIds = await _fetchPriceIds();
+    print('Price IDs: $priceIds'); // Debug print
+    if (priceIds.isNotEmpty) {
+      final priceId = priceIds.first;
+      final prices = await _priceController.getPrices(widget.user.uid, widget.user.role, priceId);
+      print('Fetched Prices: $prices'); // Debug print
+      setState(() {
+        _prices = Prices(
+          dayCareEnabled: prices?.dayCareEnabled ?? false,
+          houseSittingEnabled: prices?.houseSittingEnabled ?? false,
+          walkingEnabled: prices?.walkingEnabled ?? false,
+          dayCarePrice: prices?.dayCarePrice,
+          houseSittingPrice: prices?.houseSittingPrice,
+          walkingPrice: prices?.walkingPrice,
+        );
+      });
+    } else {
+      print('No price IDs found.'); // Debug print
     }
+  } catch (e) {
+    print('Error fetching prices: $e');
   }
+}
+
 
   Future<List<String>> _fetchPriceIds() async {
     try {
@@ -313,59 +328,25 @@ Widget build(BuildContext context) {
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  // Services Section
-                                  Container(
-                                    padding: const EdgeInsets.all(20.0),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(15.0),
-                                      color: Colors.grey.shade100,
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        const Icon(
-                                          Icons.directions_walk,
-                                          color: Colors.green,
-                                          size: 28.0,
-                                        ),
-                                        const SizedBox(width: 12.0),
-                                        Expanded(
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              const Text(
-                                                'Walking',
-                                                style: TextStyle(
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.normal,
-                                                  color: Colors.black,
-                                                ),
-                                              ),
-                                              Column(
-                                                crossAxisAlignment: CrossAxisAlignment.end,
-                                                children: [
-                                                  Text(
-                                                    '${_walkingPrice?.toStringAsFixed(0)} EUR',
-                                                    style: const TextStyle(
-                                                      fontSize: 18,
-                                                      fontWeight: FontWeight.bold,
-                                                      color: Colors.black,
-                                                    ),
-                                                  ),
-                                                  const Text(
-                                                    'per hour',
-                                                    style: TextStyle(
-                                                      fontSize: 14,
-                                                      color: Colors.black45,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
+  Visibility(
+  visible: _selectedButton == 'info',
+  child: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      // Pass all prices to the ServiceSection
+      if (_prices != null) // Ensure _prices is not null
+        ServiceSection(
+          dayCarePrice: _prices!.dayCarePrice,
+          houseSittingPrice: _prices!.houseSittingPrice,
+          walkingPrice: _prices!.walkingPrice,
+        )
+      else
+        Center(child: Text('Prices not available.')), // Handle the case where prices are not available
+      
+      // Other widgets
+    ],
+  ),
+),
 
                                   // Calendar Section
                                   const SizedBox(height: 16.0),
@@ -374,7 +355,7 @@ Widget build(BuildContext context) {
                                   Container(
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(15.0),
-                                      color: Colors.grey.shade100,
+                                      color: Color(0x0D967BB6),
                                     ),
                                     child: TableCalendar(
                                       focusedDay: _selectedDate,
@@ -397,7 +378,7 @@ Widget build(BuildContext context) {
                                   padding: const EdgeInsets.all(12.0),
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(15.0),
-                                    color: Colors.grey.shade100,
+                                    color: Color(0x0D967BB6),
                                   ),
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -489,26 +470,42 @@ Widget build(BuildContext context) {
               ),
             ),
 
-            Positioned(
-              bottom: 20,
-              left: 0,
-              right: 0,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: MyButton(
-                  onTap: () {
-                    // Handle button action here
-                  },
-                  text: 'Booking details',
-                  color: const Color(0xFF967BB6),
-                  textColor: Colors.white,
-                  borderColor: const Color(0xFF967BB6),
-                  borderWidth: 1.0,
-                  height: 60,
-                ),
-              ),
-            ),
-          ],
+              Visibility(
+              visible: _selectedButton == 'info',
+              child: Positioned(
+                bottom: 16,
+                left: 16,
+                right: 16,
+  child: Container(
+    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+    child: MyButton(
+      onTap: () {
+        if (_prices != null) {
+Navigator.push(
+  context,
+  MaterialPageRoute(
+    builder: (context) => BookingDetailsPage(
+      prices: _prices!, userId: widget.user.uid, role: widget.user.role,
+    ),
+  ),
+);
+
+} else {
+  print('Prices are null, cannot navigate to BookingDetailsPage.'); // Debug print
+}
+
+      },
+      text: 'Booking details',
+      color: const Color(0xFF967BB6),
+      textColor: Colors.white,
+      borderColor: const Color(0xFF967BB6),
+      borderWidth: 1.0,
+      height: 60,
+    ),
+  ),
+),
+
+          ),  ],
         );
       },
     ),

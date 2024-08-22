@@ -84,4 +84,22 @@ class PetController {
       throw Exception('Failed to delete pet: $e');
     }
   }
+  // Fetch pets for a specific user and role
+  Future<List<Pet>> getPets(String userId, String role) async {
+    try {
+      String subCollection = role == 'walker' ? 'walkerInfo' : 'ownerInfo';
+      QuerySnapshot snapshot = await _firestore
+          .collection('users')
+          .doc(userId)
+          .collection(subCollection)
+          .doc(userId)
+          .collection('pets')
+          .get();
+      return snapshot.docs.map((doc) => Pet.fromMap(doc.data() as Map<String, dynamic>)).toList();
+    } catch (e) {
+      print('Error fetching pets: $e');
+      return [];
+    }
+  }
+  
 }
