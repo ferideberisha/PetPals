@@ -137,6 +137,8 @@ Future<void> _fetchPrices() async {
     return url.startsWith('http') || url.startsWith('https');
   }
 
+
+
   @override
 Widget build(BuildContext context) {
   return Scaffold(
@@ -183,17 +185,7 @@ Widget build(BuildContext context) {
                                     },
                                   ),
                                 ),
-                                Positioned(
-                                  top: 8,
-                                  right: 8,
-                                  child: IconButton(
-                                    icon: const Icon(Icons.favorite_border),
-                                    color: Colors.white,
-                                    onPressed: () {
-                                      // Handle favorite action
-                                    },
-                                  ),
-                                ),
+                            
                                 const Center(
                                   child: Text(
                                     'PetPals',

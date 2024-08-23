@@ -6,11 +6,13 @@ import 'package:petpals/pages/home/search/user_detail_page.dart';
 class UserCard extends StatelessWidget {
   final UserModel user;
   final VoidCallback onFavoriteTap;
+  final bool isFavorited; // Add this property
 
   const UserCard({
     Key? key,
     required this.user,
     required this.onFavoriteTap,
+    this.isFavorited = false, // Initialize to false by default
   }) : super(key: key);
 
   @override
@@ -36,10 +38,10 @@ class UserCard extends StatelessWidget {
               CircleAvatar(
                 backgroundImage: _getProfileImage(user.profilePicture),
                 backgroundColor: user.profilePicture.isEmpty ? Colors.grey.shade200 : null,
+                radius: 40,
                 child: user.profilePicture.isEmpty
                     ? const Icon(Icons.person, size: 40, color: Color.fromRGBO(158, 158, 158, 1))
                     : null,
-                radius: 40,
               ),
               const SizedBox(width: 20),
               Expanded(
@@ -62,7 +64,10 @@ class UserCard extends StatelessWidget {
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.favorite_border),
+                icon: Icon(
+                  isFavorited ? Icons.favorite : Icons.favorite_border,
+                  color: isFavorited ? Colors.red : null, // Set color if favorited
+                ),
                 onPressed: onFavoriteTap,
               ),
             ],

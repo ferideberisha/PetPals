@@ -25,7 +25,6 @@ class _SearchPageState extends State<SearchPage> {
   @override
   void initState() {
     super.initState();
-    print("init state is being executed");
     fetchUsers().then((users) {
       setState(() {
         _users = users;
@@ -41,42 +40,23 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Future<List<UserModel>> fetchUsers() async {
-    // Print the current user's UID
-    print('Current user UID: ${user.uid}');
-
-    // Proceed to fetch the current user's role
     final currentUserSnapshot = await FirebaseFirestore.instance
         .collection('users')
         .doc(user.uid)
         .get();
 
     if (!currentUserSnapshot.exists) {
-      print('Current user not found in Firestore.');
       return [];
     }
 
     final currentUserRole = currentUserSnapshot['role'];
-    print('Current user role: $currentUserRole');
-
-    // Determine the opposite role to fetch
     String oppositeRole = currentUserRole == 'walker' ? 'owner' : 'walker';
-    print('Fetching users with role: $oppositeRole');
 
-    // Fetch users with the opposite role
     final snapshot = await FirebaseFirestore.instance
         .collection('users')
         .where('role', isEqualTo: oppositeRole)
         .get();
 
-    if (snapshot.docs.isEmpty) {
-      print('No users found with role: $oppositeRole');
-    } else {
-      snapshot.docs.forEach((doc) {
-        print('Fetched user: ${doc.data()}');
-      });
-    }
-
-    // Convert the results to a list of UserModel objects
     return snapshot.docs.map((doc) => UserModel.fromDocument(doc)).toList();
   }
 
@@ -88,6 +68,87 @@ class _SearchPageState extends State<SearchPage> {
       }).toList();
     });
   }
+
+Future<void> _addToFavorites(UserModel user) async {
+  try {
+    final currentUser = FirebaseAuth.instance.currentUser!;
+    final currentUserSnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(currentUser.uid)
+        .get();
+
+    if (!currentUserSnapshot.exists) {
+      print('User not found.');
+      return;
+    }
+
+    final currentUserRole = currentUserSnapshot['role'];
+    String favoritesPath = currentUserRole == 'walker'
+        ? 'users/${currentUser.uid}/walkerInfo/${currentUser.uid}/favorites'
+        : 'users/${currentUser.uid}/ownerInfo/${currentUser.uid}/favorites';
+
+    await FirebaseFirestore.instance
+        .collection(favoritesPath)
+        .doc(user.uid) // Use user.uid for the document ID
+        .set({
+      'uid': user.uid,
+      'firstName': user.firstName,
+      'lastName': user.lastName,
+      'profilePicture': user.profilePicture,
+    });
+
+    print('User added to favorites.');
+  } catch (e) {
+    print('Error adding user to favorites: $e');
+  }
+}
+Future<bool> _isUserFavorited(UserModel user) async {
+  final currentUser = FirebaseAuth.instance.currentUser!;
+  final currentUserSnapshot = await FirebaseFirestore.instance
+      .collection('users')
+      .doc(currentUser.uid)
+      .get();
+  final currentUserRole = currentUserSnapshot['role'];
+  String favoritesPath = currentUserRole == 'walker'
+      ? 'users/${currentUser.uid}/walkerInfo/${currentUser.uid}/favorites'
+      : 'users/${currentUser.uid}/ownerInfo/${currentUser.uid}/favorites';
+
+  final docSnapshot = await FirebaseFirestore.instance
+      .collection(favoritesPath)
+      .doc(user.uid)
+      .get();
+  
+  return docSnapshot.exists;
+}
+
+Future<void> _removeFromFavorites(UserModel user) async {
+  try {
+    final currentUser = FirebaseAuth.instance.currentUser!;
+    final currentUserSnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(currentUser.uid)
+        .get();
+
+    if (!currentUserSnapshot.exists) {
+      print('User not found.');
+      return;
+    }
+
+    final currentUserRole = currentUserSnapshot['role'];
+    String favoritesPath = currentUserRole == 'walker'
+        ? 'users/${currentUser.uid}/walkerInfo/${currentUser.uid}/favorites'
+        : 'users/${currentUser.uid}/ownerInfo/${currentUser.uid}/favorites';
+
+    await FirebaseFirestore.instance
+        .collection(favoritesPath)
+        .doc(user.uid) // Use user.uid for the document ID
+        .delete();
+
+    print('User removed from favorites.');
+  } catch (e) {
+    print('Error removing user from favorites: $e');
+  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -128,8 +189,7 @@ class _SearchPageState extends State<SearchPage> {
                                 decoration: const InputDecoration(
                                   hintText: 'Search...',
                                   border: InputBorder.none,
-                                  contentPadding:
-                                      EdgeInsets.symmetric(horizontal: 16),
+                                  contentPadding: EdgeInsets.symmetric(horizontal: 16),
                                 ),
                               ),
                             ),
@@ -155,20 +215,40 @@ class _SearchPageState extends State<SearchPage> {
                           const Text('No users found')
                         else
                           ListView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: _filteredUsers.length,
-                            itemBuilder: (context, index) {
-                              final user = _filteredUsers[index];
-                              return UserCard(
-                                user: user,
-                                onFavoriteTap: () {
-                                  print(
-                                      'Add ${user.firstName} ${user.lastName} to favorites');
-                                },
-                              );
-                            },
-                          ),
+  shrinkWrap: true,
+  physics: const NeverScrollableScrollPhysics(),
+  itemCount: _filteredUsers.length,
+  itemBuilder: (context, index) {
+    final user = _filteredUsers[index];
+    return FutureBuilder<bool>(
+      future: _isUserFavorited(user),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (!snapshot.hasData) {
+          return const Center(child: Text('Error fetching favorite status'));
+        }
+
+        final isFavorited = snapshot.data!;
+
+        return UserCard(
+          user: user,
+          isFavorited: isFavorited,
+          onFavoriteTap: () {
+            if (isFavorited) {
+              _removeFromFavorites(user);
+            } else {
+              _addToFavorites(user);
+            }
+            setState(() {});
+          },
+        );
+      },
+    );
+  },
+)
+
                       ],
                     ),
                   ),
@@ -178,8 +258,7 @@ class _SearchPageState extends State<SearchPage> {
           ),
         ),
       ),
-      bottomNavigationBar:
-          CustomBottomNavigationBar(selectedIndex: _selectedIndex),
+      bottomNavigationBar: CustomBottomNavigationBar(selectedIndex: _selectedIndex),
     );
   }
 }
