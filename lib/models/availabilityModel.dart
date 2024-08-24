@@ -1,65 +1,24 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 
-class Availability {
-  final DateTime date;
-  final List<TimeSlot> timeSlots;
-  final bool isBusyAllDay;
+class AvailabilityModel {
+  List<String> timeSlots;
+  bool busyAllDay;
 
-  Availability({
-    required this.date,
+  AvailabilityModel({
     required this.timeSlots,
-    this.isBusyAllDay = false,
-  });
-
-  factory Availability.fromMap(Map<String, dynamic>? map) {
-  if (map == null) {
-    throw ArgumentError("Map cannot be null");
-  }
-
-  List<dynamic> timeSlotList = map['timeSlots'] ?? [];
-  List<TimeSlot> slots = timeSlotList.map((slot) => TimeSlot.fromMap(slot)).toList();
-
-  return Availability(
-    date: (map['date'] as Timestamp).toDate(),
-    timeSlots: slots,
-    isBusyAllDay: map['isBusyAllDay'] ?? false,
-  );
-}
-
-
-  Map<String, dynamic> toMap() {
-    return {
-      'date': date,
-      'timeSlots': timeSlots.map((slot) => slot.toMap()).toList(),
-      'isBusyAllDay': isBusyAllDay,
-    };
-  }
-}
-
-class TimeSlot {
-  final DateTime from;
-  final DateTime to;
-
-  TimeSlot({
-    required this.from,
-    required this.to,
+    this.busyAllDay = false,
   });
 
   Map<String, dynamic> toMap() {
     return {
-      'from': from,
-      'to': to,
+      'timeSlots': timeSlots,
+      'busyAllDay': busyAllDay,
     };
   }
 
-static TimeSlot fromMap(Map<String, dynamic>? map) {
-  if (map == null) {
-    throw ArgumentError("Map cannot be null");
+  factory AvailabilityModel.fromMap(Map<String, dynamic> map) {
+    return AvailabilityModel(
+      timeSlots: List<String>.from(map['timeSlots'] ?? []),
+      busyAllDay: map['busyAllDay'] ?? false,
+    );
   }
-  return TimeSlot(
-    from: (map['from'] as Timestamp).toDate(),
-    to: (map['to'] as Timestamp).toDate(),
-  );
-}
-
 }

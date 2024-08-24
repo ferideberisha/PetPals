@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:petpals/components/my_button.dart';
-import 'package:petpals/pages/home/profile/business/availability/my_calendar.dart';
+import 'package:petpals/pages/home/profile/business/availability/timeslots_page.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class AvailabilityPage extends StatefulWidget {
@@ -13,7 +13,6 @@ class AvailabilityPage extends StatefulWidget {
 }
 
 class _AvailabilityPageState extends State<AvailabilityPage> {
-  final bool _isEditing = false;
   DateTime? _selectedDate;
   CalendarFormat _calendarFormat = CalendarFormat.month;
 
@@ -33,7 +32,9 @@ class _AvailabilityPageState extends State<AvailabilityPage> {
               focusedDay: DateTime.now(),
               calendarFormat: _calendarFormat,
               selectedDayPredicate: (day) => isSameDay(_selectedDate, day),
-              onDaySelected: _isEditing ? _onDaySelected : null,
+              onDaySelected: (selectedDay, focusedDay) {
+                _onDaySelected(selectedDay, focusedDay);
+              },
               onFormatChanged: (format) {
                 if (_calendarFormat != format) {
                   setState(() {
@@ -41,24 +42,51 @@ class _AvailabilityPageState extends State<AvailabilityPage> {
                   });
                 }
               },
+              calendarBuilders: CalendarBuilders(
+                defaultBuilder: (context, day, focusedDay) {
+                  if (day.isBefore(DateTime.now())) {
+                    return Center(
+                      child: Text(
+                        '${day.day}',
+                        style: const TextStyle(color: Colors.grey),
+                      ),
+                    );
+                  }
+                  return null; // Use the default builder for other days
+                },
+              ),
             ),
             const SizedBox(height: 20.0),
-           // Add Pet button
+            // Edit Calendar button
             MyButton(
               onTap: () {
-                // Navigate to the AddPetPage
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const MyCalendar(userId: '', role: '',)),
-                );
+                // Navigate to the TimeSlotsPage with the selected date
+                if (_selectedDate != null) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => TimeSlotsPage(
+                        userId: widget.userId,
+                        date: _selectedDate!,
+                      ),
+                    ),
+                  );
+                } else {
+                  // Show a message to select a date first
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Please select a date to edit.'),
+                    ),
+                  );
+                }
               },
-               text: 'Edit Calendar',
-                color: Colors.transparent,
-                textColor: const Color(0xFF967BB6),
-                borderColor: const Color(0xFF967BB6),
-                borderWidth: 1.0,
-                width: 390,
-                height: 60,
+              text: 'Edit Calendar',
+              color: Colors.transparent,
+              textColor: const Color(0xFF967BB6),
+              borderColor: const Color(0xFF967BB6),
+              borderWidth: 1.0,
+              width: 390,
+              height: 60,
             ),
           ],
         ),
