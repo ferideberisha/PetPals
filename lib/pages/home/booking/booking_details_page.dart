@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:petpals/components/my_button.dart';
+import 'package:petpals/controllers/availability_controller.dart';
+import 'package:petpals/models/availabilityModel.dart';
+import 'package:petpals/pages/home/booking/timeslots_display_page.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:petpals/components/service.dart';
 import 'package:petpals/controllers/pet_controller.dart';
@@ -30,12 +33,15 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
   List<Pet> _pets = [];
   final PetController _petController = PetController();
   final TextEditingController _dateController = TextEditingController();
+  final AvailabilityController _availabilityController = AvailabilityController();
+  Map<DateTime, AvailabilityModel> _availabilityMap = {};
 
   @override
   void initState() {
     super.initState();
-     _selectedService = null; // Ensure no service is selected initially
+    _selectedService = null; // Ensure no service is selected initially
     _fetchPets();
+    _fetchAvailability(); // Fetch availability data
   }
 
   List<String> _getAvailableServices() {
@@ -61,6 +67,54 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
     }
   }
 
+Future<void> _fetchAvailability() async {
+  try {
+    final today = DateTime.now();
+    final dates = List.generate(30, (index) => today.add(Duration(days: index)));
+    Map<DateTime, AvailabilityModel> availabilityMap = {};
+
+    for (DateTime date in dates) {
+      AvailabilityModel? availability = await _availabilityController.getAvailability(widget.userId, date);
+
+      if (availability != null) {
+        availabilityMap[date] = availability;
+      } else {
+        // Date not in the database, show all time slots as available
+        availabilityMap[date] = AvailabilityModel(
+          timeSlots: _getAllTimeSlots(), // Set all slots as available
+          busyAllDay: false,
+        );
+      }
+    }
+
+    setState(() {
+      _availabilityMap = availabilityMap;
+    });
+  } catch (e) {
+    print('Error fetching availability: $e');
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Failed to fetch availability. Please try again later.'),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
+}
+
+
+  List<String> _getAllTimeSlots() {
+    return [
+      "08:00-09:00",
+      "09:30-10:30",
+      "11:00-12:00",
+      "12:30-13:30",
+      "14:00-15:00",
+      "15:30-16:30",
+      "17:00-18:00",
+      "18:30-19:30",
+    ];
+  }
+
   void _selectDate(BuildContext context) async {
     final today = DateTime.now();
 
@@ -77,6 +131,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                   firstDay: today,
                   lastDay: DateTime.utc(2030, 12, 31),
                   focusedDay: today,
+                  selectedDayPredicate: (day) => _dateController.text == DateFormat('yyyy-MM-dd').format(day),
                   onDaySelected: (selectedDay, focusedDay) {
                     if (selectedDay.isBefore(today)) {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -90,14 +145,35 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                     setState(() {
                       _dateController.text = DateFormat('yyyy-MM-dd').format(selectedDay);
                     });
-                    Navigator.pop(context);
+
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => TimeSlotsDisplayPage(
+                          userId: widget.userId,
+                          date: selectedDay,
+                        ),
+                      ),
+                    );
                   },
-                  calendarStyle: const CalendarStyle(
-                    selectedTextStyle: TextStyle(color: Colors.white),
-                    todayDecoration: BoxDecoration(
-                      color: Colors.blue,
-                      shape: BoxShape.circle,
-                    ),
+                  calendarBuilders: CalendarBuilders(
+                    markerBuilder: (context, date, events) {
+                      if (_availabilityMap.containsKey(date)) {
+                        final availability = _availabilityMap[date];
+                        if (availability != null) {
+                          return Positioned(
+                            right: 1,
+                            bottom: 1,
+                            child: Icon(
+                              Icons.check,
+                              size: 16,
+                              color: availability.busyAllDay ? Colors.green : Colors.red,
+                            ),
+                          );
+                        }
+                      }
+                      return SizedBox.shrink();
+                    },
                   ),
                 ),
                 TextButton(
