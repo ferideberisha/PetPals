@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:petpals/components/my_button.dart';
 import 'package:petpals/controllers/availability_controller.dart';
 import 'package:petpals/controllers/booking_controller.dart';
+import 'package:petpals/controllers/user_controller.dart';
 import 'package:petpals/models/availabilityModel.dart';
 import 'package:petpals/models/bookingModel.dart';
 import 'package:petpals/pages/home/booking/timeslots_display_page.dart';
@@ -36,6 +37,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
   final PetController _petController = PetController();
   final TextEditingController _dateController = TextEditingController();
   final AvailabilityController _availabilityController = AvailabilityController();
+  final UserController _userController =UserController();
   Map<DateTime, AvailabilityModel> _availabilityMap = {};
   Set<String> _selectedTimeSlots = {};
   double _totalPrice = 0.0; // Variable to store the total price
@@ -361,8 +363,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
   }
 
 
-  
-void _bookAppointment() async {
+  void _bookAppointment() async {
   if (_selectedService == 'Walking' && _selectedNumberOfWalks != null) {
     int numberOfWalks = int.parse(_selectedNumberOfWalks!);
     if (_selectedTimeSlots.length != numberOfWalks) {
@@ -376,14 +377,18 @@ void _bookAppointment() async {
     }
   }
 
+  // Retrieve current owner's ID
+  String ownerId = await _userController.getCurrentUserId();
+
   // Create a booking model
   BookingModel booking = BookingModel(
-    userId: widget.userId,
     service: _selectedService!,
     petName: _selectedPet,
     date: DateFormat('yyyy-MM-dd').parse(_dateController.text),
     timeSlots: _selectedTimeSlots,
     numberOfWalks: _selectedNumberOfWalks != null ? int.parse(_selectedNumberOfWalks!) : null,
+    ownerId: ownerId, // Set current owner's ID
+    walkerId: widget.userId, // Set the walker ID from widget
   );
 
   // Create booking controller instance
@@ -392,9 +397,9 @@ void _bookAppointment() async {
   try {
     // Save booking
     await bookingController.createBooking(
-      userId: widget.userId,
       role: widget.role,
       booking: booking,
+      ownerId: ownerId, walkerId: widget.userId
     );
 
     // Show success message
@@ -417,6 +422,7 @@ void _bookAppointment() async {
     );
   }
 }
+
 
 
   Widget _buildTextField(String label, IconData icon) {
