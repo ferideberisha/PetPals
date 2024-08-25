@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:petpals/components/my_button.dart';
 import 'package:petpals/controllers/availability_controller.dart';
+import 'package:petpals/controllers/booking_controller.dart';
 import 'package:petpals/models/availabilityModel.dart';
+import 'package:petpals/models/bookingModel.dart';
 import 'package:petpals/pages/home/booking/timeslots_display_page.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:petpals/components/service.dart';
@@ -35,6 +37,9 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
   final TextEditingController _dateController = TextEditingController();
   final AvailabilityController _availabilityController = AvailabilityController();
   Map<DateTime, AvailabilityModel> _availabilityMap = {};
+  Set<String> _selectedTimeSlots = {};
+  double _totalPrice = 0.0; // Variable to store the total price
+// Variable to store the selected date
 
   @override
   void initState() {
@@ -67,40 +72,39 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
     }
   }
 
-Future<void> _fetchAvailability() async {
-  try {
-    final today = DateTime.now();
-    final dates = List.generate(30, (index) => today.add(Duration(days: index)));
-    Map<DateTime, AvailabilityModel> availabilityMap = {};
+  Future<void> _fetchAvailability() async {
+    try {
+      final today = DateTime.now();
+      final dates = List.generate(30, (index) => today.add(Duration(days: index)));
+      Map<DateTime, AvailabilityModel> availabilityMap = {};
 
-    for (DateTime date in dates) {
-      AvailabilityModel? availability = await _availabilityController.getAvailability(widget.userId, date);
+      for (DateTime date in dates) {
+        AvailabilityModel? availability = await _availabilityController.getAvailability(widget.userId, date);
 
-      if (availability != null) {
-        availabilityMap[date] = availability;
-      } else {
-        // Date not in the database, show all time slots as available
-        availabilityMap[date] = AvailabilityModel(
-          timeSlots: _getAllTimeSlots(), // Set all slots as available
-          busyAllDay: false,
-        );
+        if (availability != null) {
+          availabilityMap[date] = availability;
+        } else {
+          // Date not in the database, show all time slots as available
+          availabilityMap[date] = AvailabilityModel(
+            timeSlots: _getAllTimeSlots(), // Set all slots as available
+            busyAllDay: false,
+          );
+        }
       }
+
+      setState(() {
+        _availabilityMap = availabilityMap;
+      });
+    } catch (e) {
+      print('Error fetching availability: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to fetch availability. Please try again later.'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
-
-    setState(() {
-      _availabilityMap = availabilityMap;
-    });
-  } catch (e) {
-    print('Error fetching availability: $e');
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Failed to fetch availability. Please try again later.'),
-        backgroundColor: Colors.red,
-      ),
-    );
   }
-}
-
 
   List<String> _getAllTimeSlots() {
     return [
@@ -115,10 +119,11 @@ Future<void> _fetchAvailability() async {
     ];
   }
 
-  void _selectDate(BuildContext context) async {
+  Future<void> _selectDate(BuildContext context) async {
     final today = DateTime.now();
 
-    showDialog(
+    // Show calendar to select a date
+    final DateTime? selectedDay = await showDialog<DateTime>(
       context: context,
       builder: (BuildContext context) {
         return Dialog(
@@ -131,7 +136,8 @@ Future<void> _fetchAvailability() async {
                   firstDay: today,
                   lastDay: DateTime.utc(2030, 12, 31),
                   focusedDay: today,
-                  selectedDayPredicate: (day) => _dateController.text == DateFormat('yyyy-MM-dd').format(day),
+                  selectedDayPredicate: (day) =>
+                      _dateController.text == DateFormat('yyyy-MM-dd').format(day),
                   onDaySelected: (selectedDay, focusedDay) {
                     if (selectedDay.isBefore(today)) {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -146,15 +152,8 @@ Future<void> _fetchAvailability() async {
                       _dateController.text = DateFormat('yyyy-MM-dd').format(selectedDay);
                     });
 
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => TimeSlotsDisplayPage(
-                          userId: widget.userId,
-                          date: selectedDay,
-                        ),
-                      ),
-                    );
+                    // Close dialog and return the selected date
+                    Navigator.of(context).pop(selectedDay);
                   },
                   calendarBuilders: CalendarBuilders(
                     markerBuilder: (context, date, events) {
@@ -167,12 +166,14 @@ Future<void> _fetchAvailability() async {
                             child: Icon(
                               Icons.check,
                               size: 16,
-                              color: availability.busyAllDay ? Colors.green : Colors.red,
+                              color: availability.busyAllDay
+                                  ? Colors.green
+                                  : Colors.red,
                             ),
                           );
                         }
                       }
-                      return SizedBox.shrink();
+                      return const SizedBox.shrink();
                     },
                   ),
                 ),
@@ -188,235 +189,359 @@ Future<void> _fetchAvailability() async {
         );
       },
     );
+
+    if (selectedDay != null) {
+      // Proceed to select time slots after selecting a date
+      final Set<String>? selectedSlots = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => TimeSlotsDisplayPage(
+            userId: widget.userId,
+            date: selectedDay,
+          ),
+        ),
+      );
+
+      if (selectedSlots != null) {
+        setState(() {
+          _selectedTimeSlots = selectedSlots;
+          _calculateTotalPrice(); // Calculate the total price when time slots are selected
+        });
+      }
+    }
   }
 
- Widget _buildNumberOfWalksDropdown() {
-  // Define the number of walks options
-  final List<String> numberOfWalksOptions = ['1', '2', '3', '4', '5'];
+  void _calculateTotalPrice() {
+    double? walkingPricePerHour = widget.prices.walkingPrice; // Use the price from the widget
 
-  return DropdownButtonFormField<String>(
-    value: _selectedNumberOfWalks,
-    items: numberOfWalksOptions.map((walks) {
-      return DropdownMenuItem<String>(
-        value: walks,
-        child: Text(
-          walks,
-          style: const TextStyle(color: Color(0xFF424242), fontSize: 16),
+    // Calculate price based on the selected service and time slots
+    if (_selectedService == 'Walking') {
+      int numberOfWalks = int.tryParse(_selectedNumberOfWalks ?? '0') ?? 0;
+      if (_selectedTimeSlots.length != numberOfWalks) {
+        _totalPrice = 0.0; // Invalid state
+      } else {
+        _totalPrice = walkingPricePerHour! * _selectedTimeSlots.length;
+      }
+    } else {
+      _totalPrice = 0.0; // Set default price for other services if applicable
+    }
+
+    setState(() {});
+  }
+
+  Widget _buildNumberOfWalksDropdown() {
+    final List<String> numberOfWalksOptions = ['1', '2', '3', '4', '5'];
+
+    return DropdownButtonFormField<String>(
+      value: _selectedNumberOfWalks,
+      items: numberOfWalksOptions.map((walks) {
+        return DropdownMenuItem<String>(
+          value: walks,
+          child: Text(
+            walks,
+            style: const TextStyle(color: Color(0xFF424242), fontSize: 16),
+          ),
+        );
+      }).toList(),
+      onChanged: (value) {
+        setState(() {
+          _selectedNumberOfWalks = value;
+          // Reset time slots if number of walks changes
+          _selectedTimeSlots.clear();
+          _calculateTotalPrice(); // Recalculate price when number of walks changes
+        });
+      },
+      decoration: InputDecoration(
+        labelText: "Number of Walks",
+        labelStyle: const TextStyle(color: Color(0xFF9E9E9E)),
+        prefixIcon: const Icon(Icons.directions_walk, color: Colors.grey),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: Color(0xFF9E9E9E)),
         ),
-      );
-    }).toList(),
-    onChanged: (value) {
-      setState(() {
-        _selectedNumberOfWalks = value;
-      });
-    },
-    decoration: InputDecoration(
-      labelText: "Number of Walks",
-      labelStyle: const TextStyle(color: Color(0xFF9E9E9E)),
-      prefixIcon: const Icon(Icons.directions_walk, color: Colors.grey),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: Color(0xFF9E9E9E)),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: Color(0xFF9E9E9E)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: Color(0xFF9E9E9E)),
+        ),
+        filled: true,
+        fillColor: Colors.white,
       ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: Color(0xFF9E9E9E)),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: Color(0xFF9E9E9E)),
-      ),
-      filled: true,
-      fillColor: Colors.white,
-    ),
-    iconEnabledColor: Colors.black,
-    style: const TextStyle(color: Color(0xFF9E9E9E)),
-    dropdownColor: Colors.white,
-  );
-}
+      iconEnabledColor: Colors.black,
+      style: const TextStyle(color: Color(0xFF9E9E9E)),
+      dropdownColor: Colors.white,
+    );
+  }
 
-
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: AppBar(
-      leading: IconButton(
-        icon: const Icon(Icons.close),
-        onPressed: () {
-          Navigator.of(context).pop();
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.close),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+        title: const Text('Booking', style: TextStyle(fontWeight: FontWeight.bold)),
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ServiceSection(
+                dayCarePrice: widget.prices.dayCarePrice,
+                houseSittingPrice: widget.prices.houseSittingPrice,
+                walkingPrice: widget.prices.walkingPrice,
+              ),
+              const SizedBox(height: 16),
+              _buildServiceDropdown(),
+              const SizedBox(height: 16),
+              if (_selectedService == 'Walking') ...[
+                _buildNumberOfWalksDropdown(),
+                const SizedBox(height: 16),
+              ],
+              _buildPetDropdown(),
+              const SizedBox(height: 16),
+              _buildTextField("Dates", Icons.calendar_today),
+              const SizedBox(height: 16),
+              if (_selectedTimeSlots.isNotEmpty) ...[
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Selected Time Slots:', style: TextStyle(fontSize: 16)),
+                      const SizedBox(height: 10),
+                      Wrap(
+                        spacing: 8.0,
+                        runSpacing: 4.0,
+                        children: _selectedTimeSlots.map((slot) {
+                          return Chip(
+                            label: Text(slot),
+                            backgroundColor: const Color(0xFF967BB6),
+                            labelStyle: const TextStyle(color: Colors.white),
+                          );
+                        }).toList(),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Total Price: €${_totalPrice.toStringAsFixed(2)}',
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 100),
+              ],
+            ],
+          ),
+        ),
+      ),
+      floatingActionButton: MyButton(
+        onTap: () {
+          // Implement booking logic
+          _bookAppointment();
         },
+        text: 'Book',
+        color: const Color(0xFF967BB6),
+        textColor: Colors.white,
+        borderColor: const Color(0xFF967BB6),
+        borderWidth: 1.0,
+        width: 390,
+        height: 60,
       ),
-      title: const Text('Booking', style: TextStyle(fontWeight: FontWeight.bold)),
-    ),
-    body: Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          ServiceSection(
-            dayCarePrice: widget.prices.dayCarePrice,
-            houseSittingPrice: widget.prices.houseSittingPrice,
-            walkingPrice: widget.prices.walkingPrice,
-          ),
-          const SizedBox(height: 16),
-          _buildServiceDropdown(),
-          const SizedBox(height: 0),
-          if (_selectedService == 'Walking') ...[
-            const SizedBox(height: 16),
-            _buildNumberOfWalksDropdown(),
-          ],
-          const SizedBox(height: 16),
-          _buildPetDropdown(),
-          const SizedBox(height: 16),
-          _buildTextField("Dates", Icons.calendar_today),
-          const SizedBox(height: 16),
-          // Wrap the button in a column with alignment
-          SizedBox(height: 20),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: MyButton(
-              onTap: () {},
-              text: 'Book',
-              color: const Color(0xFF967BB6),
-              textColor: Colors.white,
-              borderColor: const Color(0xFF967BB6),
-              borderWidth: 1.0,
-              width: 390,
-              height: 60,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+    );
+  }
+
+
+  
+void _bookAppointment() async {
+  if (_selectedService == 'Walking' && _selectedNumberOfWalks != null) {
+    int numberOfWalks = int.parse(_selectedNumberOfWalks!);
+    if (_selectedTimeSlots.length != numberOfWalks) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('The number of selected time slots must match the number of walks.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+  }
+
+  // Create a booking model
+  BookingModel booking = BookingModel(
+    userId: widget.userId,
+    service: _selectedService!,
+    petName: _selectedPet,
+    date: DateFormat('yyyy-MM-dd').parse(_dateController.text),
+    timeSlots: _selectedTimeSlots,
+    numberOfWalks: _selectedNumberOfWalks != null ? int.parse(_selectedNumberOfWalks!) : null,
+  );
+
+  // Create booking controller instance
+  BookingController bookingController = BookingController();
+
+  try {
+    // Save booking
+    await bookingController.createBooking(
+      userId: widget.userId,
+      role: widget.role,
+      booking: booking,
+    );
+
+    // Show success message
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Booking successful!'),
+        backgroundColor: Colors.green,
+      ),
+    );
+
+    // Navigate back or reset the page
+    Navigator.of(context).pop();
+  } catch (e) {
+    // Show error message
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Booking failed: $e'),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
+}
+
+
+  Widget _buildTextField(String label, IconData icon) {
+    return GestureDetector(
+      onTap: () {
+        _selectDate(context);
+      },
+      child: AbsorbPointer(
+        child: TextField(
+          decoration: InputDecoration(
+            labelText: label,
+            labelStyle: const TextStyle(color: Color(0xFF9E9E9E)), // Label text color
+            prefixIcon: Icon(icon, color: Colors.grey),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: Color(0xFF9E9E9E)), // Consistent border color
             ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: Color(0xFF9E9E9E)), // Consistent border color
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: Color(0xFF9E9E9E)), // Consistent border color
+            ),
+            filled: true,
+            fillColor: Colors.grey[50],
           ),
-        ],
-      ),
-    ),
-  );
-}
-
-
-
-Widget _buildTextField(String label, IconData icon) {
-  return GestureDetector(
-    onTap: () {
-      _selectDate(context);
-    },
-    child: AbsorbPointer(
-      child: TextField(
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: const TextStyle(color: Color(0xFF9E9E9E)), // Label text color
-          prefixIcon: Icon(icon, color: Colors.grey),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: Color(0xFF9E9E9E)), // Consistent border color
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: Color(0xFF9E9E9E)), // Consistent border color
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: Color(0xFF9E9E9E)), // Consistent border color
-          ),
-          filled: true,
-          fillColor: Colors.grey[50],
+          controller: _dateController,
+          style: const TextStyle(color: Color(0xFF424242)), // Update text color
         ),
-        controller: _dateController,
-           style: const TextStyle(color: Color(0xFF424242)), // Update text color
       ),
-    ),
-  );
-}
+    );
+  }
 
-Widget _buildServiceDropdown() {
-  final availableServices = _getAvailableServices();
+  Widget _buildServiceDropdown() {
+    final availableServices = _getAvailableServices();
 
-  return DropdownButtonFormField<String>(
-    value: _selectedService,
-    items: availableServices.map((service) {
-      return DropdownMenuItem<String>(
-        value: service,
-        child: Text(
-          service,
-          style: const TextStyle(color: Color(0xFF424242), fontSize: 16),
+    return DropdownButtonFormField<String>(
+      value: _selectedService,
+      items: availableServices.map((service) {
+        return DropdownMenuItem<String>(
+          value: service,
+          child: Text(
+            service,
+            style: const TextStyle(color: Color(0xFF424242), fontSize: 16),
+          ),
+        );
+      }).toList(),
+      onChanged: (value) {
+        setState(() {
+          _selectedService = value;
+          // Reset number of walks and time slots when service changes
+          if (value != 'Walking') {
+            _selectedNumberOfWalks = null;
+            _selectedTimeSlots.clear();
+          }
+          // Recalculate price when service changes
+          _calculateTotalPrice();
+        });
+      },
+      decoration: InputDecoration(
+        labelText: "Select service",
+        labelStyle: const TextStyle(color: Color(0xFF9E9E9E)),
+        prefixIcon: const Icon(Icons.menu, color: Colors.grey),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: Color(0xFF9E9E9E)),
         ),
-      );
-    }).toList(),
-    onChanged: (value) {
-      setState(() {
-        _selectedService = value;
-        // Reset number of walks when service changes
-        if (value != 'Walking') {
-          _selectedNumberOfWalks = null;
-        }
-      });
-    },
-    decoration: InputDecoration(
-      labelText: "Select service",
-      labelStyle: const TextStyle(color: Color(0xFF9E9E9E)),
-      prefixIcon: const Icon(Icons.menu, color: Colors.grey),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: Color(0xFF9E9E9E)),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: Color(0xFF9E9E9E)),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: Color(0xFF9E9E9E)),
-      ),
-      filled: true,
-      fillColor: Colors.white,
-    ),
-    iconEnabledColor: Colors.black,
-    style: const TextStyle(color: Color(0xFF9E9E9E)),
-    dropdownColor: Colors.white,
-  );
-}
-
-
-
-
- Widget _buildPetDropdown() {
-  return DropdownButtonFormField<String>(
-    value: _selectedPet,
-    items: _pets.map((pet) {
-      return DropdownMenuItem<String>(
-        value: pet.name,
-        child: Text(
-          pet.name,
-          style: const TextStyle(color:Color(0xFF424242), fontSize: 16),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: Color(0xFF9E9E9E)),
         ),
-      );
-    }).toList(),
-    onChanged: (value) {
-      setState(() {
-        _selectedPet = value;
-      });
-    },
-    decoration: InputDecoration(
-      labelText: "Select pet",
-      labelStyle: const TextStyle(color: Color(0xFF9E9E9E)),
-      prefixIcon: const Icon(Icons.pets, color: Colors.grey),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: Color(0xFF9E9E9E)),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: Color(0xFF9E9E9E)),
+        ),
+        filled: true,
+        fillColor: Colors.white,
       ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: Color(0xFF9E9E9E)),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: Color(0xFF9E9E9E)),
-      ),
-      filled: true,
-      fillColor: Colors.white,
-    ),
-    iconEnabledColor: Colors.black,
-    style: const TextStyle(color: Color(0xFF9E9E9E)),
-    dropdownColor: Colors.white,
-  );
-}
+      iconEnabledColor: Colors.black,
+      style: const TextStyle(color: Color(0xFF9E9E9E)),
+      dropdownColor: Colors.white,
+    );
+  }
 
+  Widget _buildPetDropdown() {
+    return DropdownButtonFormField<String>(
+      value: _selectedPet,
+      items: _pets.map((pet) {
+        return DropdownMenuItem<String>(
+          value: pet.name,
+          child: Text(
+            pet.name,
+            style: const TextStyle(color: Color(0xFF424242), fontSize: 16),
+          ),
+        );
+      }).toList(),
+      onChanged: (value) {
+        setState(() {
+          _selectedPet = value;
+        });
+      },
+      decoration: InputDecoration(
+        labelText: "Select pet",
+        labelStyle: const TextStyle(color: Color(0xFF9E9E9E)),
+        prefixIcon: const Icon(Icons.pets, color: Colors.grey),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: Color(0xFF9E9E9E)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: Color(0xFF9E9E9E)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: Color(0xFF9E9E9E)),
+        ),
+        filled: true,
+        fillColor: Colors.white,
+      ),
+      iconEnabledColor: Colors.black,
+      style: const TextStyle(color: Color(0xFF9E9E9E)),
+      dropdownColor: Colors.white,
+    );
+  }
 }

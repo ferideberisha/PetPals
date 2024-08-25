@@ -695,6 +695,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
                       textColor: Colors.white,
                       borderColor: const Color(0xFF967BB6),
                       borderWidth: 1.0,
+                      width: 390,
                       height: 60,
                     ),
                   ),

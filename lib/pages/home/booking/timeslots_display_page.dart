@@ -18,6 +18,7 @@ class _TimeSlotsDisplayPageState extends State<TimeSlotsDisplayPage> {
   final AvailabilityController _availabilityController = AvailabilityController();
   List<String> _availableTimeSlots = [];
   Set<String> selectedSlots = {};
+  
 
   @override
   void initState() {
@@ -71,9 +72,9 @@ class _TimeSlotsDisplayPageState extends State<TimeSlotsDisplayPage> {
       body: Stack(
         children: [
           _availableTimeSlots.isEmpty
-              ? Center(
+              ? const Center(
                   child: Padding(
-                    padding: const EdgeInsets.all(16.0),
+                    padding: EdgeInsets.all(16.0),
                     child: Text(
                       'There are no free time slots for this date.',
                       style: TextStyle(fontSize: 18, color: Colors.black54),
@@ -155,26 +156,19 @@ class _TimeSlotsDisplayPageState extends State<TimeSlotsDisplayPage> {
     );
   }
 
-  Future<void> _confirmBooking() async {
-    // Example for saving the booking
-    // Implement the logic to save the selected slots and confirm the booking
-    print('Selected slots: $selectedSlots');
-    try {
-      // Save booking logic here
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Booking confirmed'),
-          backgroundColor: Colors.green,
-        ),
-      );
-      Navigator.pop(context); // Close the page
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Failed to confirm booking'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
+Future<void> _confirmBooking() async {
+  print('Selected slots: $selectedSlots');
+  try {
+    // Pass selectedSlots back to the BookingDetailsPage
+    Navigator.pop(context, selectedSlots);
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Failed to confirm booking'),
+        backgroundColor: Colors.red,
+      ),
+    );
   }
+}
+
 }

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:petpals/models/userModel.dart';
 
 class UserController {
@@ -104,5 +105,14 @@ class UserController {
     } catch (e) {
       print('Error deleting user: $e');
     }
+  }
+
+  String getCurrentUserId() {
+  final user = FirebaseAuth.instance.currentUser;
+  if (user != null) {
+    return user.uid; // The ID of the currently logged-in user (owner)
+  } else {
+    throw Exception("No user is currently logged in");
+  }
   }
 }
