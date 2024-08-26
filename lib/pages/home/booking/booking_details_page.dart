@@ -381,7 +381,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
   String ownerId = await _userController.getCurrentUserId();
 
   // Create a booking model
-  BookingModel booking = BookingModel(
+BookingModel booking = BookingModel(
     service: _selectedService!,
     petName: _selectedPet,
     date: DateFormat('yyyy-MM-dd').parse(_dateController.text),
@@ -389,7 +389,9 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
     numberOfWalks: _selectedNumberOfWalks != null ? int.parse(_selectedNumberOfWalks!) : null,
     ownerId: ownerId, // Set current owner's ID
     walkerId: widget.userId, // Set the walker ID from widget
-  );
+    price: _totalPrice, // Pass the calculated price here
+);
+
 
   // Create booking controller instance
   BookingController bookingController = BookingController();

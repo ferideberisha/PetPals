@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:petpals/models/userModel.dart';
 import 'package:petpals/pages/home/profile/profile_page.dart';
 import 'package:petpals/pages/home/search/search_page.dart';
-import 'package:petpals/pages/home/request/message_request_page.dart';
+import 'package:petpals/pages/home/request/requests_page.dart';
 import 'package:petpals/pages/home/favorite/favorite_page.dart';
 
 class CustomBottomNavigationBar extends StatelessWidget {
   final int selectedIndex;
+  final UserModel? user; // Make user optional with nullable type
 
-  const CustomBottomNavigationBar({super.key, required this.selectedIndex});
+  const CustomBottomNavigationBar({
+    super.key,
+    this.selectedIndex = 0, // Set default value for selectedIndex
+    this.user, // Make user optional
+  });
 
   void _onItemTapped(BuildContext context, int index) {
     if (index == selectedIndex) return;
@@ -18,7 +24,8 @@ class CustomBottomNavigationBar extends StatelessWidget {
         nextPage = SearchPage(context: context);
         break;
       case 1:
-        nextPage = const MessageRequestPage();
+        // Check if user is null before passing it to RequestsPage
+        nextPage = RequestsPage(); 
         break;
       case 2:
         nextPage = const FavoritePage();
@@ -41,7 +48,6 @@ class CustomBottomNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Get the height of the system's navigation bar
     final double bottomPadding = MediaQuery.of(context).viewInsets.bottom;
 
     return ClipRRect(

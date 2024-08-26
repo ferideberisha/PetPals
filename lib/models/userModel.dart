@@ -48,4 +48,19 @@ class UserModel {
       'address':address
     };
   }
+
+
+   // Static method to provide a default user model
+  static UserModel defaultUser() {
+    return UserModel(
+      uid: '',
+      firstName: 'Default',
+      lastName: 'User',
+      email: 'default@example.com',
+      role: 'guest',
+      profilePicture: '',
+      phoneNumber: '',
+      address: ''
+    );
+  }
 }

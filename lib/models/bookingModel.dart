@@ -1,47 +1,52 @@
 import 'package:intl/intl.dart';
 
 class BookingModel {
-  final String ownerId; // Changed from userId
-  final String walkerId; // Added walkerId
+  String? id; // Add this line
+  final String ownerId;
+  final String walkerId;
   final String service;
   final String? petName;
   final DateTime date;
   final Set<String> timeSlots;
   final int? numberOfWalks;
+  double price;
 
   BookingModel({
-    required this.ownerId, // Changed from userId
-    required this.walkerId, // Added walkerId
+    this.id, // Initialize this field
+    required this.ownerId,
+    required this.walkerId,
     required this.service,
     this.petName,
     required this.date,
     required this.timeSlots,
     this.numberOfWalks,
+    required this.price,
   });
 
-  // Method to convert BookingModel instance to a map (for saving to a database)
   Map<String, dynamic> toMap() {
     return {
-      'ownerId': ownerId, // Changed from userId
-      'walkerId': walkerId, // Added walkerId
+      'ownerId': ownerId,
+      'walkerId': walkerId,
       'service': service,
       'petName': petName,
-      'date': DateFormat('yyyy-MM-dd').format(date), // Store date as string in yyyy-MM-dd format
+      'date': DateFormat('yyyy-MM-dd').format(date),
       'timeSlots': timeSlots.toList(),
       'numberOfWalks': numberOfWalks,
+      'price': price,
     };
   }
 
-  // Method to create a BookingModel instance from a map (for retrieving from a database)
-  factory BookingModel.fromMap(Map<String, dynamic> map) {
-    return BookingModel(
-      ownerId: map['ownerId'], // Changed from userId
-      walkerId: map['walkerId'], // Added walkerId
-      service: map['service'],
-      petName: map['petName'],
-      date: DateFormat('yyyy-MM-dd').parse(map['date']), // Parse date from yyyy-MM-dd format
-      timeSlots: Set<String>.from(map['timeSlots']),
-      numberOfWalks: map['numberOfWalks'],
-    );
-  }
+factory BookingModel.fromMap(Map<String, dynamic> map) {
+  return BookingModel(
+    ownerId: map['ownerId'] ?? '',
+    walkerId: map['walkerId'] ?? '',
+    service: map['service'] ?? '',
+    petName: map['petName'],
+    date: map.containsKey('date') ? DateFormat('yyyy-MM-dd').parse(map['date']) : DateTime.now(),
+    timeSlots: Set<String>.from(map['timeSlots'] ?? []),
+    numberOfWalks: map['numberOfWalks'],
+    price: map['price'] ?? 0.0,
+  );
+}
+
 }
