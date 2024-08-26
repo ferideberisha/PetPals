@@ -125,9 +125,9 @@ class _RequestsPageState extends State<RequestsPage> with SingleTickerProviderSt
       body: TabBarView(
         controller: _tabController,
         children: [
-          RequestList(status: firstTabLabel, bookingController: _bookingController),
-          RequestList(status: 'Accepted', bookingController: _bookingController),
-          RequestList(status: 'Rejected', bookingController: _bookingController),
+           RequestList(status: firstTabLabel, bookingController: _bookingController, currentUserRole: currentUserRole!),
+    RequestList(status: 'Accepted', bookingController: _bookingController, currentUserRole: currentUserRole!),
+    RequestList(status: 'Rejected', bookingController: _bookingController, currentUserRole: currentUserRole!),
         ],
       ),
       bottomNavigationBar: CustomBottomNavigationBar(selectedIndex: _selectedIndex),

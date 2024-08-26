@@ -1,6 +1,7 @@
 import 'package:intl/intl.dart';
 
 class BookingModel {
+  final String bookingId; // Add this field
   final String ownerId;
   final String walkerId;
   final String service;
@@ -11,6 +12,7 @@ class BookingModel {
   double price;
 
   BookingModel({
+    required this.bookingId,
     required this.ownerId,
     required this.walkerId,
     required this.service,
@@ -23,6 +25,7 @@ class BookingModel {
 
   Map<String, dynamic> toMap() {
     return {
+      'bookingId': bookingId, // Include this field
       'ownerId': ownerId,
       'walkerId': walkerId,
       'service': service,
@@ -36,6 +39,7 @@ class BookingModel {
 
 factory BookingModel.fromMap(Map<String, dynamic> map) {
   return BookingModel(
+          bookingId: map['bookingId'] ?? '', // Ensure to fetch this field
     ownerId: map['ownerId'] ?? '',
     walkerId: map['walkerId'] ?? '',
     service: map['service'] ?? '',

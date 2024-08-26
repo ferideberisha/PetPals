@@ -25,55 +25,38 @@ class BookingController {
     }
   }
 
-  Future<void> _saveBookingForWalker(String walkerId, BookingModel booking, String formattedDate) async {
-    try {
-      await _firestore.collection('users')
-          .doc(walkerId)
-          .collection('walkerInfo')
-          .doc(walkerId)
-          .collection('booking')
-          .doc('received')
-          .collection('incomingRequest')
-          .doc() // Auto-generated document ID
-          .set({
-            'date': formattedDate,
-            'numberOfWalks': booking.numberOfWalks,
-            'ownerId': booking.ownerId,
-            'petName': booking.petName,
-            'service': booking.service,
-            'timeSlots': booking.timeSlots.toList(),
-            'walkerId': booking.walkerId,
-            'price': booking.price,
-          });
-    } catch (e) {
-      print('Error saving booking for walker: $e');
-    }
+ Future<void> _saveBookingForWalker(String walkerId, BookingModel booking, String formattedDate) async {
+  try {
+    await _firestore.collection('users')
+        .doc(walkerId)
+        .collection('walkerInfo')
+        .doc(walkerId)
+        .collection('booking')
+        .doc('received')
+        .collection('incomingRequest')
+        .doc(booking.bookingId) // Use bookingId as the document ID
+        .set(booking.toMap());
+  } catch (e) {
+    print('Error saving booking for walker: $e');
   }
+}
 
-  Future<void> _saveBookingForOwner(String ownerId, BookingModel booking, String formattedDate) async {
-    try {
-      await _firestore.collection('users')
-          .doc(ownerId)
-          .collection('ownerInfo')
-          .doc(ownerId) // Owner ID as document path
-          .collection('booking')
-          .doc('sent')
-          .collection('outgoingRequest')
-          .doc() // Auto-generated document ID
-          .set({
-            'date': formattedDate,
-            'numberOfWalks': booking.numberOfWalks,
-            'ownerId': booking.ownerId,
-            'petName': booking.petName,
-            'service': booking.service,
-            'timeSlots': booking.timeSlots.toList(),
-            'walkerId': booking.walkerId,
-            'price': booking.price,
-          });
-    } catch (e) {
-      print('Error saving booking for owner: $e');
-    }
+Future<void> _saveBookingForOwner(String ownerId, BookingModel booking, String formattedDate) async {
+  try {
+    await _firestore.collection('users')
+        .doc(ownerId)
+        .collection('ownerInfo')
+        .doc(ownerId)
+        .collection('booking')
+        .doc('sent')
+        .collection('outgoingRequest')
+        .doc(booking.bookingId) // Use bookingId as the document ID
+        .set(booking.toMap());
+  } catch (e) {
+    print('Error saving booking for owner: $e');
   }
+}
+
 
   Future<void> _updateWalkerAvailability(String walkerId, BookingModel booking) async {
     try {
@@ -92,8 +75,7 @@ class BookingController {
     }
   }
 
-
- Future<void> acceptBooking({
+  Future<void> acceptBooking({
     required BookingModel booking,
     required String walkerId,
     required String ownerId,
@@ -107,8 +89,11 @@ class BookingController {
         _moveBookingToAcceptedForOwner(ownerId, booking, formattedDate),
       ]);
       
-      // Optionally, you may want to remove the booking from the incoming requests
+      // Remove the booking from the incoming requests for the walker
       await _removeBookingFromIncomingRequests(walkerId, booking, formattedDate);
+
+      // Remove the booking from the outgoing requests for the owner
+      await _removeBookingFromOutgoingRequests(ownerId, booking, formattedDate);
 
     } catch (e) {
       print('Error accepting booking: $e');
@@ -147,7 +132,6 @@ class BookingController {
     }
   }
 
-
   Future<void> rejectBooking({
     required BookingModel booking,
     required String walkerId,
@@ -162,7 +146,7 @@ class BookingController {
         _moveBookingToRejectedForOwner(ownerId, booking, formattedDate),
       ]);
       
-      // Optionally, you may want to remove the booking from the incoming requests
+      // Remove the booking from the incoming requests for the walker
       await _removeBookingFromIncomingRequests(walkerId, booking, formattedDate);
 
     } catch (e) {
@@ -202,30 +186,37 @@ class BookingController {
     }
   }
 
-  Future<void> _removeBookingFromIncomingRequests(String walkerId, BookingModel booking, String formattedDate) async {
-    try {
-      await _firestore.collection('users')
-          .doc(walkerId)
-          .collection('walkerInfo')
-          .doc(walkerId)
-          .collection('booking')
-          .doc('received')
-          .collection('incomingRequest')
-          .where('date', isEqualTo: formattedDate)
-          .where('ownerId', isEqualTo: booking.ownerId)
-          .where('service', isEqualTo: booking.service)
-          .where('timeSlots', isEqualTo: booking.timeSlots.toList())
-          .get()
-          .then((snapshot) {
-            for (DocumentSnapshot doc in snapshot.docs) {
-              doc.reference.delete();
-            }
-          });
-    } catch (e) {
-      print('Error removing booking from incoming requests: $e');
-    }
+
+Future<void> _removeBookingFromIncomingRequests(String walkerId, BookingModel booking, String formattedDate) async {
+  try {
+    await _firestore.collection('users')
+        .doc(walkerId)
+        .collection('walkerInfo')
+        .doc(walkerId)
+        .collection('booking')
+        .doc('received')
+        .collection('incomingRequest')
+        .doc(booking.bookingId) // Use bookingId as the document ID
+        .delete();
+  } catch (e) {
+    print('Error removing booking from incoming requests: $e');
   }
+}
 
+Future<void> _removeBookingFromOutgoingRequests(String ownerId, BookingModel booking, String formattedDate) async {
+  try {
+    await _firestore.collection('users')
+        .doc(ownerId)
+        .collection('ownerInfo')
+        .doc(ownerId)
+        .collection('booking')
+        .doc('sent')
+        .collection('outgoingRequest')
+        .doc(booking.bookingId) // Use bookingId as the document ID
+        .delete();
+  } catch (e) {
+    print('Error removing booking from outgoing requests: $e');
+  }
+}
 
-  
 }

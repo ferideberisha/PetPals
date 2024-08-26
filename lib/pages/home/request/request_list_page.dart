@@ -8,11 +8,12 @@ import 'package:petpals/models/bookingModel.dart';
 class RequestList extends StatelessWidget {
   final String status;
   final BookingController bookingController; // Add BookingController field
+  final String currentUserRole;
 
   const RequestList({
     super.key,
     required this.status,
-    required this.bookingController, // Initialize BookingController in constructor
+    required this.bookingController, required this.currentUserRole, // Initialize BookingController in constructor
   });
 
   @override
@@ -39,50 +40,65 @@ class RequestList extends StatelessWidget {
         return ListView.builder(
           itemCount: bookings.length,
           itemBuilder: (context, index) {
-            final booking = bookings[index];
-            return BookingCard(
-              booking: booking,
-              bookingController: bookingController, // Pass BookingController to BookingCard
-            );
-          },
+  final booking = bookings[index];
+  return BookingCard(
+    booking: booking,
+    bookingController: bookingController,
+    bookingStatus: status, // Pass the status from the RequestList
+  );
+},
+
         );
       },
     );
   }
 
-  Stream<QuerySnapshot> _getBookingStream(String userId, String status) {
-    String collectionPath;
-    String bookingType;
-    String documentPath;
+ Stream<QuerySnapshot> _getBookingStream(String userId, String status) {
+  String collectionPath;
+  String bookingType;
+  String documentPath;
 
-    if (status == 'Outgoing') {
-      collectionPath = 'ownerInfo';
-      bookingType = 'sent';
-      documentPath = 'outgoingRequest';
-    } else if (status == 'Incoming') {
+  if (status == 'Outgoing') {
+    collectionPath = 'ownerInfo';
+    bookingType = 'sent';
+    documentPath = 'outgoingRequest';
+  } else if (status == 'Incoming') {
+    collectionPath = 'walkerInfo';
+    bookingType = 'received';
+    documentPath = 'incomingRequest';
+  } else if (status == 'Accepted') {
+    if (currentUserRole == 'walker') {
       collectionPath = 'walkerInfo';
       bookingType = 'received';
-      documentPath = 'incomingRequest';
-    } else if (status == 'Accepted') {
-      collectionPath = 'walkerInfo';
-      bookingType = 'received'; // Adjust based on your Firestore path
-      documentPath = 'acceptedRequest'; // Adjust based on your Firestore path
-    } else if (status == 'Rejected') {
-      collectionPath = 'walkerInfo';
-      bookingType = 'received'; // Adjust based on your Firestore path
-      documentPath = 'rejectedRequest'; // Adjust based on your Firestore path
+      documentPath = 'acceptedRequest';
     } else {
-      throw ArgumentError('Invalid status: $status');
+      collectionPath = 'ownerInfo';
+      bookingType = 'sent';
+      documentPath = 'acceptedRequest';
     }
-
-    return FirebaseFirestore.instance
-        .collection('users')
-        .doc(userId)
-        .collection(collectionPath)
-        .doc(userId)
-        .collection('booking')
-        .doc(bookingType)
-        .collection(documentPath)
-        .snapshots();
+  } else if (status == 'Rejected') {
+    if (currentUserRole == 'walker') {
+      collectionPath = 'walkerInfo';
+      bookingType = 'received';
+      documentPath = 'rejectedRequest';
+    } else {
+      collectionPath = 'ownerInfo';
+      bookingType = 'sent';
+      documentPath = 'rejectedRequest';
+    }
+  } else {
+    throw ArgumentError('Invalid status: $status');
   }
+
+  return FirebaseFirestore.instance
+      .collection('users')
+      .doc(userId)
+      .collection(collectionPath)
+      .doc(userId)
+      .collection('booking')
+      .doc(bookingType)
+      .collection(documentPath)
+      .snapshots();
+}
+
 }

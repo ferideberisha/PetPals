@@ -5,15 +5,16 @@ import 'package:petpals/controllers/user_controller.dart';
 import 'package:petpals/models/userModel.dart';
 import 'package:petpals/controllers/booking_controller.dart'; // Import the BookingController
 
-
 class BookingCard extends StatelessWidget {
   final BookingModel booking;
   final BookingController bookingController;
+  final String bookingStatus; // New field to store booking status
 
   const BookingCard({
     super.key,
     required this.booking,
     required this.bookingController,
+    required this.bookingStatus, // Pass the booking status when creating the widget
   });
 
   @override
@@ -22,7 +23,7 @@ class BookingCard extends StatelessWidget {
       future: _getUserRole(), // Fetch the role of the current user
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator()); // Show a loading spinner while fetching
+          return const Center(child: CircularProgressIndicator()); // Show a loading spinner while fetching
         } else if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}')); // Show an error message if there's an issue
         } else if (snapshot.hasData) {
@@ -43,7 +44,9 @@ class BookingCard extends StatelessWidget {
                   Text('Number of Walks: ${booking.numberOfWalks ?? 'Not specified'}'),
                   Text('Price: \$${booking.price.toStringAsFixed(2)}'),
                   const SizedBox(height: 16),
-                  if (role == 'walker') // Show buttons only for walkers
+
+                  // Show buttons only if the role is walker and the booking is in the incoming requests
+                  if (role == 'walker'  && bookingStatus == 'Incoming' ) 
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
@@ -89,21 +92,21 @@ class BookingCard extends StatelessWidget {
             ),
           );
         } else {
-          return Center(child: Text('No role data available')); // Handle case where role data is not available
+          return const Center(child: Text('No role data available')); // Handle case where role data is not available
         }
       },
     );
   }
-
-  Future<String> _getUserRole() async {
-    try {
-      String userId = UserController().getCurrentUserId();
-      UserModel? user = await UserController().getUser(userId);
-      return user?.role ?? ''; // Return the user's role
-    } catch (e) {
-      print('Error fetching user role: $e');
-      return ''; // Return an empty string in case of error
-    }
+Future<String> _getUserRole() async {
+  try {
+    String userId = UserController().getCurrentUserId();
+    UserModel? user = await UserController().getUser(userId);
+    print('User role: ${user?.role}'); // Debug print
+    return user?.role ?? '';
+  } catch (e) {
+    print('Error fetching user role: $e');
+    return '';
   }
 }
 
+}

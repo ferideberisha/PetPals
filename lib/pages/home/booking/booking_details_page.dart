@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:petpals/components/my_button.dart';
@@ -363,7 +364,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
   }
 
 
-  void _bookAppointment() async {
+void _bookAppointment() async {
   if (_selectedService == 'Walking' && _selectedNumberOfWalks != null) {
     int numberOfWalks = int.parse(_selectedNumberOfWalks!);
     if (_selectedTimeSlots.length != numberOfWalks) {
@@ -380,8 +381,12 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
   // Retrieve current owner's ID
   String ownerId = await _userController.getCurrentUserId();
 
+  // Generate a unique booking ID
+  String bookingId = FirebaseFirestore.instance.collection('bookings').doc().id;
+
   // Create a booking model
-BookingModel booking = BookingModel(
+  BookingModel booking = BookingModel(
+    bookingId: bookingId, // Pass the generated booking ID
     service: _selectedService!,
     petName: _selectedPet,
     date: DateFormat('yyyy-MM-dd').parse(_dateController.text),
@@ -389,9 +394,8 @@ BookingModel booking = BookingModel(
     numberOfWalks: _selectedNumberOfWalks != null ? int.parse(_selectedNumberOfWalks!) : null,
     ownerId: ownerId, // Set current owner's ID
     walkerId: widget.userId, // Set the walker ID from widget
-    price: _totalPrice, // Pass the calculated price here
-);
-
+    price: _totalPrice,
+  );
 
   // Create booking controller instance
   BookingController bookingController = BookingController();
@@ -401,7 +405,8 @@ BookingModel booking = BookingModel(
     await bookingController.createBooking(
       role: widget.role,
       booking: booking,
-      ownerId: ownerId, walkerId: widget.userId
+      ownerId: ownerId,
+      walkerId: widget.userId,
     );
 
     // Show success message
@@ -424,6 +429,7 @@ BookingModel booking = BookingModel(
     );
   }
 }
+
 
 
 
