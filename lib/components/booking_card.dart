@@ -5,14 +5,15 @@ import 'package:petpals/controllers/user_controller.dart';
 import 'package:petpals/models/userModel.dart';
 import 'package:petpals/controllers/booking_controller.dart'; // Import the BookingController
 
+
 class BookingCard extends StatelessWidget {
   final BookingModel booking;
-  final BookingController? bookingController; // Add this field
+  final BookingController bookingController;
 
   const BookingCard({
     super.key,
     required this.booking,
-    this.bookingController, // Initialize in constructor
+    required this.bookingController,
   });
 
   @override
@@ -53,26 +54,11 @@ class BookingCard extends StatelessWidget {
                           ),
                           child: IconButton(
                             onPressed: () async {
-                              if (bookingController != null) {
-                                try {
-                                  // Call accept method from BookingController
-                                  await bookingController!.acceptBooking(
-                                    booking.id!,
-                                    UserController().getCurrentUserId(), // Walker ID
-                                    booking.ownerId, // Owner ID
-                                  );
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('Booking accepted')),
-                                  );
-                                } catch (e) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('Error accepting booking')),
-                                  );
-                                  print('Error accepting booking: $e');
-                                }
-                              } else {
-                                print('BookingController is not available');
-                              }
+                              await bookingController.acceptBooking(
+                                booking: booking,
+                                walkerId: booking.walkerId,
+                                ownerId: booking.ownerId,
+                              );
                             },
                             icon: const Icon(Icons.check, color: Colors.green),
                             tooltip: 'Accept',
@@ -86,26 +72,11 @@ class BookingCard extends StatelessWidget {
                           ),
                           child: IconButton(
                             onPressed: () async {
-                              if (bookingController != null) {
-                                try {
-                                  // Call reject method from BookingController
-                                  await bookingController!.rejectBooking(
-                                    booking.id!,
-                                    UserController().getCurrentUserId(), // Walker ID
-                                    booking.ownerId, // Owner ID
-                                  );
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('Booking rejected')),
-                                  );
-                                } catch (e) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('Error rejecting booking')),
-                                  );
-                                  print('Error rejecting booking: $e');
-                                }
-                              } else {
-                                print('BookingController is not available');
-                              }
+                              await bookingController.rejectBooking(
+                                booking: booking,
+                                walkerId: booking.walkerId,
+                                ownerId: booking.ownerId,
+                              );
                             },
                             icon: const Icon(Icons.close, color: Colors.red),
                             tooltip: 'Reject',
@@ -135,3 +106,4 @@ class BookingCard extends StatelessWidget {
     }
   }
 }
+

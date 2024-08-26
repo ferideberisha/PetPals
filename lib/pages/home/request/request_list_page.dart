@@ -2,12 +2,18 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:petpals/components/booking_card.dart';
+import 'package:petpals/controllers/booking_controller.dart'; // Import BookingController
 import 'package:petpals/models/bookingModel.dart';
 
 class RequestList extends StatelessWidget {
   final String status;
+  final BookingController bookingController; // Add BookingController field
 
-  const RequestList({super.key, required this.status});
+  const RequestList({
+    super.key,
+    required this.status,
+    required this.bookingController, // Initialize BookingController in constructor
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +40,10 @@ class RequestList extends StatelessWidget {
           itemCount: bookings.length,
           itemBuilder: (context, index) {
             final booking = bookings[index];
-            return BookingCard(booking: booking);
+            return BookingCard(
+              booking: booking,
+              bookingController: bookingController, // Pass BookingController to BookingCard
+            );
           },
         );
       },

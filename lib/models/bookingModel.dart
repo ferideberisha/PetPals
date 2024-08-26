@@ -1,7 +1,6 @@
 import 'package:intl/intl.dart';
 
 class BookingModel {
-  String? id; // Add this line
   final String ownerId;
   final String walkerId;
   final String service;
@@ -12,7 +11,6 @@ class BookingModel {
   double price;
 
   BookingModel({
-    this.id, // Initialize this field
     required this.ownerId,
     required this.walkerId,
     required this.service,

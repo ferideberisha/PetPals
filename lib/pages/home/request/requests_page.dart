@@ -1,9 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:petpals/controllers/booking_controller.dart'; // Import the BookingController
 import 'package:petpals/pages/home/request/request_list_page.dart';
 import '../../../components/my_bottom_bar.dart';
+import 'dart:math' as math;
 
 class RequestsPage extends StatefulWidget {
   const RequestsPage({super.key});
@@ -16,6 +17,7 @@ class _RequestsPageState extends State<RequestsPage> with SingleTickerProviderSt
   late TabController _tabController;
   final int _selectedIndex = 1;
   String? currentUserRole;
+  final BookingController _bookingController = BookingController(); // Initialize BookingController
 
   @override
   void initState() {
@@ -36,6 +38,7 @@ class _RequestsPageState extends State<RequestsPage> with SingleTickerProviderSt
         if (currentUserSnapshot.exists) {
           setState(() {
             currentUserRole = currentUserSnapshot['role'];
+            // Update TabController if needed
           });
         }
       } catch (e) {
@@ -122,15 +125,12 @@ class _RequestsPageState extends State<RequestsPage> with SingleTickerProviderSt
       body: TabBarView(
         controller: _tabController,
         children: [
-          RequestList(status: firstTabLabel),
-          const RequestList(status: 'Accepted'),
-          const RequestList(status: 'Rejected'),
+          RequestList(status: firstTabLabel, bookingController: _bookingController),
+          RequestList(status: 'Accepted', bookingController: _bookingController),
+          RequestList(status: 'Rejected', bookingController: _bookingController),
         ],
       ),
       bottomNavigationBar: CustomBottomNavigationBar(selectedIndex: _selectedIndex),
     );
   }
 }
-
-
-

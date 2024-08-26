@@ -92,21 +92,31 @@ class BookingController {
     }
   }
 
-Future<void> acceptBooking(String bookingId, String walkerId, String ownerId) async {
-  try {
-    DocumentSnapshot bookingSnapshot = await _firestore.collection('users')
-        .doc(walkerId)
-        .collection('walkerInfo')
-        .doc(walkerId)
-        .collection('booking')
-        .doc('received')
-        .collection('incomingRequest')
-        .doc(bookingId)
-        .get();
 
-    if (bookingSnapshot.exists) {
-      Map<String, dynamic> bookingData = bookingSnapshot.data() as Map<String, dynamic>;
+ Future<void> acceptBooking({
+    required BookingModel booking,
+    required String walkerId,
+    required String ownerId,
+  }) async {
+    try {
+      String formattedDate = DateFormat('yyyy-MM-dd').format(booking.date);
 
+      // Update booking status in Firestore
+      await Future.wait([
+        _moveBookingToAcceptedForWalker(walkerId, booking, formattedDate),
+        _moveBookingToAcceptedForOwner(ownerId, booking, formattedDate),
+      ]);
+      
+      // Optionally, you may want to remove the booking from the incoming requests
+      await _removeBookingFromIncomingRequests(walkerId, booking, formattedDate);
+
+    } catch (e) {
+      print('Error accepting booking: $e');
+    }
+  }
+
+  Future<void> _moveBookingToAcceptedForWalker(String walkerId, BookingModel booking, String formattedDate) async {
+    try {
       await _firestore.collection('users')
           .doc(walkerId)
           .collection('walkerInfo')
@@ -114,63 +124,54 @@ Future<void> acceptBooking(String bookingId, String walkerId, String ownerId) as
           .collection('booking')
           .doc('received')
           .collection('acceptedRequest')
-          .doc(bookingId)
-          .set(bookingData);
-
-      await _firestore.collection('users')
-          .doc(walkerId)
-          .collection('walkerInfo')
-          .doc(walkerId)
-          .collection('booking')
-          .doc('received')
-          .collection('incomingRequest')
-          .doc(bookingId)
-          .delete();
-
-      await _firestore.collection('users')
-          .doc(ownerId)
-          .collection('ownerInfo')
-          .doc(ownerId)
-          .collection('booking')
-          .doc('sent')
-          .collection('outgoingRequest')
-          .doc(bookingId)
-          .update({'status': 'accepted'});
-
-      await _firestore.collection('users')
-          .doc(ownerId)
-          .collection('ownerInfo')
-          .doc(ownerId)
-          .collection('booking')
-          .doc('sent')
-          .collection('outgoingRequest')
-          .doc(bookingId)
-          .delete();
-
-      await _updateWalkerAvailability(walkerId, BookingModel.fromMap(bookingData));
-    } else {
-      print('Error accepting booking: Booking document does not exist');
+          .doc() // Auto-generated document ID
+          .set(booking.toMap());
+    } catch (e) {
+      print('Error moving booking to accepted for walker: $e');
     }
-  } catch (e) {
-    print('Error accepting booking: $e');
   }
-}
 
-Future<void> rejectBooking(String bookingId, String walkerId, String ownerId) async {
-  try {
-    DocumentSnapshot bookingSnapshot = await _firestore.collection('users')
-        .doc(walkerId)
-        .collection('walkerInfo')
-        .doc(walkerId)
-        .collection('booking')
-        .doc('received')
-        .collection('incomingRequest')
-        .doc(bookingId)
-        .get();
+  Future<void> _moveBookingToAcceptedForOwner(String ownerId, BookingModel booking, String formattedDate) async {
+    try {
+      await _firestore.collection('users')
+          .doc(ownerId)
+          .collection('ownerInfo')
+          .doc(ownerId)
+          .collection('booking')
+          .doc('sent')
+          .collection('acceptedRequest')
+          .doc() // Auto-generated document ID
+          .set(booking.toMap());
+    } catch (e) {
+      print('Error moving booking to accepted for owner: $e');
+    }
+  }
 
-    if (bookingSnapshot.exists) {
-      Map<String, dynamic> bookingData = bookingSnapshot.data() as Map<String, dynamic>;
 
+  Future<void> rejectBooking({
+    required BookingModel booking,
+    required String walkerId,
+    required String ownerId,
+  }) async {
+    try {
+      String formattedDate = DateFormat('yyyy-MM-dd').format(booking.date);
+
+      // Update booking status in Firestore
+      await Future.wait([
+        _moveBookingToRejectedForWalker(walkerId, booking, formattedDate),
+        _moveBookingToRejectedForOwner(ownerId, booking, formattedDate),
+      ]);
+      
+      // Optionally, you may want to remove the booking from the incoming requests
+      await _removeBookingFromIncomingRequests(walkerId, booking, formattedDate);
+
+    } catch (e) {
+      print('Error rejecting booking: $e');
+    }
+  }
+
+  Future<void> _moveBookingToRejectedForWalker(String walkerId, BookingModel booking, String formattedDate) async {
+    try {
       await _firestore.collection('users')
           .doc(walkerId)
           .collection('walkerInfo')
@@ -178,9 +179,31 @@ Future<void> rejectBooking(String bookingId, String walkerId, String ownerId) as
           .collection('booking')
           .doc('received')
           .collection('rejectedRequest')
-          .doc(bookingId)
-          .set(bookingData);
+          .doc() // Auto-generated document ID
+          .set(booking.toMap());
+    } catch (e) {
+      print('Error moving booking to rejected for walker: $e');
+    }
+  }
 
+  Future<void> _moveBookingToRejectedForOwner(String ownerId, BookingModel booking, String formattedDate) async {
+    try {
+      await _firestore.collection('users')
+          .doc(ownerId)
+          .collection('ownerInfo')
+          .doc(ownerId)
+          .collection('booking')
+          .doc('sent')
+          .collection('rejectedRequest')
+          .doc() // Auto-generated document ID
+          .set(booking.toMap());
+    } catch (e) {
+      print('Error moving booking to rejected for owner: $e');
+    }
+  }
+
+  Future<void> _removeBookingFromIncomingRequests(String walkerId, BookingModel booking, String formattedDate) async {
+    try {
       await _firestore.collection('users')
           .doc(walkerId)
           .collection('walkerInfo')
@@ -188,25 +211,21 @@ Future<void> rejectBooking(String bookingId, String walkerId, String ownerId) as
           .collection('booking')
           .doc('received')
           .collection('incomingRequest')
-          .doc(bookingId)
-          .delete();
-
-      await _firestore.collection('users')
-          .doc(ownerId)
-          .collection('ownerInfo')
-          .doc(ownerId)
-          .collection('booking')
-          .doc('sent')
-          .collection('outgoingRequest')
-          .doc(bookingId)
-          .delete();
-    } else {
-      print('Error rejecting booking: Booking document does not exist');
+          .where('date', isEqualTo: formattedDate)
+          .where('ownerId', isEqualTo: booking.ownerId)
+          .where('service', isEqualTo: booking.service)
+          .where('timeSlots', isEqualTo: booking.timeSlots.toList())
+          .get()
+          .then((snapshot) {
+            for (DocumentSnapshot doc in snapshot.docs) {
+              doc.reference.delete();
+            }
+          });
+    } catch (e) {
+      print('Error removing booking from incoming requests: $e');
     }
-  } catch (e) {
-    print('Error rejecting booking: $e');
   }
+
+
+  
 }
-
-
-  }
