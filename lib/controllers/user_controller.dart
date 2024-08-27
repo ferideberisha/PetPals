@@ -57,32 +57,6 @@ class UserController {
     }
   }
 
-  // Update user information in Firestore
-  Future<void> updateUser(
-    String userId, {
-    String? firstName,
-    String? lastName,
-    String? email,
-    String? birthday,
-    String? address, required String phoneNumber,
-  }) async {
-    try {
-      // Create a map with the fields to update
-      final Map<String, dynamic> updateData = {};
-      if (firstName != null) updateData['firstName'] = firstName;
-      if (lastName != null) updateData['lastName'] = lastName;
-      // if (phoneNumber != null) updateData['phoneNumber'] = phoneNumber;
-      if (email != null) updateData['email'] = email;
-      if (birthday != null) updateData['birthday'] = birthday;
-      if (address != null) updateData['address'] = address;
-
-      if (updateData.isNotEmpty) {
-        await _firestore.collection('users').doc(userId).update(updateData);
-      }
-    } catch (e) {
-      print('Error updating user info: $e');
-    }
-  }
 
   // Delete a user from Firestore
   Future<void> deleteUser(String userId) async {
@@ -115,4 +89,34 @@ class UserController {
     throw Exception("No user is currently logged in");
   }
   }
+
+Future<void> updateUser(
+  String userId, {
+  String? firstName,
+  String? lastName,
+  String? email,
+  String? birthday,
+  String? address,
+  String? phoneNumber,  // Make phoneNumber optional
+  String? role,         // Keep role as a parameter here
+}) async {
+  try {
+    final Map<String, dynamic> updateData = {};
+    if (firstName != null) updateData['firstName'] = firstName;
+    if (lastName != null) updateData['lastName'] = lastName;
+    if (email != null) updateData['email'] = email;
+    if (birthday != null) updateData['birthday'] = birthday;
+    if (address != null) updateData['address'] = address;
+    if (phoneNumber != null) updateData['phoneNumber'] = phoneNumber; // Only update if provided
+    if (role != null) updateData['role'] = role; // Update role if provided
+
+    if (updateData.isNotEmpty) {
+      await _firestore.collection('users').doc(userId).update(updateData);
+    }
+  } catch (e) {
+    print('Error updating user info: $e');
+  }
+}
+
+
 }

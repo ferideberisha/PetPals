@@ -31,33 +31,39 @@ class _LoginPageState extends State<LoginPage> {
     super.initState();
   }
 
-  void signUserIn() async {
-    if (_formKey.currentState!.validate()) {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        },
-      );
-
-      try {
-        await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: emailController.text,
-          password: passwordController.text,
+void signUserIn() async {
+  if (_formKey.currentState!.validate()) {
+    // Show loading dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Prevent dismissing the dialog by tapping outside
+      builder: (context) {
+        return const Center(
+          child: CircularProgressIndicator(),
         );
-        Navigator.pop(context);
-      } on FirebaseAuthException catch (e) {
-        Navigator.pop(context);
-        if (e.code == 'user-not-found' || e.code == 'wrong-password' || e.code == 'invalid-credential') {
-          showErrorDialog('You have entered an invalid username or password.');
-        } else {
-          showErrorDialog('An unexpected error occurred. Please try again.');
-        }
+      },
+    );
+
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: emailController.text,
+        password: passwordController.text,
+      );
+      // Dismiss the loading dialog
+      Navigator.of(context, rootNavigator: true).pop();
+      // Optionally navigate to the next page or handle successful login
+    } on FirebaseAuthException catch (e) {
+      // Dismiss the loading dialog
+      Navigator.of(context, rootNavigator: true).pop();
+      if (e.code == 'user-not-found' || e.code == 'wrong-password' || e.code == 'invalid-credential') {
+        showErrorDialog('You have entered an invalid username or password.');
+      } else {
+        showErrorDialog('An unexpected error occurred. Please try again.');
       }
     }
   }
+}
+
 
   void showErrorDialog(String message) {
     showDialog(
@@ -91,6 +97,22 @@ Future<void> _launchURL(String url) async {
   }
 }
 
+Future<void> handleGoogleSignIn() async {
+    try {
+      User? user = await AuthService().signInWithGoogle(context);
+
+      if (user != null) {
+        // Optionally handle what happens after successful login
+        print('User signed in: ${user.email}');
+      } else {
+        // Handle the case where the sign-in failed or was cancelled
+        print('Google Sign-In failed');
+        showErrorDialog('Google Sign-In failed. Please try again.');
+      }
+    } catch (e) {
+      showErrorDialog('An error occurred: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -235,13 +257,13 @@ Future<void> _launchURL(String url) async {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             SquareTile(
-                              onTap: () => AuthService().signInWithGoogle(),
+                              onTap: handleGoogleSignIn,
                               imagePath: 'lib/images/google.png',
                             ),
                             SquareTile(
                               onTap: () {},
-                              imagePath: 'lib/images/apple.png'
-                            )
+                              imagePath: 'lib/images/apple.png',
+                            ),
                           ],
                         ),
                         const SizedBox(height: 15),

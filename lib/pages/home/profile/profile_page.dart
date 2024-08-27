@@ -25,7 +25,8 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   late String _userName = "Loading...";
-  dynamic _image;
+String? _image; // Change from dynamic to String?
+
   bool isWalker = false;
   String? userId;
   String? role;
@@ -57,23 +58,27 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  void _getUserDisplayName() async {
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      DocumentSnapshot userDoc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .get();
-      Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
-      String firstName = userData['firstName'] ?? '';
-      String lastName = userData['lastName'] ?? '';
-      String profilePictureUrl = userData['profilePicture'] ?? '';
-      setState(() {
-        _userName = '$firstName $lastName';
-        _image = profilePictureUrl.isNotEmpty ? profilePictureUrl : null;
-      });
-    }
+void _getUserDisplayName() async {
+  User? user = FirebaseAuth.instance.currentUser;
+  if (user != null) {
+    DocumentSnapshot userDoc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .get();
+    Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
+    String firstName = userData['firstName'] ?? '';
+    String lastName = userData['lastName'] ?? '';
+    String profilePictureUrl = userData['profilePicture'] ?? '';
+
+    setState(() {
+  _userName = '$firstName $lastName';
+  _image = profilePictureUrl.isNotEmpty 
+            ? profilePictureUrl 
+            : 'assets/default_profile_picture.png'; // Set the default image path
+});
+
   }
+}
 
   void _checkUserRole() async {
     User? user = FirebaseAuth.instance.currentUser;
@@ -174,36 +179,36 @@ class _ProfilePageState extends State<ProfilePage> {
                       Stack(
                         children: [
                           CircleAvatarWidget(
-                            pickImage: _pickImage,
-                            image: _image is String ? File(_image) : null,
-                            onTap: () {
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    title: const Text('Select Image Source'),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () {
-                                          _pickImage(ImageSource.camera);
-                                          Navigator.of(context).pop();
-                                        },
-                                        child: const Text('Camera'),
-                                      ),
-                                      TextButton(
-                                        onPressed: () {
-                                          _pickImage(ImageSource.gallery);
-                                          Navigator.of(context).pop();
-                                        },
-                                        child: const Text('Gallery'),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
-                            },
-                            icon: Icons.person,
-                          ),
+  pickImage: _pickImage,
+  image: _image != null ? (_image!.startsWith('assets/') ? null : File(_image!)) : null, // Handle default image
+  onTap: () {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Select Image Source'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                _pickImage(ImageSource.camera);
+                Navigator.of(context).pop();
+              },
+              child: const Text('Camera'),
+            ),
+            TextButton(
+              onPressed: () {
+                _pickImage(ImageSource.gallery);
+                Navigator.of(context).pop();
+              },
+              child: const Text('Gallery'),
+            ),
+          ],
+        );
+      },
+    );
+  },
+  icon: Icons.person,
+),
                           const Positioned(
                             bottom: 0,
                             right: 0,

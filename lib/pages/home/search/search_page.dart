@@ -31,6 +31,7 @@ class _SearchPageState extends State<SearchPage> {
         _filteredUsers = users;
       });
     });
+      _checkAndShowRoleDialog(); // Check role and show dialog if needed
   }
 
   @override
@@ -149,6 +150,78 @@ Future<void> _removeFromFavorites(UserModel user) async {
   } catch (e) {
     print('Error removing user from favorites: $e');
   }
+}
+
+void _checkAndShowRoleDialog() async {
+  final currentUserSnapshot = await FirebaseFirestore.instance
+      .collection('users')
+      .doc(user.uid)
+      .get();
+
+  if (!currentUserSnapshot.exists) {
+    _showRoleChangeDialog(); // Show dialog if user data does not exist
+    return;
+  }
+
+  final currentUserRole = currentUserSnapshot['role'];
+  if (currentUserRole == null || currentUserRole.isEmpty) {
+    _showRoleChangeDialog(); // Show dialog if user role is not set
+  } else {
+    fetchUsers().then((users) {
+      setState(() {
+        _users = users;
+        _filteredUsers = users;
+      });
+    });
+  }
+}
+
+void _showRoleChangeDialog() {
+  showDialog(
+    context: context,
+    barrierDismissible: false, // Prevent dialog from closing by tapping outside
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Set Your Role'),
+        content: const Text('Please choose your role to continue.'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              _setUserRole('walker'); // Set role to 'walker'
+              Navigator.of(context).pop(); // Close dialog
+              fetchUsers().then((users) {
+                setState(() {
+                  _users = users;
+                  _filteredUsers = users;
+                });
+              });
+            },
+            child: const Text('Walker'),
+          ),
+          TextButton(
+            onPressed: () {
+              _setUserRole('owner'); // Set role to 'owner'
+              Navigator.of(context).pop(); // Close dialog
+              fetchUsers().then((users) {
+                setState(() {
+                  _users = users;
+                  _filteredUsers = users;
+                });
+              });
+            },
+            child: const Text('Owner'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+Future<void> _setUserRole(String role) async {
+  await FirebaseFirestore.instance.collection('users').doc(user.uid).set(
+    {'role': role},
+    SetOptions(merge: true), // Merge with existing data
+  );
 }
 
   @override
