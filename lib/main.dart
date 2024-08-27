@@ -5,6 +5,7 @@ import 'package:petpals/pages/auth/auth.dart'; // Import your AuthPage or LoginP
 import 'package:petpals/pages/splash_screen.dart'; // Import your SplashScreen
 import 'firebase_options.dart';
 
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(

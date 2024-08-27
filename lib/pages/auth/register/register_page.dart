@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:petpals/components/header.dart';
 import 'package:petpals/components/my_button.dart'; // Import MyButton
@@ -6,6 +7,7 @@ import 'package:petpals/components/my_textfield.dart';
 import 'package:petpals/pages/auth/register/email_verification.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:petpals/models/userModel.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class RegisterPage extends StatefulWidget {
   final Function()? onTap;
@@ -181,96 +183,147 @@ class _RegisterPageState extends State<RegisterPage> {
                           ),
                           const SizedBox(height: 15),
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 30),
-                                child: Container(
-                                  width: 20,
-                                  height: 20,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(3),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.15),
-                                        spreadRadius: 0,
-                                        blurRadius: 5,
-                                        offset: const Offset(0, 1),
-                                      ),
-                                    ],
-                                  ),
-                                  child: Checkbox(
-                                    value: isPrivacyPolicyChecked,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        isPrivacyPolicyChecked = value!;
-                                      });
-                                    },
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              const Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'I agree to the Privacy Policy, confirm that I am 18 years of age or older, and consent to receive email communication.',
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 14,
-                                        fontFamily: 'OpenSans',
-                                        fontWeight: FontWeight.normal,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
+  mainAxisAlignment: MainAxisAlignment.start,
+  children: [
+    Padding(
+      padding: const EdgeInsets.only(bottom: 30),
+      child: Container(
+        width: 20,
+        height: 20,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(3),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.15),
+              spreadRadius: 0,
+              blurRadius: 5,
+              offset: const Offset(0, 1),
+            ),
+          ],
+        ),
+        child: Checkbox(
+          value: isPrivacyPolicyChecked,
+          onChanged: (value) {
+            setState(() {
+              isPrivacyPolicyChecked = value!;
+            });
+          },
+        ),
+      ),
+    ),
+    const SizedBox(width: 10),
+    Expanded(
+      child: RichText(
+        text: TextSpan(
+          text: 'I agree to the ',
+          style: const TextStyle(
+            color: Colors.black,
+            fontSize: 14,
+            fontFamily: 'OpenSans',
+            fontWeight: FontWeight.normal,
+          ),
+          children: [
+            TextSpan(
+              text: 'Privacy Policy',
+              style: TextStyle(
+                color: Colors.indigo.shade600,
+                fontSize: 14,
+                fontFamily: 'OpenSans',
+                fontWeight: FontWeight.normal,
+                decoration: TextDecoration.none, // Underline for URL
+              ),
+              recognizer: TapGestureRecognizer()
+                ..onTap = () {
+                  _launchURL('https://www.termsfeed.com/live/a00075e3-7072-4e70-9e62-7e7b4b8a64ea');
+                },
+            ),
+            const TextSpan(
+              text: ', confirm that I am 18 years of age or older, and consent to receiving email communication.',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 14,
+                fontFamily: 'OpenSans',
+                fontWeight: FontWeight.normal,
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  ],
+),
+
                           const SizedBox(height: 10),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Container(
-                                width: 20,
-                                height: 20,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(3),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.15),
-                                      spreadRadius: 0,
-                                      blurRadius: 5,
-                                      offset: const Offset(0, 2),
-                                    ),
-                                  ],
-                                ),
-                                child: Checkbox(
-                                  value: isUserAgreementChecked,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      isUserAgreementChecked = value!;
-                                    });
-                                  },
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              const Flexible(
-                                child: Text(
-                                  'I agree to the User Agreement',
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 14,
-                                    fontFamily: 'OpenSans',
-                                    fontWeight: FontWeight.normal,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+                         Row(
+  mainAxisAlignment: MainAxisAlignment.start,
+  children: [
+    Container(
+      width: 20,
+      height: 20,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(3),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.15),
+            spreadRadius: 0,
+            blurRadius: 5,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Checkbox(
+        value: isUserAgreementChecked,
+        onChanged: (value) {
+          setState(() {
+            isUserAgreementChecked = value!;
+          });
+        },
+      ),
+    ),
+    const SizedBox(width: 10),
+    Expanded(
+      child: RichText(
+        text: TextSpan(
+          text: 'I agree to the ',
+          style: const TextStyle(
+            color: Colors.black,
+            fontSize: 14,
+            fontFamily: 'OpenSans',
+            fontWeight: FontWeight.normal,
+          ),
+          children: [
+            TextSpan(
+              text: 'User Agreement',
+              style: TextStyle(
+                color: Colors.indigo.shade600,
+                fontSize: 14,
+                fontFamily: 'OpenSans',
+                fontWeight: FontWeight.normal,
+                decoration: TextDecoration.none, // Underline for URL
+              ),
+              recognizer: TapGestureRecognizer()
+                ..onTap = () {
+                  _launchURL('https://www.termsfeed.com/live/a00075e3-7072-4e70-9e62-7e7b4b8a64ea'); // Change to the correct URL for User Agreement
+                },
+            ),
+            const TextSpan(
+              text: ', confirm that I am 18 years of age or older, and consent to receive email communication.',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 14,
+                fontFamily: 'OpenSans',
+                fontWeight: FontWeight.normal,
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  ],
+),
+
                           const SizedBox(height: 15),
                           MyButton(
                             onTap: () => signUserUp(context),
@@ -400,5 +453,12 @@ class _RegisterPageState extends State<RegisterPage> {
     }
   }
 }
-
+Future<void> _launchURL(String url) async {
+  final Uri uri = Uri.parse(url);
+  if (await canLaunchUrl(uri)) {
+    await launchUrl(uri,  mode: LaunchMode.externalApplication);
+  } else {
+    print('Could not launch $url');
+  }
+}
 }
