@@ -5,7 +5,7 @@ import 'package:petpals/components/user_card.dart';
 import 'package:petpals/models/userModel.dart';
 import 'package:petpals/components/my_bottom_bar.dart';
 import 'package:petpals/components/my_button.dart';
-import 'package:petpals/pages/home/search/search_page.dart'; // Import for MyButton
+import 'package:petpals/pages/home/search/search_page.dart'; // Import for SearchPage
 
 class FavoritePage extends StatefulWidget {
   const FavoritePage({super.key});
@@ -46,6 +46,9 @@ class _FavoritePageState extends State<FavoritePage>
           .get();
       final role = currentUserSnapshot['role'];
 
+      // Ensure role is correctly identified
+      print('Current user role: $role');
+
       final collectionPath = role == 'walker'
           ? 'users/$userId/walkerInfo/$userId/favorites'
           : 'users/$userId/ownerInfo/$userId/favorites';
@@ -59,10 +62,10 @@ class _FavoritePageState extends State<FavoritePage>
           firstName: data['firstName'],
           lastName: data['lastName'],
           profilePicture: data['profilePicture'],
-          email: '', // Adjust according to your UserModel
-          role: '', // Adjust according to your UserModel
-          phoneNumber: '', // Adjust according to your UserModel
-          address: '', // Adjust according to your UserModel
+          email: data['email'] ?? '', // Adjust according to your UserModel
+          role: data['role'] ?? '', // Adjust according to your UserModel
+          phoneNumber: data['phoneNumber'] ?? '', // Adjust according to your UserModel
+          address: data['address'] ?? '', // Adjust according to your UserModel
         );
       }).toList();
     } catch (e) {
@@ -147,9 +150,8 @@ class _FavoritePageState extends State<FavoritePage>
                       onTap: () {
                         Navigator.pushReplacement(
                           context,
-                          PageRouteBuilder(
-                            pageBuilder: (_, __, ___) => SearchPage(context: context),
-                            transitionDuration: Duration.zero,
+                          MaterialPageRoute(
+                            builder: (context) => SearchPage(context: context,),
                           ),
                         );
                       },
@@ -173,13 +175,13 @@ class _FavoritePageState extends State<FavoritePage>
             itemCount: favorites.length,
             itemBuilder: (context, index) {
               final user = favorites[index];
+              print('Rendering user: ${user.firstName} ${user.lastName}');
               return UserCard(
                 user: user,
-                isFavorited: true, // Always true because we are on the favorites page
+                isFavorited: true,
                 onFavoriteTap: () {
                   _removeFromFavorites(user);
                   setState(() {
-                    // Update the list of favorites
                     _favoritesFuture = _fetchFavorites();
                   });
                 },

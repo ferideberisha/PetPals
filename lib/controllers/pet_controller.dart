@@ -3,11 +3,12 @@ import 'package:petpals/models/petModel.dart';
 
 class PetController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  
 
-  // Add a pet to Firestore
+  // Add a pet to Firestore (Owners only)
   Future<void> addPet(Pet pet, String userId, String role) async {
     try {
-      String subCollection = role == 'walker' ? 'walkerInfo' : 'ownerInfo';
+      String subCollection = 'ownerInfo';
       DocumentReference petDocRef = _firestore
           .collection('users')
           .doc(userId)
@@ -22,14 +23,14 @@ class PetController {
     }
   }
 
-  // Get a stream of pets for a specific user with document IDs
+  // Get a stream of pets for a specific owner with document IDs
   Stream<List<Map<String, dynamic>>> getPetsStreamWithId(
       String userId, String role) {
     if (userId.isEmpty || role.isEmpty) {
       throw ArgumentError('Invalid userId or role');
     }
 
-    String subCollection = role == 'walker' ? 'walkerInfo' : 'ownerInfo';
+    String subCollection = 'ownerInfo';
     return _firestore
         .collection('users')
         .doc(userId)
@@ -45,11 +46,11 @@ class PetController {
             }).toList());
   }
 
-  // Update a pet in Firestore using the document ID
+  // Update a pet in Firestore using the document ID (Owners only)
   Future<void> updatePet(
       Pet pet, String userId, String role, String petId) async {
     try {
-      String subCollection = role == 'walker' ? 'walkerInfo' : 'ownerInfo';
+      String subCollection = 'ownerInfo';
 
       DocumentReference petDocRef = _firestore
           .collection('users')
@@ -59,17 +60,16 @@ class PetController {
           .collection('pets')
           .doc(petId); // Use the provided petId to update the specific document
 
-      await petDocRef
-          .update(pet.toMap()); // Ensure using the correct method here
+      await petDocRef.update(pet.toMap());
     } catch (e) {
       throw Exception('Failed to update pet: $e');
     }
   }
 
-  // Delete a pet from Firestore using the document ID
+  // Delete a pet from Firestore using the document ID (Owners only)
   Future<void> deletePet(String userId, String role, String petId) async {
     try {
-      String subCollection = role == 'walker' ? 'walkerInfo' : 'ownerInfo';
+      String subCollection = 'ownerInfo';
 
       DocumentReference petDocRef = _firestore
           .collection('users')
@@ -84,22 +84,26 @@ class PetController {
       throw Exception('Failed to delete pet: $e');
     }
   }
-  // Fetch pets for a specific user and role
+
+  // Fetch pets for a specific user and role (Owners only)
+
   Future<List<Pet>> getPets(String userId, String role) async {
+    List<Pet> pets = [];
+
+    // Construct the path based on role
+    String path = 'users/$userId/ownerInfo/$userId/pets';
+
     try {
-      String subCollection = role == 'walker' ? 'walkerInfo' : 'ownerInfo';
-      QuerySnapshot snapshot = await _firestore
-          .collection('users')
-          .doc(userId)
-          .collection(subCollection)
-          .doc(userId)
-          .collection('pets')
-          .get();
-      return snapshot.docs.map((doc) => Pet.fromMap(doc.data() as Map<String, dynamic>)).toList();
+      QuerySnapshot snapshot = await _firestore.collection(path).get();
+      for (var doc in snapshot.docs) {
+        pets.add(Pet.fromMap(doc.data() as Map<String, dynamic>));
+      }
     } catch (e) {
       print('Error fetching pets: $e');
-      return [];
+      rethrow;
     }
+
+    return pets;
   }
-  
+
 }

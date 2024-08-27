@@ -94,6 +94,7 @@ Future<void> _addToFavorites(UserModel user) async {
       'uid': user.uid,
       'firstName': user.firstName,
       'lastName': user.lastName,
+      'role': user.role,
       'profilePicture': user.profilePicture,
     });
 

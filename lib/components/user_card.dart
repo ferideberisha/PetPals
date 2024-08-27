@@ -1,18 +1,19 @@
 import 'dart:io'; // For File
 import 'package:flutter/material.dart';
 import 'package:petpals/models/userModel.dart';
-import 'package:petpals/pages/home/search/user_detail_page.dart';
+import 'package:petpals/pages/home/search/owner_detail_page.dart';
+import 'package:petpals/pages/home/search/walker_detail_page.dart';
 
 class UserCard extends StatelessWidget {
   final UserModel user;
   final VoidCallback onFavoriteTap;
-  final bool isFavorited; // Add this property
+  final bool isFavorited;
 
   const UserCard({
     Key? key,
     required this.user,
     required this.onFavoriteTap,
-    this.isFavorited = false, // Initialize to false by default
+    this.isFavorited = false,
   }) : super(key: key);
 
   @override
@@ -23,12 +24,22 @@ class UserCard extends StatelessWidget {
       color: Colors.white,
       child: InkWell(
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => UserDetailPage(user: user),
-            ),
-          );
+          // Navigate to the appropriate detail page based on the user's role
+          if (user.role == 'walker') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => WalkerDetailPage(user: user),
+              ),
+            );
+          } else if (user.role == 'owner') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => OwnerDetailPage(user: user), // Navigate to OwnerDetailPage
+              ),
+            );
+          }
         },
         child: Container(
           height: 120,
@@ -78,12 +89,23 @@ class UserCard extends StatelessWidget {
   }
 
   ImageProvider? _getProfileImage(String profilePicture) {
-    if (profilePicture.isEmpty) {
-      return null; // Placeholder icon is used if there's no profile picture
-    } else if (_isNetworkUrl(profilePicture)) {
-      return NetworkImage(profilePicture);
-    } else {
-      return FileImage(File(profilePicture)) as ImageProvider;
+    try {
+      if (profilePicture.isEmpty) {
+        return null; // Placeholder icon if no profile picture
+      } else if (_isNetworkUrl(profilePicture)) {
+        return NetworkImage(profilePicture);
+      } else {
+        final file = File(profilePicture);
+        if (file.existsSync()) {
+          return FileImage(file);
+        } else {
+          print('File does not exist: $profilePicture');
+          return null;
+        }
+      }
+    } catch (e) {
+      print('Error loading profile picture: $e');
+      return null;
     }
   }
 

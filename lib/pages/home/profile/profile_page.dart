@@ -138,6 +138,7 @@ class _ProfilePageState extends State<ProfilePage> {
         MaterialPageRoute(builder: (context) => const AuthPage()));
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -172,38 +173,37 @@ class _ProfilePageState extends State<ProfilePage> {
                     children: [
                       Stack(
                         children: [
-                         CircleAvatarWidget(
-  pickImage: _pickImage,
-  image: _image is String ? File(_image) : null,
-  onTap: () {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Select Image Source'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                _pickImage(ImageSource.camera);
-                Navigator.of(context).pop();
-              },
-              child: const Text('Camera'),
-            ),
-            TextButton(
-              onPressed: () {
-                _pickImage(ImageSource.gallery);
-                Navigator.of(context).pop();
-              },
-              child: const Text('Gallery'),
-            ),
-          ],
-        );
-      },
-    );
-  },
-  icon: Icons.person,
-),
-
+                          CircleAvatarWidget(
+                            pickImage: _pickImage,
+                            image: _image is String ? File(_image) : null,
+                            onTap: () {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: const Text('Select Image Source'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          _pickImage(ImageSource.camera);
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: const Text('Camera'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          _pickImage(ImageSource.gallery);
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: const Text('Gallery'),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                            icon: Icons.person,
+                          ),
                           const Positioned(
                             bottom: 0,
                             right: 0,
@@ -231,12 +231,14 @@ class _ProfilePageState extends State<ProfilePage> {
               const SizedBox(height: 20),
               const Divider(),
               const SizedBox(height: 20),
+              // Basic Info button
               TextButton(
                 onPressed: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const BasicInfoPage()),
+                      builder: (context) => const BasicInfoPage(),
+                    ),
                   );
                 },
                 child: const Row(
@@ -260,7 +262,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ),
               const SizedBox(height: 20),
-              if (isWalker) ...[
+                   if (isWalker) ...[
                 TextButton(
                   onPressed: () {
                     if (userId != null && role != null) {
@@ -330,41 +332,44 @@ class _ProfilePageState extends State<ProfilePage> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 20),
               ],
-              TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => MyPetsPage(
-                        userId: userId!,
-                        role: role!,
+              
+              // Pets Section (only for owners)
+              if (!isWalker)
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => MyPetsPage(
+                          userId: userId!,
+                          role: role!,
+                        ),
                       ),
-                    ),
-                  );
-                },
-                child: const Row(
-                  children: [
-                    SizedBox(width: 10),
-                    Icon(Icons.pets, color: Colors.black),
-                    SizedBox(width: 15),
-                    Text(
-                      'My pets',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.normal,
-                        fontSize: 16,
+                    );
+                  },
+                  child: const Row(
+                    children: [
+                      SizedBox(width: 10),
+                      Icon(Icons.pets, color: Colors.black),
+                      SizedBox(width: 15),
+                      Text(
+                        'My pets',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.normal,
+                          fontSize: 16,
+                        ),
                       ),
-                    ),
-                    SizedBox(width: 8),
-                    Expanded(child: SizedBox()),
-                    Icon(Icons.arrow_forward_ios, color: Colors.black),
-                    SizedBox(width: 10),
-                  ],
+                      SizedBox(width: 8),
+                      Expanded(child: SizedBox()),
+                      Icon(Icons.arrow_forward_ios, color: Colors.black),
+                      SizedBox(width: 10),
+                    ],
+                  ),
                 ),
-              ),
               const SizedBox(height: 20),
+
               TextButton(
                 onPressed: () {
                   Navigator.push(

@@ -60,20 +60,29 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
     return services;
   }
 
+
   Future<void> _fetchPets() async {
     try {
-      String userId = widget.userId;
-      String role = widget.role;
+      // Get current user's ID
+      String currentUserId = await _userController.getCurrentUserId();
 
-      List<Pet> pets = await _petController.getPets(userId, role);
+      // Fetch the pets of the current user
+      List<Pet> pets = await _petController.getPets(currentUserId, "owner");
 
       setState(() {
         _pets = pets;
       });
     } catch (e) {
       print('Error fetching pets: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to fetch pets. Please try again later.'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
+
 
   Future<void> _fetchAvailability() async {
     try {
@@ -214,23 +223,32 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
     }
   }
 
-  void _calculateTotalPrice() {
-    double? walkingPricePerHour = widget.prices.walkingPrice; // Use the price from the widget
-
-    // Calculate price based on the selected service and time slots
-    if (_selectedService == 'Walking') {
-      int numberOfWalks = int.tryParse(_selectedNumberOfWalks ?? '0') ?? 0;
-      if (_selectedTimeSlots.length != numberOfWalks) {
-        _totalPrice = 0.0; // Invalid state
-      } else {
-        _totalPrice = walkingPricePerHour! * _selectedTimeSlots.length;
-      }
-    } else {
-      _totalPrice = 0.0; // Set default price for other services if applicable
-    }
-
-    setState(() {});
+void _calculateTotalPrice() {
+  double? servicePrice;
+  switch (_selectedService) {
+    case 'Walking':
+      servicePrice = widget.prices.walkingPrice;
+      break;
+    case 'Day Care':
+      servicePrice = widget.prices.dayCarePrice;
+      break;
+    case 'House Sitting':
+      servicePrice = widget.prices.houseSittingPrice;
+      break;
+    default:
+      servicePrice = 0.0;
   }
+
+  // Calculate price based on the selected service and time slots
+  if (servicePrice != null) {
+    _totalPrice = servicePrice * _selectedTimeSlots.length;
+  } else {
+    _totalPrice = 0.0; // Default price if service is not selected
+  }
+
+  setState(() {});
+}
+
 
   Widget _buildNumberOfWalksDropdown() {
     final List<String> numberOfWalksOptions = ['1', '2', '3', '4', '5'];
@@ -365,6 +383,58 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
 
 
 void _bookAppointment() async {
+  // Check if all required fields are completed
+  if (_selectedService == null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Please select a service.'),
+        backgroundColor: Colors.red,
+      ),
+    );
+    return;
+  }
+
+  if (_selectedService == 'Walking' && _selectedNumberOfWalks == null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Please select the number of walks.'),
+        backgroundColor: Colors.red,
+      ),
+    );
+    return;
+  }
+
+  if (_selectedPet == null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Please select a pet.'),
+        backgroundColor: Colors.red,
+      ),
+    );
+    return;
+  }
+
+  if (_dateController.text.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Please select a date.'),
+        backgroundColor: Colors.red,
+      ),
+    );
+    return;
+  }
+
+  if (_selectedTimeSlots.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Please select time slots.'),
+        backgroundColor: Colors.red,
+      ),
+    );
+    return;
+  }
+
+  // Ensure number of walks matches selected time slots if walking service is selected
   if (_selectedService == 'Walking' && _selectedNumberOfWalks != null) {
     int numberOfWalks = int.parse(_selectedNumberOfWalks!);
     if (_selectedTimeSlots.length != numberOfWalks) {
