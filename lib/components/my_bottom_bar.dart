@@ -25,7 +25,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
         break;
       case 1:
         // Check if user is null before passing it to RequestsPage
-        nextPage = RequestsPage(); 
+        nextPage = const RequestsPage(); 
         break;
       case 2:
         nextPage = const FavoritePage();

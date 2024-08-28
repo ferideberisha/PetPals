@@ -36,28 +36,25 @@ class _WalkerDetailPageState extends State<WalkerDetailPage> {
   List<String>? _selectedSkills;
 
   ImageProvider? _getProfileImage(String profilePicture) {
-  try {
-    if (profilePicture.isEmpty) {
-      return null; // Placeholder icon if no profile picture
-    } else if (_isNetworkUrl(profilePicture)) {
-      return NetworkImage(profilePicture);
-    } else {
-      final file = File(profilePicture);
-      if (file.existsSync()) {
-        return FileImage(file);
+    try {
+      if (profilePicture.isEmpty) {
+        return null; // Placeholder icon if no profile picture
+      } else if (_isNetworkUrl(profilePicture)) {
+        return NetworkImage(profilePicture);
       } else {
-        print('File does not exist: $profilePicture');
-        return null;
+        final file = File(profilePicture);
+        if (file.existsSync()) {
+          return FileImage(file);
+        } else {
+          print('File does not exist: $profilePicture');
+          return null;
+        }
       }
+    } catch (e) {
+      print('Error loading profile picture: $e');
+      return null;
     }
-  } catch (e) {
-    print('Error loading profile picture: $e');
-    return null;
   }
-}
-
-
-
 
   @override
   void initState() {
@@ -70,7 +67,6 @@ class _WalkerDetailPageState extends State<WalkerDetailPage> {
 
     _fetchAvailabilityData(); // Fetch availability data when initializing
   }
-
 
   Future<void> _fetchPrices() async {
     try {
@@ -129,7 +125,7 @@ class _WalkerDetailPageState extends State<WalkerDetailPage> {
         });
       } else {
         setState(() {
-          _aboutMeText = 'No About Me data available.';
+          _aboutMeText = 'No About Me data';
           _selectedSizes = [];
           _selectedPetNumbers = [];
           _selectedSkills = [];
@@ -184,7 +180,6 @@ class _WalkerDetailPageState extends State<WalkerDetailPage> {
   @override
   Widget build(BuildContext context) {
     // Display a message if the user is not a walker
-  
 
     return Scaffold(
       body: FutureBuilder(
@@ -273,13 +268,20 @@ class _WalkerDetailPageState extends State<WalkerDetailPage> {
                                     color: Colors.white,
                                   ),
                                   child: CircleAvatar(
-                backgroundImage: _getProfileImage(widget.user.profilePicture),
-                backgroundColor: widget.user.profilePicture.isEmpty ? Colors.grey.shade200 : null,
-                radius: 50,
-                child: widget.user.profilePicture.isEmpty
-                    ? const Icon(Icons.person, size: 40, color: Color.fromRGBO(158, 158, 158, 1))
-                    : null,
-              ),
+                                    backgroundImage: _getProfileImage(
+                                        widget.user.profilePicture),
+                                    backgroundColor:
+                                        widget.user.profilePicture.isEmpty
+                                            ? Colors.grey.shade200
+                                            : null,
+                                    radius: 50,
+                                    child: widget.user.profilePicture.isEmpty
+                                        ? const Icon(Icons.person,
+                                            size: 40,
+                                            color: Color.fromRGBO(
+                                                158, 158, 158, 1))
+                                        : null,
+                                  ),
                                 ),
                               ],
                             ),
@@ -388,7 +390,7 @@ class _WalkerDetailPageState extends State<WalkerDetailPage> {
                                                   _prices!.walkingPrice,
                                             )
                                           else
-                                            Center(
+                                            const Center(
                                                 child: Text(
                                                     'Prices not available.')), // Handle the case where prices are not available
 
@@ -449,7 +451,7 @@ class _WalkerDetailPageState extends State<WalkerDetailPage> {
                                         Text(
                                           _selectedSizes?.isNotEmpty == true
                                               ? _selectedSizes!.join(', ')
-                                              : 'Loading...',
+                                              : 'No Preferences data',
                                           style: const TextStyle(
                                             fontSize: 16,
                                             color: Colors.black54,
@@ -461,8 +463,8 @@ class _WalkerDetailPageState extends State<WalkerDetailPage> {
                                         const SizedBox(height: 8.0),
                                         Text(
                                           _selectedSkills?.isNotEmpty == true
-                                              ? _selectedSkills!.join(', ')
-                                              : 'Loading...',
+                                              ? _selectedSkills!.join('\n')
+                                              : 'No Additional Skills data',
                                           style: const TextStyle(
                                             fontSize: 16,
                                             color: Colors.black54,
@@ -473,7 +475,7 @@ class _WalkerDetailPageState extends State<WalkerDetailPage> {
                                           _selectedPetNumbers?.isNotEmpty ==
                                                   true
                                               ? 'Can take care of ${_selectedPetNumbers!.join(' or ')} pets at the same time.'
-                                              : 'Loading...',
+                                              : '',
                                           style: const TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.w500,
