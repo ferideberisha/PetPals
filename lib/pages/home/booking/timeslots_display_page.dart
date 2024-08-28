@@ -156,19 +156,22 @@ class _TimeSlotsDisplayPageState extends State<TimeSlotsDisplayPage> {
     );
   }
 
-Future<void> _confirmBooking() async {
+  
+  Future<void> _confirmBooking() async {
   print('Selected slots: $selectedSlots');
   try {
-    // Pass selectedSlots back to the BookingDetailsPage
+    // Pass selected slots back to BookingDetailsPage
     Navigator.pop(context, selectedSlots);
   } catch (e) {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Failed to confirm booking'),
+      SnackBar(
+        content: Text('Failed to confirm booking: $e'),
         backgroundColor: Colors.red,
       ),
     );
   }
 }
+
+
 
 }

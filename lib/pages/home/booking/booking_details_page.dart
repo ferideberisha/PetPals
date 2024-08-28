@@ -84,39 +84,40 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
   }
 
 
-  Future<void> _fetchAvailability() async {
-    try {
-      final today = DateTime.now();
-      final dates = List.generate(30, (index) => today.add(Duration(days: index)));
-      Map<DateTime, AvailabilityModel> availabilityMap = {};
+Future<void> _fetchAvailability() async {
+  try {
+    final today = DateTime.now();
+    final dates = List.generate(30, (index) => today.add(Duration(days: index)));
+    Map<DateTime, AvailabilityModel> availabilityMap = {};
 
-      for (DateTime date in dates) {
-        AvailabilityModel? availability = await _availabilityController.getAvailability(widget.userId, date);
+    for (DateTime date in dates) {
+      AvailabilityModel? availability = await _availabilityController.getAvailability(widget.userId, date);
 
-        if (availability != null) {
-          availabilityMap[date] = availability;
-        } else {
-          // Date not in the database, show all time slots as available
-          availabilityMap[date] = AvailabilityModel(
-            timeSlots: _getAllTimeSlots(), // Set all slots as available
-            busyAllDay: false,
-          );
-        }
+      if (availability != null) {
+        availabilityMap[date] = availability;
+      } else {
+        // Initialize with all time slots as available
+        availabilityMap[date] = AvailabilityModel(
+          timeSlots: _getAllTimeSlots(), // Set all slots as available
+          busySlots: [],
+          busyAllDay: false,
+        );
       }
-
-      setState(() {
-        _availabilityMap = availabilityMap;
-      });
-    } catch (e) {
-      print('Error fetching availability: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Failed to fetch availability. Please try again later.'),
-          backgroundColor: Colors.red,
-        ),
-      );
     }
+
+    setState(() {
+      _availabilityMap = availabilityMap;
+    });
+  } catch (e) {
+    print('Error fetching availability: $e');
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Failed to fetch availability. Please try again later.'),
+        backgroundColor: Colors.red,
+      ),
+    );
   }
+}
 
   List<String> _getAllTimeSlots() {
     return [
@@ -381,7 +382,6 @@ void _calculateTotalPrice() {
     );
   }
 
-
 void _bookAppointment() async {
   // Check if all required fields are completed
   if (_selectedService == null) {
@@ -434,7 +434,6 @@ void _bookAppointment() async {
     return;
   }
 
-  // Ensure number of walks matches selected time slots if walking service is selected
   if (_selectedService == 'Walking' && _selectedNumberOfWalks != null) {
     int numberOfWalks = int.parse(_selectedNumberOfWalks!);
     if (_selectedTimeSlots.length != numberOfWalks) {
@@ -456,30 +455,52 @@ void _bookAppointment() async {
 
   // Create a booking model
   BookingModel booking = BookingModel(
-    bookingId: bookingId, // Pass the generated booking ID
+    bookingId: bookingId,
     service: _selectedService!,
     petName: _selectedPet,
     date: DateFormat('yyyy-MM-dd').parse(_dateController.text),
     timeSlots: _selectedTimeSlots,
     numberOfWalks: _selectedNumberOfWalks != null ? int.parse(_selectedNumberOfWalks!) : null,
-    ownerId: ownerId, // Set current owner's ID
-    walkerId: widget.userId, // Set the walker ID from widget
+    ownerId: ownerId,
+    walkerId: widget.userId,
     price: _totalPrice,
   );
 
-  // Create booking controller instance
-  BookingController bookingController = BookingController();
+  // Create booking controller instance;
 
-  try {
+   try {
+    DateTime selectedDate = DateFormat('yyyy-MM-dd').parse(_dateController.text);
+    AvailabilityModel? availability = await _availabilityController.getAvailability(widget.userId, selectedDate);
+
+    if (availability == null) {
+      // Create default availability
+      await _availabilityController.saveAvailability(
+        widget.userId,
+        selectedDate,
+        AvailabilityModel(
+          timeSlots: _getAllTimeSlots(),
+          busySlots: _selectedTimeSlots.toList(),
+          busyAllDay: false,
+        ),
+      );
+    } else {
+      // Update existing availability
+      await _availabilityController.updateAvailability(
+        widget.userId,
+        selectedDate,
+        _selectedTimeSlots,
+      );
+    }
+
     // Save booking
+    BookingController bookingController = BookingController();
     await bookingController.createBooking(
       role: widget.role,
       booking: booking,
-      ownerId: ownerId,
+      ownerId: await _userController.getCurrentUserId(),
       walkerId: widget.userId,
     );
 
-    // Show success message
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Booking successful!'),
@@ -487,10 +508,8 @@ void _bookAppointment() async {
       ),
     );
 
-    // Navigate back or reset the page
     Navigator.of(context).pop();
   } catch (e) {
-    // Show error message
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Booking failed: $e'),
@@ -499,8 +518,6 @@ void _bookAppointment() async {
     );
   }
 }
-
-
 
 
   Widget _buildTextField(String label, IconData icon) {

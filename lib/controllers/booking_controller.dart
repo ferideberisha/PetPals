@@ -58,22 +58,24 @@ Future<void> _saveBookingForOwner(String ownerId, BookingModel booking, String f
 }
 
 
-  Future<void> _updateWalkerAvailability(String walkerId, BookingModel booking) async {
-    try {
-      String formattedDate = DateFormat('yyyy-MM-dd').format(booking.date);
-      await _firestore.collection('users')
-          .doc(walkerId)
-          .collection('walkerInfo')
-          .doc(walkerId)
-          .collection('availability')
-          .doc(formattedDate)
-          .update({
-            'timeSlots': FieldValue.arrayRemove(booking.timeSlots.toList())
-          });
-    } catch (e) {
-      print('Error updating walker availability: $e');
-    }
+ Future<void> _updateWalkerAvailability(String walkerId, BookingModel booking) async {
+  try {
+    String formattedDate = DateFormat('yyyy-MM-dd').format(booking.date);
+    await _firestore.collection('users')
+        .doc(walkerId)
+        .collection('walkerInfo')
+        .doc(walkerId)
+        .collection('availability')
+        .doc(formattedDate)
+        .update({
+          'timeSlots': FieldValue.arrayRemove(booking.timeSlots.toList()),
+          'busySlots': FieldValue.arrayUnion(booking.timeSlots.toList()), // Ensure to add booked slots to busySlots
+        });
+  } catch (e) {
+    print('Error updating walker availability: $e');
   }
+}
+
 
   Future<void> acceptBooking({
     required BookingModel booking,
