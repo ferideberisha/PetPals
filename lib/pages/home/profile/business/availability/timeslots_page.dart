@@ -76,12 +76,14 @@ class _TimeSlotsPageState extends State<TimeSlotsPage> {
               itemCount: timeSlots.length,
               itemBuilder: (context, index) {
                 String slot = timeSlots[index];
-                bool isSelected = selectedSlots.contains(slot) || bookingSlots.contains(slot);
+                bool isSelected = selectedSlots.contains(slot);
+                bool isBooking = bookingSlots.contains(slot);
 
                 return MyButton(
                   onTap: () {
                     setState(() {
                       if (_busyAllDaySwitch) return;
+                      if (isBooking) return; // Do not allow selecting or deselecting booking slots
                       if (selectedSlots.contains(slot)) {
                         selectedSlots.remove(slot);
                       } else {
@@ -91,7 +93,7 @@ class _TimeSlotsPageState extends State<TimeSlotsPage> {
                     });
                   },
                   text: slot,
-                  color: isSelected ? const Color(0xFFCAADEE) : Colors.white,
+                  color: isBooking ? Colors.red : (isSelected ? const Color(0xFFCAADEE) : Colors.white),
                   textColor: Colors.black,
                   borderColor: const Color(0xFFCAADEE),
                   borderWidth: 1,
@@ -133,35 +135,32 @@ class _TimeSlotsPageState extends State<TimeSlotsPage> {
     );
   }
 
-Future<void> _saveAvailability() async {
-  final availability = AvailabilityModel(
-    timeSlots: _busyAllDaySwitch 
-      ? List<String>.from(timeSlots) // Save all slots in timeSlots if busy all day
-      : selectedSlots.toList(), // Otherwise, save only selected slots
-    busySlots: bookingSlots.toList(), // Keep only the slots busy due to bookings
-    busyAllDay: _busyAllDaySwitch,
-  );
+  Future<void> _saveAvailability() async {
+    final availability = AvailabilityModel(
+      timeSlots: _busyAllDaySwitch 
+        ? List<String>.from(timeSlots) // Save all slots in timeSlots if busy all day
+        : selectedSlots.toList(), // Otherwise, save only selected slots
+      busySlots: bookingSlots.toList(), // Keep only the slots busy due to bookings
+      busyAllDay: _busyAllDaySwitch,
+    );
 
-  try {
-    await _availabilityController.saveAvailability(widget.userId, widget.date, availability);
-    // Show a confirmation message after successful save
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Saved successfully'),
-        backgroundColor: Colors.green,
-      ),
-    );
-  } catch (e) {
-    // Handle errors and show an error message
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Failed to save'),
-        backgroundColor: Colors.red,
-      ),
-    );
+    try {
+      await _availabilityController.saveAvailability(widget.userId, widget.date, availability);
+      // Show a confirmation message after successful save
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Saved successfully'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      // Handle errors and show an error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to save'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
-}
-
-
-
 }
