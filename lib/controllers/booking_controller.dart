@@ -148,26 +148,61 @@ Future<void> _updateWalkerAvailability(String walkerId, BookingModel booking) as
   }
 
   Future<void> rejectBooking({
-    required BookingModel booking,
-    required String walkerId,
-    required String ownerId,
-  }) async {
-    try {
-      String formattedDate = DateFormat('yyyy-MM-dd').format(booking.date);
+  required BookingModel booking,
+  required String walkerId,
+  required String ownerId,
+}) async {
+  try {
+    String formattedDate = DateFormat('yyyy-MM-dd').format(booking.date);
 
-      // Update booking status in Firestore
-      await Future.wait([
-        _moveBookingToRejectedForWalker(walkerId, booking, formattedDate),
-        _moveBookingToRejectedForOwner(ownerId, booking, formattedDate),
-      ]);
-      
-      // Remove the booking from the incoming requests for the walker
-      await _removeBookingFromIncomingRequests(walkerId, booking, formattedDate);
+    // Update booking status in Firestore
+    await Future.wait([
+      _moveBookingToRejectedForWalker(walkerId, booking, formattedDate),
+      _moveBookingToRejectedForOwner(ownerId, booking, formattedDate),
+    ]);
 
-    } catch (e) {
-      print('Error rejecting booking: $e');
-    }
+    // Remove the booking from the incoming requests for the walker
+    await _removeBookingFromIncomingRequests(walkerId, booking, formattedDate);
+
+    // Remove the booking from the outgoing requests for the owner
+    await _removeBookingFromOutgoingRequests(ownerId, booking, formattedDate);
+
+    // Update walker's availability
+    await _updateWalkerAvailabilityOnRejection(walkerId, booking);
+  } catch (e) {
+    print('Error rejecting booking: $e');
   }
+}
+
+Future<void> _updateWalkerAvailabilityOnRejection(String walkerId, BookingModel booking) async {
+  try {
+    String formattedDate = DateFormat('yyyy-MM-dd').format(booking.date);
+    DocumentReference docRef = _firestore.collection('users')
+        .doc(walkerId)
+        .collection('walkerInfo')
+        .doc(walkerId)
+        .collection('availability')
+        .doc(formattedDate);
+
+    DocumentSnapshot docSnapshot = await docRef.get();
+
+    if (docSnapshot.exists) {
+      // Fetch current busy slots
+      List<String> currentBusySlots = List<String>.from((docSnapshot.data() as Map<String, dynamic>)['busySlots'] ?? []);
+
+      // Remove the rejected slots from busySlots
+      currentBusySlots.removeWhere((slot) => booking.timeSlots.contains(slot));
+
+      // Update the document
+      await docRef.update({
+        'busySlots': currentBusySlots,
+      });
+    }
+  } catch (e) {
+    print('Error updating walker availability on rejection: $e');
+  }
+}
+
 
   Future<void> _moveBookingToRejectedForWalker(String walkerId, BookingModel booking, String formattedDate) async {
     try {
