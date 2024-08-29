@@ -19,7 +19,8 @@ class _TimeSlotsPageState extends State<TimeSlotsPage> {
     "08:00-09:00", "09:30-10:30", "11:00-12:00", "12:30-13:30",
     "14:00-15:00", "15:30-16:30", "17:00-18:00", "18:30-19:30"
   ]; 
-  Set<String> selectedSlots = {}; 
+  Set<String> selectedSlots = {}; // Slots selected as busy by the walker
+  Set<String> bookingSlots = {}; // Slots busy due to bookings
   bool _busyAllDaySwitch = false; 
 
   final AvailabilityController _availabilityController = AvailabilityController();
@@ -32,10 +33,18 @@ class _TimeSlotsPageState extends State<TimeSlotsPage> {
 
   Future<void> _loadAvailability() async {
     AvailabilityModel? availability = await _availabilityController.getAvailability(widget.userId, widget.date);
+
     if (availability != null) {
       setState(() {
-        selectedSlots = Set<String>.from(availability.timeSlots);
-        _busyAllDaySwitch = selectedSlots.length == timeSlots.length; // Check if all slots are selected
+        bookingSlots = Set<String>.from(availability.busySlots); // Slots from bookings
+        selectedSlots = Set<String>.from(availability.timeSlots); // Walkers' busy slots
+        _busyAllDaySwitch = selectedSlots.length == timeSlots.length;
+      });
+    } else {
+      setState(() {
+        selectedSlots = {};
+        bookingSlots = {};
+        _busyAllDaySwitch = false;
       });
     }
   }
@@ -67,18 +76,17 @@ class _TimeSlotsPageState extends State<TimeSlotsPage> {
               itemCount: timeSlots.length,
               itemBuilder: (context, index) {
                 String slot = timeSlots[index];
-                bool isSelected = selectedSlots.contains(slot);
+                bool isSelected = selectedSlots.contains(slot) || bookingSlots.contains(slot);
 
                 return MyButton(
                   onTap: () {
                     setState(() {
                       if (_busyAllDaySwitch) return;
-                      if (isSelected) {
+                      if (selectedSlots.contains(slot)) {
                         selectedSlots.remove(slot);
                       } else {
                         selectedSlots.add(slot);
                       }
-                      // Update _busyAllDaySwitch based on the current selectedSlots
                       _busyAllDaySwitch = selectedSlots.length == timeSlots.length;
                     });
                   },
@@ -90,7 +98,7 @@ class _TimeSlotsPageState extends State<TimeSlotsPage> {
                 );
               },
             ),
-          SwitchListTile(
+            SwitchListTile(
               title: const Text('Busy all day'),
               value: _busyAllDaySwitch,
               onChanged: (value) {
@@ -125,29 +133,35 @@ class _TimeSlotsPageState extends State<TimeSlotsPage> {
     );
   }
 
-  Future<void> _saveAvailability() async {
-    final availability = AvailabilityModel(
-      timeSlots: selectedSlots.toList(),
-      busyAllDay: _busyAllDaySwitch,
+Future<void> _saveAvailability() async {
+  final availability = AvailabilityModel(
+    timeSlots: _busyAllDaySwitch 
+      ? List<String>.from(timeSlots) // Save all slots in timeSlots if busy all day
+      : selectedSlots.toList(), // Otherwise, save only selected slots
+    busySlots: bookingSlots.toList(), // Keep only the slots busy due to bookings
+    busyAllDay: _busyAllDaySwitch,
+  );
+
+  try {
+    await _availabilityController.saveAvailability(widget.userId, widget.date, availability);
+    // Show a confirmation message after successful save
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Saved successfully'),
+        backgroundColor: Colors.green,
+      ),
     );
-    
-    try {
-      await _availabilityController.saveAvailability(widget.userId, widget.date, availability);
-      // Show a confirmation message after successful save
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Saved successfully'),
-          backgroundColor: Colors.green,
-        ),
-      );
-    } catch (e) {
-      // Handle errors and show an error message
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Failed to save'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
+  } catch (e) {
+    // Handle errors and show an error message
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Failed to save'),
+        backgroundColor: Colors.red,
+      ),
+    );
   }
+}
+
+
+
 }

@@ -58,23 +58,36 @@ Future<void> _saveBookingForOwner(String ownerId, BookingModel booking, String f
 }
 
 
- Future<void> _updateWalkerAvailability(String walkerId, BookingModel booking) async {
+Future<void> _updateWalkerAvailability(String walkerId, BookingModel booking) async {
   try {
     String formattedDate = DateFormat('yyyy-MM-dd').format(booking.date);
-    await _firestore.collection('users')
+    DocumentReference docRef = _firestore.collection('users')
         .doc(walkerId)
         .collection('walkerInfo')
         .doc(walkerId)
         .collection('availability')
-        .doc(formattedDate)
-        .update({
-          'timeSlots': FieldValue.arrayRemove(booking.timeSlots.toList()),
-          'busySlots': FieldValue.arrayUnion(booking.timeSlots.toList()), // Ensure to add booked slots to busySlots
-        });
+        .doc(formattedDate);
+
+    DocumentSnapshot docSnapshot = await docRef.get();
+
+    if (docSnapshot.exists) {
+      // Ensure the booked slots are not in `timeSlots` and are added to `busySlots`
+      await docRef.update({
+        'timeSlots': FieldValue.arrayRemove(booking.timeSlots.toList()),
+        'busySlots': FieldValue.arrayUnion(booking.timeSlots.toList()),
+      });
+    } else {
+      // If document doesn't exist, create it with the booking slots marked as busy
+      await docRef.set({
+        'timeSlots': [], // or the remaining available slots if necessary
+        'busySlots': booking.timeSlots.toList(),
+      });
+    }
   } catch (e) {
     print('Error updating walker availability: $e');
   }
 }
+
 
 
   Future<void> acceptBooking({

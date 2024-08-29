@@ -26,26 +26,32 @@ class _TimeSlotsDisplayPageState extends State<TimeSlotsDisplayPage> {
     _fetchAvailableTimeSlots();
   }
 
-  Future<void> _fetchAvailableTimeSlots() async {
-    try {
-      AvailabilityModel? availability = await _availabilityController.getAvailability(widget.userId, widget.date);
+Future<void> _fetchAvailableTimeSlots() async {
+  try {
+    AvailabilityModel? availability = await _availabilityController.getAvailability(widget.userId, widget.date);
 
-      if (availability != null) {
-        if (availability.busyAllDay) {
-          _availableTimeSlots = []; // No slots available
-        } else {
-          _availableTimeSlots = availability.availableSlots;
-        }
-      } else {
-        // Date not in the database, show all time slots as available
-        _availableTimeSlots = _getAllTimeSlots(); // Return all possible time slots
-      }
+    if (availability != null) {
+      // Extract busy slots from the walker's availability
+      Set<String> walkerBusySlots = Set.from(availability.timeSlots); // Busy slots from walker
+      // Extract booked slots from the booking data
+      Set<String> bookedSlots = Set.from(availability.busySlots); // Busy slots from bookings
 
-      setState(() {}); // Update UI after fetching time slots
-    } catch (e) {
-      print('Error fetching available time slots: $e');
+      // Combine walker busy slots and booked slots
+      Set<String> allBusySlots = walkerBusySlots.union(bookedSlots);
+
+      // Get available slots by filtering out busy slots from all possible time slots
+      _availableTimeSlots = _getAllTimeSlots().where((slot) => !allBusySlots.contains(slot)).toList();
+    } else {
+      // Date not in the database, show all time slots as available
+      _availableTimeSlots = _getAllTimeSlots();
     }
+
+    setState(() {}); // Update UI after fetching time slots
+  } catch (e) {
+    print('Error fetching available time slots: $e');
   }
+}
+
 
   List<String> _getAllTimeSlots() {
     // Define the time slots consistent with the ones used in TimeSlotsPage

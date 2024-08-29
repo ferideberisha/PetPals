@@ -447,7 +447,7 @@ void _bookAppointment() async {
     }
   }
 
-  // Retrieve current owner's ID
+ // Retrieve current owner's ID
   String ownerId = await _userController.getCurrentUserId();
 
   // Generate a unique booking ID
@@ -466,38 +466,41 @@ void _bookAppointment() async {
     price: _totalPrice,
   );
 
-  // Create booking controller instance;
-
-   try {
+  // Create booking controller instance
+  BookingController bookingController = BookingController();
+try {
     DateTime selectedDate = DateFormat('yyyy-MM-dd').parse(_dateController.text);
     AvailabilityModel? availability = await _availabilityController.getAvailability(widget.userId, selectedDate);
 
     if (availability == null) {
-      // Create default availability
+      // Create new availability with only selected slots as busy
       await _availabilityController.saveAvailability(
         widget.userId,
         selectedDate,
         AvailabilityModel(
-          timeSlots: _getAllTimeSlots(),
-          busySlots: _selectedTimeSlots.toList(),
+          timeSlots: [], // No time slots to save since all are free
+          busySlots: _selectedTimeSlots.toList(), // Only selected slots as busy
           busyAllDay: false,
         ),
       );
     } else {
-      // Update existing availability
+      // Handle cases where availability exists
+      Set<String> updatedBusySlots = Set.from(availability.busySlots);
+
+      // Update busy slots and time slots correctly
       await _availabilityController.updateAvailability(
         widget.userId,
         selectedDate,
-        _selectedTimeSlots,
+        updatedBusySlots.union(_selectedTimeSlots.toSet()), // Update busy slots
+        Set.from(availability.timeSlots), // Ensure time slots are correctly handled
       );
     }
 
     // Save booking
-    BookingController bookingController = BookingController();
     await bookingController.createBooking(
       role: widget.role,
       booking: booking,
-      ownerId: await _userController.getCurrentUserId(),
+      ownerId: ownerId,
       walkerId: widget.userId,
     );
 
@@ -518,6 +521,7 @@ void _bookAppointment() async {
     );
   }
 }
+
 
 
   Widget _buildTextField(String label, IconData icon) {

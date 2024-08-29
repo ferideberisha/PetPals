@@ -43,36 +43,44 @@ Future<void> saveAvailability(String userId, DateTime date, AvailabilityModel av
     }
   }
 
-Future<void> updateAvailability(String userId, DateTime date, Set<String> bookedSlots) async {
+Future<void> updateAvailability(String userId, DateTime date, Set<String> bookedSlots, Set<String> walkerSlots) async {
   try {
-    final firestore = FirebaseFirestore.instance;
     final formattedDate = DateFormat('yyyy-MM-dd').format(date);
-
-    // Document reference
-    final docRef = firestore.collection('users')
+    final docRef = _firestore.collection('users')
       .doc(userId)
       .collection('walkerInfo')
       .doc(userId)
       .collection('availability')
       .doc(formattedDate);
 
-    // Fetch existing document
     final docSnapshot = await docRef.get();
     if (docSnapshot.exists) {
       final data = docSnapshot.data() as Map<String, dynamic>;
-      List<String> currentSlots = List<String>.from(data['timeSlots'] ?? []);
-      currentSlots.addAll(bookedSlots);
-      await docRef.update({'timeSlots': currentSlots});
+      
+      // Get current busySlots and timeSlots
+      Set<String> currentBusySlots = Set.from(data['busySlots'] ?? []);
+      List<String> currentTimeSlots = List<String>.from(data['timeSlots'] ?? []);
+
+      // Remove booked slots from timeSlots
+      currentTimeSlots.removeWhere((slot) => bookedSlots.contains(slot));
+      
+      // Update busySlots and timeSlots
+      await docRef.update({
+        'busySlots': currentBusySlots.union(bookedSlots).toList(),
+        'timeSlots': currentTimeSlots,
+      });
     } else {
-      // Create a new document with the booked slots
-      await docRef.set({'timeSlots': bookedSlots.toList()});
+      // If document doesn't exist, create it with booked slots in busySlots and walker slots in timeSlots
+      await docRef.set({
+        'busySlots': bookedSlots.toList(),
+        'timeSlots': walkerSlots.difference(bookedSlots).toList(),
+      });
     }
   } catch (e) {
     print('Error updating availability: $e');
     throw e; // Re-throw the error to be handled by the caller
   }
 }
-
 
   List<String> _getAllTimeSlots() {
     // Define the time slots consistent with the ones used in TimeSlotsPage
