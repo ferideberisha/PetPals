@@ -4,7 +4,7 @@ class PetCard extends StatelessWidget {
   final String name;
   final String gender;
   final String size;
-  final String? imageUrl; // Change this to imageUrl
+  final String? imageUrl; // Changed this to imageUrl
   final VoidCallback onDelete; // Callback for delete action
   final VoidCallback onEdit; // Callback for edit action
 
@@ -20,17 +20,17 @@ class PetCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 0,
+      elevation: 0, // No shadow
       margin: const EdgeInsets.symmetric(vertical: 10),
-      color: const Color(0xF5F5F5F5),
+      color: const Color(0x0D967BB6), // Background color
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(16.0),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // Pet Image
             Padding(
-              padding: const EdgeInsets.only(right: 16.0),
+              padding: const EdgeInsets.only(right: 16.0,),
               child: ClipOval(
                 child: SizedBox(
                   height: 70,
