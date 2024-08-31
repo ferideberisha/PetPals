@@ -8,20 +8,31 @@ class UserCard extends StatelessWidget {
   final UserModel user;
   final VoidCallback onFavoriteTap;
   final bool isFavorited;
+  final double elevation; // Optional parameter for card elevation
+  final EdgeInsetsGeometry margin; // Optional parameter for card margin
+  final Color color; // Optional parameter for card background color
+  final ShapeBorder shape; // Optional parameter for card shape
 
   const UserCard({
     Key? key,
     required this.user,
     required this.onFavoriteTap,
     this.isFavorited = false,
+    this.elevation = 0.0, // Default value for elevation
+    this.margin = const EdgeInsets.all(10), // Default value for margin
+    this.color = Colors.white, // Default value for color
+    this.shape = const RoundedRectangleBorder(
+      borderRadius: BorderRadius.all(Radius.circular(12)), // Default shape with border radius
+    ), // Default value for shape
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 0,
-      margin: const EdgeInsets.all(10),
-      color: Colors.white,
+      elevation: elevation,
+      margin: margin,
+      color: color,
+      shape: shape,
       child: InkWell(
         onTap: () {
           // Navigate to the appropriate detail page based on the user's role

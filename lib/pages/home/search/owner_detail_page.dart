@@ -14,15 +14,10 @@ class OwnerDetailPage extends StatefulWidget {
 }
 
 class _OwnerDetailPageState extends State<OwnerDetailPage> {
-
   @override
   void initState() {
     super.initState();
     _fetchPetsFuture = _fetchPets(); // Fetch pets data when initializing
-
-    // Fetch additional data if needed
-    if (widget.user.role == 'owner') {
-    }
   }
 
   Future<List<Pet>> _fetchPets() async {
@@ -45,10 +40,6 @@ class _OwnerDetailPageState extends State<OwnerDetailPage> {
 
   late Future<List<Pet>> _fetchPetsFuture;
 
-
-
-
-
   ImageProvider? _getProfileImage(String profilePicture) {
     try {
       if (profilePicture.isEmpty) {
@@ -70,13 +61,33 @@ class _OwnerDetailPageState extends State<OwnerDetailPage> {
     }
   }
 
+  ImageProvider? _getPetProfileImge(String imagePath) {
+    try {
+      if (imagePath.isEmpty) {
+        return null; // Placeholder icon if no profile picture
+      } else if (_isNetworkUrl(imagePath)) {
+        return NetworkImage(imagePath);
+      } else {
+        final file = File(imagePath);
+        if (file.existsSync()) {
+          return FileImage(file);
+        } else {
+          print('File does not exist: $imagePath');
+          return null;
+        }
+      }
+    } catch (e) {
+      print('Error loading profile picture: $e');
+      return null;
+    }
+  }
+
   bool _isNetworkUrl(String url) {
     return url.startsWith('http') || url.startsWith('https');
   }
 
   @override
   Widget build(BuildContext context) {
-    // Always return a widget for the OwnerDetailPage
     return Scaffold(
       body: Column(
         children: [
@@ -123,9 +134,8 @@ class _OwnerDetailPageState extends State<OwnerDetailPage> {
                     ),
                   ),
                 ),
-                // Profile section overlapping the header
                 Positioned(
-                  top: 150, // Adjusted value for overlapping effect
+                  top: 150,
                   left: 16,
                   right: 16,
                   child: Row(
@@ -165,10 +175,7 @@ class _OwnerDetailPageState extends State<OwnerDetailPage> {
               ],
             ),
           ),
-          // Space between header/profile and pet content
           const SizedBox(height: 58),
-
-          // Pet content starts here
           Expanded(
             child: FutureBuilder<List<Pet>>(
               future: _fetchPetsFuture,
@@ -190,18 +197,65 @@ class _OwnerDetailPageState extends State<OwnerDetailPage> {
                   itemCount: pets.length,
                   itemBuilder: (context, index) {
                     final pet = pets[index];
-                    return ListTile(
-                      title: Text(pet.name),
-                      subtitle: Text('${pet.age} years old, ${pet.gender}'),
-                      leading: pet.imagePath.isNotEmpty
-                          ? Image.network(pet.imagePath)
-                          : const Icon(Icons.pets),
-                      isThreeLine: true,
-                      contentPadding: const EdgeInsets.all(16.0),
-                      onTap: () {
-                        // Navigate to a detailed pet view if necessary
-                      },
-                    );
+                    return Card(
+  elevation: 0, // Remove shadow
+  margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16), // Adjust margin as needed
+  color: const Color(0x0D967BB6), // Set background color
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(12), // Set border radius
+  ),
+  child: Padding(
+    padding: const EdgeInsets.all(13.0),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        // Pet Image
+        Padding(
+          padding: const EdgeInsets.only(right: 16.0),
+          child: ClipOval(
+            child: SizedBox(
+              height: 70,
+              width: 70,
+              child: CircleAvatar(
+                backgroundImage: _getPetProfileImge(pet.imagePath),
+                backgroundColor: pet.imagePath.isEmpty ? Colors.grey.shade200 : null,
+                radius: 50,
+                child: pet.imagePath.isEmpty
+                    ? const Icon(Icons.pets, size: 40, color: Color.fromRGBO(158, 158, 158, 1))
+                    : null,
+              ),
+            ),
+          ),
+        ),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Pet Name
+              Text(
+                pet.name,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 5),
+              // Gender and Size
+              Text(
+                '${pet.gender} - Size: ${pet.sizeRange}',
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: Color.fromRGBO(117, 117, 117, 1),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  ),
+);
+
                   },
                 );
               },

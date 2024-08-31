@@ -36,43 +36,54 @@ class _FavoritePageState extends State<FavoritePage>
   }
 
   Future<List<UserModel>> _fetchFavorites() async {
-    try {
-      final currentUser = FirebaseAuth.instance.currentUser!;
-      final userId = currentUser.uid;
+  final List<UserModel> validFavorites = [];
+  try {
+    final currentUser = FirebaseAuth.instance.currentUser!;
+    final userId = currentUser.uid;
 
-      final currentUserSnapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(userId)
-          .get();
-      final role = currentUserSnapshot['role'];
+    final currentUserSnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .get();
+    final role = currentUserSnapshot['role'];
 
-      // Ensure role is correctly identified
-      print('Current user role: $role');
+    final collectionPath = role == 'walker'
+        ? 'users/$userId/walkerInfo/$userId/favorites'
+        : 'users/$userId/ownerInfo/$userId/favorites';
 
-      final collectionPath = role == 'walker'
-          ? 'users/$userId/walkerInfo/$userId/favorites'
-          : 'users/$userId/ownerInfo/$userId/favorites';
+    final snapshot = await FirebaseFirestore.instance.collection(collectionPath).get();
 
-      final snapshot = await FirebaseFirestore.instance.collection(collectionPath).get();
+    for (var doc in snapshot.docs) {
+      final data = doc.data();
+      final userDoc = await FirebaseFirestore.instance.collection('users').doc(data['uid']).get();
 
-      return snapshot.docs.map((doc) {
-        final data = doc.data();
-        return UserModel(
+      if (userDoc.exists) {
+        validFavorites.add(UserModel(
           uid: data['uid'],
           firstName: data['firstName'],
           lastName: data['lastName'],
           profilePicture: data['profilePicture'],
-          email: data['email'] ?? '', // Adjust according to your UserModel
-          role: data['role'] ?? '', // Adjust according to your UserModel
-          phoneNumber: data['phoneNumber'] ?? '', // Adjust according to your UserModel
-          address: data['address'] ?? '', // Adjust according to your UserModel
-        );
-      }).toList();
-    } catch (e) {
-      print('Error fetching favorites: $e');
-      return [];
+          email: data['email'] ?? '',
+          role: data['role'] ?? '',
+          phoneNumber: data['phoneNumber'] ?? '',
+          address: data['address'] ?? '',
+        ));
+      } else {
+        // Remove from favorites if the user does not exist
+        await FirebaseFirestore.instance
+            .collection(collectionPath)
+            .doc(data['uid'])
+            .delete();
+      }
     }
+
+    return validFavorites;
+  } catch (e) {
+    print('Error fetching favorites: $e');
+    return [];
   }
+}
+
 
   Future<void> _removeFromFavorites(UserModel user) async {
     try {
@@ -176,7 +187,14 @@ class _FavoritePageState extends State<FavoritePage>
             itemBuilder: (context, index) {
               final user = favorites[index];
               print('Rendering user: ${user.firstName} ${user.lastName}');
+              
               return UserCard(
+                  elevation: 0, // Remove shadow
+  margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16), // Adjust margin as needed
+  color: const Color(0x0D967BB6), // Set background color
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(12), // Set border radius
+  ),
                 user: user,
                 isFavorited: true,
                 onFavoriteTap: () {
