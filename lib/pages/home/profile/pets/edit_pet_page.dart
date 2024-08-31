@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:petpals/components/circle_avatar.dart';
@@ -35,6 +36,7 @@ class _EditPetPageState extends State<EditPetPage> {
   late TextEditingController _energyLevelController;
   late TextEditingController _vetInfoController;
 
+  String? _imageUrl; // Use URL instead of File
   File? _image;
   final PetController _petController = PetController();
 
@@ -46,25 +48,23 @@ class _EditPetPageState extends State<EditPetPage> {
   bool _isFemaleSelected = false;
   String? _selectedSizeRange;
 
-@override
-void initState() {
-  super.initState();
-  _nameController = TextEditingController(text: widget.pet.name);
-  _ageController = TextEditingController(text: widget.pet.age.toString());
-  _descriptionController = TextEditingController(text: widget.pet.description);
-  _numberOfWalksPerDayController = TextEditingController(text: widget.pet.numberOfWalksPerDay);
-  _energyLevelController = TextEditingController(text: widget.pet.energyLevel);
-  _vetInfoController = TextEditingController(text: widget.pet.vetInfo);
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(text: widget.pet.name);
+    _ageController = TextEditingController(text: widget.pet.age.toString());
+    _descriptionController = TextEditingController(text: widget.pet.description);
+    _numberOfWalksPerDayController = TextEditingController(text: widget.pet.numberOfWalksPerDay);
+    _energyLevelController = TextEditingController(text: widget.pet.energyLevel);
+    _vetInfoController = TextEditingController(text: widget.pet.vetInfo);
 
-  _isMaleSelected = widget.pet.gender == 'Male';
-  _isFemaleSelected = widget.pet.gender == 'Female';
-  _selectedSizeRange = widget.pet.sizeRange;
+    _isMaleSelected = widget.pet.gender == 'Male';
+    _isFemaleSelected = widget.pet.gender == 'Female';
+    _selectedSizeRange = widget.pet.sizeRange;
 
-  if (widget.pet.imagePath.isNotEmpty) {
-    _image = File(widget.pet.imagePath);
+    // Set image URL if available
+    _imageUrl = widget.pet.imagePath;
   }
-}
-
 
   @override
   void dispose() {
@@ -80,9 +80,18 @@ void initState() {
   Future<void> _updatePet() async {
     if (_formKey.currentState!.validate()) {
       try {
+        String? imageUrl;
+
+        // Upload new image if available
+        if (_image != null) {
+          imageUrl = await _uploadImage(_image!);
+        } else {
+          imageUrl = _imageUrl; // Retain the existing image URL
+        }
+
         Pet updatedPet = Pet(
           name: _nameController.text,
-          imagePath: _image?.path ?? '',
+          imagePath: imageUrl ?? '', // Use the uploaded or existing image URL
           age: int.parse(_ageController.text),
           gender: _isMaleSelected ? 'Male' : 'Female',
           sizeRange: _selectedSizeRange!,
@@ -128,6 +137,22 @@ void initState() {
     }
   }
 
+  Future<String?> _uploadImage(File image) async {
+    try {
+      final String fileName = '${DateTime.now().toIso8601String()}.jpg';
+      final storageRef = FirebaseStorage.instance.ref().child('pet_images/$fileName');
+      final uploadTask = storageRef.putFile(image);
+
+      final snapshot = await uploadTask.whenComplete(() => {});
+      final downloadUrl = await snapshot.ref.getDownloadURL();
+
+      return downloadUrl;
+    } catch (e) {
+      print('Failed to upload image: $e');
+      return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -135,7 +160,7 @@ void initState() {
         title: const Text('Edit Pet',
             style: TextStyle(fontWeight: FontWeight.bold)),
         shadowColor: Colors.white,
-         actions: [
+        actions: [
           TextButton(
             onPressed: _updatePet,
             style: ButtonStyle(
@@ -161,38 +186,42 @@ void initState() {
           child: ListView(
             children: [
               Center(
-  child: CircleAvatarWidget(
-    pickImage: _pickImage,
-    image: _image, // Ensure this is set correctly
-    onTap: () {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Select Image Source'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  _pickImage(ImageSource.camera);
-                  Navigator.of(context).pop();
-                },
-                child: const Text('Camera'),
+                child: CircleAvatarWidget(
+                  pickImage: _pickImage,
+                  image: _imageUrl != null
+                      ? NetworkImage(_imageUrl!) // Use NetworkImage for URL
+                      : _image != null
+                          ? FileImage(_image!)
+                          : null, // Default placeholder
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text('Select Image Source'),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                _pickImage(ImageSource.camera);
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text('Camera'),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                _pickImage(ImageSource.gallery);
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text('Gallery'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                  icon: Icons.pets,
+                ),
               ),
-              TextButton(
-                onPressed: () {
-                  _pickImage(ImageSource.gallery);
-                  Navigator.of(context).pop();
-                },
-                child: const Text('Gallery'),
-              ),
-            ],
-          );
-        },
-      );
-    },
-    icon: Icons.pets,
-  ),
-),
 
               const SizedBox(height: 20),
                               const Divider(),

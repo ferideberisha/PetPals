@@ -4,7 +4,7 @@ import 'package:image_picker/image_picker.dart';
 
 class CircleAvatarWidget extends StatelessWidget {
   final Function(ImageSource) pickImage;
-  final dynamic image; // Can be a File or a String URL
+  final dynamic image; // Can be a File, String URL, or NetworkImage
   final IconData icon;
   final Function()? onTap;
 
@@ -23,13 +23,7 @@ class CircleAvatarWidget extends StatelessWidget {
       child: CircleAvatar(
         radius: 50,
         backgroundColor: Colors.grey[200],
-        backgroundImage: image != null
-            ? (image is String
-                ? image.startsWith('assets/')
-                    ? AssetImage(image) as ImageProvider
-                    : FileImage(File(image)) as ImageProvider
-                : FileImage(image) as ImageProvider)
-            : null,
+        backgroundImage: _getBackgroundImage(),
         child: image == null
             ? Icon(
                 icon,
@@ -39,5 +33,25 @@ class CircleAvatarWidget extends StatelessWidget {
             : null,
       ),
     );
+  }
+
+  ImageProvider<Object>? _getBackgroundImage() {
+    if (image == null) return null;
+
+    if (image is String) {
+      if (image.startsWith('http')) {
+        return NetworkImage(image) as ImageProvider<Object>;
+      } else if (image.startsWith('assets/')) {
+        return AssetImage(image) as ImageProvider<Object>;
+      } else {
+        return FileImage(File(image)) as ImageProvider<Object>;
+      }
+    } else if (image is File) {
+      return FileImage(image) as ImageProvider<Object>;
+    } else if (image is NetworkImage) {
+      return image;
+    }
+
+    return null;
   }
 }

@@ -61,7 +61,7 @@ class MyPetsPage extends StatelessWidget {
                     name: pet.name,
                     gender: pet.gender,
                     size: pet.sizeRange,
-                    imagePath: pet.imagePath,
+                    imageUrl: pet.imagePath,
                     onDelete: () async {
                       bool? confirm = await showDialog(
                         context: context,

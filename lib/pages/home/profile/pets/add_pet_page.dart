@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:petpals/components/custom_switch.dart';
@@ -70,9 +71,24 @@ void dispose() {
   super.dispose();
 }
 
+// Add this method to upload the image
+Future<String?> _uploadImage(File image) async {
+  try {
+  final String fileName = '${DateTime.now().toIso8601String()}.jpg';
+    final storageRef = FirebaseStorage.instance.ref().child('pet_images/$fileName');
+    final uploadTask = storageRef.putFile(image);
+    
+    final snapshot = await uploadTask.whenComplete(() => {});
+    final downloadUrl = await snapshot.ref.getDownloadURL();
+    
+    return downloadUrl;
+  } catch (e) {
+    print('Failed to upload image: $e');
+    return null;
+  }
+}
 
-void _submitForm() {
-     
+void _submitForm() async {
   // Reset error flags and messages before validating the form
   setState(() {
     _isGenderError = false;
@@ -105,10 +121,16 @@ void _submitForm() {
     return;
   }
 
+  // Upload image and get URL
+  String? imageUrl;
+  if (_image != null) {
+    imageUrl = await _uploadImage(_image!);
+  }
+
   // Create a new Pet instance
   Pet newPet = Pet(
     name: _nameController.text,
-    imagePath: _image?.path ?? '',
+    imagePath: imageUrl ?? '', // Use the uploaded image URL
     age: int.parse(_ageController.text),
     gender: _isMaleSelected ? 'Male' : 'Female',
     sizeRange: _selectedSizeRange ?? '',
@@ -124,12 +146,12 @@ void _submitForm() {
     vetInfo: _vetInfoController.text,
   );
 
-// Save the pet to Firestore
-_petController.addPet(newPet, widget.userId, widget.role).then((_) {
-  Navigator.pop(context, newPet);
-}).catchError((error) {
-  print('Failed to add pet: $error');
-});
+  // Save the pet to Firestore
+  _petController.addPet(newPet, widget.userId, widget.role).then((_) {
+    Navigator.pop(context, newPet);
+  }).catchError((error) {
+    print('Failed to add pet: $error');
+  });
 
   // Clear form fields after successful submission
   setState(() {
@@ -158,9 +180,7 @@ _petController.addPet(newPet, widget.userId, widget.role).then((_) {
       duration: Duration(seconds: 2),
     ),
   );
-
 }
-
 
 
   @override

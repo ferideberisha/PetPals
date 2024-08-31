@@ -1,10 +1,10 @@
 import 'dart:io';
 import 'dart:math' as math;
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:petpals/components/circle_avatar.dart';
 import 'package:petpals/components/my_bottom_bar.dart';
 import 'package:petpals/pages/auth/auth.dart';
@@ -71,14 +71,13 @@ void _getUserDisplayName() async {
     String profilePictureUrl = userData['profilePicture'] ?? '';
 
     setState(() {
-  _userName = '$firstName $lastName';
-  _image = profilePictureUrl.isNotEmpty 
-            ? profilePictureUrl 
-            : 'assets/default_profile_picture.png'; // Set the default image path
-});
-
+      _userName = '$firstName $lastName';
+      _image = profilePictureUrl.isNotEmpty ? profilePictureUrl : 'assets/default_profile_picture.png';
+    });
   }
 }
+
+
 
   void _checkUserRole() async {
     User? user = FirebaseAuth.instance.currentUser;
@@ -94,48 +93,58 @@ void _getUserDisplayName() async {
     }
   }
 
-  Future<void> updateProfilePicture(String imagePath) async {
+
+Future<void> updateProfilePicture(String imageUrl) async {
+  try {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null) {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUser.uid)
+          .update({'profilePicture': imageUrl});
+      print('Profile picture updated successfully.');
+      print('Profile Picture URL: $_image');
+
+    }
+  } catch (e) {
+    print('Error updating profile picture: $e');
+    rethrow;
+  }
+}
+
+
+Future<void> _pickImage(ImageSource source) async {
+  final pickedImage = await ImagePicker().pickImage(source: source);
+
+  if (pickedImage != null) {
+    final File image = File(pickedImage.path);
+    final String fileName = '${DateTime.now().toIso8601String()}.jpg';
+    final Reference storageRef = FirebaseStorage.instance.ref().child('profile_pictures/$fileName');
+    
     try {
-      final currentUser = FirebaseAuth.instance.currentUser;
-      if (currentUser != null) {
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(currentUser.uid)
-            .update({'profilePicture': imagePath});
-        print('Profile picture updated successfully.');
-      }
+      // Upload the image to Firebase Storage
+      await storageRef.putFile(image);
+
+      // Get the download URL
+      final String downloadUrl = await storageRef.getDownloadURL();
+
+      // Save the download URL to Firestore
+      await updateProfilePicture(downloadUrl);
+
+      // Update _image variable to display the new image
+      setState(() {
+        _image = downloadUrl;
+      });
     } catch (e) {
-      print('Error updating profile picture: $e');
-      rethrow;
+      print('Error uploading image: $e');
     }
   }
+}
 
-  Future<void> _pickImage(ImageSource source) async {
-    final pickedImage = await ImagePicker().pickImage(source: source);
+Widget _buildProfileImage(String imageUrl) {
+  return Image.network(imageUrl); // Fetches image from the network
+}
 
-    if (pickedImage != null) {
-      final File image = File(pickedImage.path);
-      final Directory appDir = await getApplicationDocumentsDirectory();
-      final String fileName = '${DateTime.now().toIso8601String()}.jpg';
-      final File savedImage = await image.copy('${appDir.path}/$fileName');
-
-      try {
-        // Save the file path to Firestore
-        await updateProfilePicture(savedImage.path);
-
-        // Update _image variable to display the new image
-        setState(() {
-          _image = savedImage.path;
-        });
-      } catch (e) {
-        print('Error uploading image: $e');
-      }
-    }
-  }
-
-  Widget _buildProfileImage(String filePath) {
-    return Image.file(File(filePath));
-  }
 
   void signUserOut() {
     AuthService().signOut();
@@ -178,9 +187,11 @@ void _getUserDisplayName() async {
                     children: [
                       Stack(
                         children: [
-                          CircleAvatarWidget(
+                         CircleAvatarWidget(
   pickImage: _pickImage,
-  image: _image != null ? (_image!.startsWith('assets/') ? null : File(_image!)) : null, // Handle default image
+  image: _image != null
+      ? (_image!.startsWith('assets/') ? AssetImage(_image!) : NetworkImage(_image!) as ImageProvider)
+      : null,
   onTap: () {
     showDialog(
       context: context,
@@ -209,6 +220,7 @@ void _getUserDisplayName() async {
   },
   icon: Icons.person,
 ),
+
                           const Positioned(
                             bottom: 0,
                             right: 0,

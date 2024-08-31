@@ -1,11 +1,10 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 
 class PetCard extends StatelessWidget {
   final String name;
   final String gender;
   final String size;
-  final String? imagePath;
+  final String? imageUrl; // Change this to imageUrl
   final VoidCallback onDelete; // Callback for delete action
   final VoidCallback onEdit; // Callback for edit action
 
@@ -13,9 +12,9 @@ class PetCard extends StatelessWidget {
     required this.name,
     required this.gender,
     required this.size,
-    this.imagePath,
-    required this.onDelete, // Require the onDelete callback
-    required this.onEdit, // Require the onEdit callback
+    this.imageUrl, // Use imageUrl instead of imagePath
+    required this.onDelete,
+    required this.onEdit,
   });
 
   @override
@@ -36,9 +35,9 @@ class PetCard extends StatelessWidget {
                 child: SizedBox(
                   height: 70,
                   width: 70,
-                  child: imagePath != null && imagePath!.isNotEmpty
-                      ? Image.file(
-                          File(imagePath!),
+                  child: imageUrl != null && imageUrl!.isNotEmpty
+                      ? Image.network(
+                          imageUrl!,
                           fit: BoxFit.cover,
                         )
                       : const CircleAvatar(
