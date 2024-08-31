@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -22,7 +23,7 @@ class _BasicInfoPageState extends State<BasicInfoPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _birthdayController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
-  //final TextEditingController _phoneController = TextEditingController(); // Add phone number controller
+  final TextEditingController _phoneController = TextEditingController(); // Add phone number controller
 
 @override
 void initState() {
@@ -45,6 +46,7 @@ Future<void> _loadUserInfo() async {
         _emailController.text = user.email ?? '';
         _addressController.text = userDoc['address'] ?? '';
         _birthdayController.text = userDoc['birthday'] ?? ''; // Load birthday
+        _phoneController.text = userDoc['phoneNumber'] ?? '';
       });
     }
   }
@@ -68,7 +70,7 @@ Future<void> _updateUserInfo() async {
         'email': _emailController.text,
         'birthday': _birthdayController.text,
         'address': _addressController.text,
-        // 'phoneNumber': _phoneController.text, // Update phone number if needed
+        'phoneNumber': _phoneController.text, // Update phone number if needed
       };
 
       await FirebaseFirestore.instance
@@ -274,6 +276,37 @@ void _selectBirthday(BuildContext context) {
                 onTap: () => _selectBirthday(context),
                 readOnly: true,
               ),
+                const SizedBox(height: 10),
+                MyTextField(
+  controller: _phoneController,
+  hintText: 'Phone number',
+  obscureText: false,
+  fillColor: Colors.white,
+  keyboardType: TextInputType.number,
+  inputFormatters: [
+    FilteringTextInputFormatter.digitsOnly,
+    TextInputFormatter.withFunction((oldValue, newValue) {
+      String newText = newValue.text;
+
+      // Limit to exactly 11 digits
+      if (newText.length > 11) {
+        newText = newText.substring(0, 11);
+      }
+
+      return newValue.copyWith(text: newText);
+    }),
+  ],
+  validator: (value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter your phone number';
+    }
+    if (value.length != 11) {
+      return 'Phone number must be exactly 11 digits';
+    }
+    return null;
+  },
+),
+
               const SizedBox(height: 10),
               MyTextField(
                 controller: _addressController,
@@ -287,14 +320,6 @@ void _selectBirthday(BuildContext context) {
                   return null;
                 },
               ),
-              const SizedBox(height: 10),
-              // MyTextField(
-              //   controller: _phoneController,
-              //   hintText: 'Phone Number',
-              //   obscureText: false,
-              //   fillColor: Colors.white,
-              //   readOnly: true, // Make the phone number field read-only
-              // ),
               const SizedBox(height: 20),
               MyButton(
                 onTap: () {

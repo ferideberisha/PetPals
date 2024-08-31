@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // For TextInputFormatter
 
 class MyTextField extends StatefulWidget {
   final TextEditingController controller;
@@ -10,6 +11,8 @@ class MyTextField extends StatefulWidget {
   final bool readOnly;
   final Widget? suffixIcon;
   final Widget? prefixIcon; // Add prefixIcon property
+  final TextInputType? keyboardType; // Optional parameter for keyboard type
+  final List<TextInputFormatter>? inputFormatters; // Optional parameter for input formatters
 
   const MyTextField({
     super.key,
@@ -22,10 +25,11 @@ class MyTextField extends StatefulWidget {
     this.suffixIcon,
     this.readOnly = false,
     this.prefixIcon,
+    this.keyboardType, // Initialize keyboardType
+    this.inputFormatters, // Initialize inputFormatters
   });
 
   @override
-  // ignore: library_private_types_in_public_api
   _MyTextFieldState createState() => _MyTextFieldState();
 }
 
@@ -41,6 +45,8 @@ class _MyTextFieldState extends State<MyTextField> {
           obscureText: widget.obscureText,
           readOnly: widget.readOnly,
           onTap: widget.onTap,
+          keyboardType: widget.keyboardType, // Pass keyboardType
+          inputFormatters: widget.inputFormatters, // Pass inputFormatters
           decoration: InputDecoration(
             labelText: widget.hintText,
             labelStyle: TextStyle(color: Colors.grey[500]),
@@ -65,7 +71,7 @@ class _MyTextFieldState extends State<MyTextField> {
             filled: true,
             hintStyle: TextStyle(color: Colors.grey[300]),
             suffixIcon: widget.suffixIcon,
-            prefixIcon: widget.prefixIcon, // Use prefixIcon property
+            prefixIcon: widget.prefixIcon,
           ),
           validator: widget.validator,
         ),
