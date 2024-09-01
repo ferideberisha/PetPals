@@ -7,7 +7,7 @@ import 'package:petpals/controllers/booking_controller.dart';
 import 'package:petpals/controllers/user_controller.dart';
 import 'package:petpals/models/availabilityModel.dart';
 import 'package:petpals/models/bookingModel.dart';
-import 'package:petpals/pages/home/booking/timeslots_display_page.dart';
+import 'package:petpals/pages/home/profile/booking/timeslots_display_page.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:petpals/components/service.dart';
 import 'package:petpals/controllers/pet_controller.dart';

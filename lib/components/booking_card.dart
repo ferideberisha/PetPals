@@ -8,26 +8,28 @@ import 'package:petpals/controllers/booking_controller.dart'; // Import the Book
 class BookingCard extends StatelessWidget {
   final BookingModel booking;
   final BookingController bookingController;
-  final String bookingStatus; // New field to store booking status
+  final String bookingStatus; // Field to store booking status
 
   const BookingCard({
     super.key,
     required this.booking,
     required this.bookingController,
-    required this.bookingStatus, // Pass the booking status when creating the widget
+    required this.bookingStatus,
   });
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<String>(
-      future: _getUserRole(), // Fetch the role of the current user
+    return FutureBuilder<Map<String, String>>(
+      future: _getUserRoleAndNames(), // Fetch the role and names of the current user
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator()); // Show a loading spinner while fetching
         } else if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}')); // Show an error message if there's an issue
         } else if (snapshot.hasData) {
-          String role = snapshot.data!;
+          String role = snapshot.data!['role']!;
+          String walkerName = snapshot.data!['walkerName']!;
+          String ownerName = snapshot.data!['ownerName']!;
 
           return Card(
             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -36,6 +38,13 @@ class BookingCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Display the appropriate name based on the user's role
+                  if (role == 'owner')
+                    Text('Walker: $walkerName', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  if (role == 'walker')
+                    Text('Owner: $ownerName', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+
+                  const SizedBox(height: 8),
                   Text('Service: ${booking.service}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
                   Text('Pet Name: ${booking.petName ?? 'No name provided'}'),
@@ -46,7 +55,7 @@ class BookingCard extends StatelessWidget {
                   const SizedBox(height: 16),
 
                   // Show buttons only if the role is walker and the booking is in the incoming requests
-                  if (role == 'walker'  && bookingStatus == 'Incoming' ) 
+                  if (role == 'walker' && bookingStatus == 'Incoming')
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
@@ -97,16 +106,28 @@ class BookingCard extends StatelessWidget {
       },
     );
   }
-Future<String> _getUserRole() async {
-  try {
-    String userId = UserController().getCurrentUserId();
-    UserModel? user = await UserController().getUser(userId);
-    print('User role: ${user?.role}'); // Debug print
-    return user?.role ?? '';
-  } catch (e) {
-    print('Error fetching user role: $e');
-    return '';
-  }
-}
 
+  Future<Map<String, String>> _getUserRoleAndNames() async {
+    try {
+      String userId = UserController().getCurrentUserId();
+      UserModel? user = await UserController().getUser(userId);
+
+      // Fetch the names of the walker and owner
+      UserModel? walker = await UserController().getUser(booking.walkerId);
+      UserModel? owner = await UserController().getUser(booking.ownerId);
+
+      return {
+        'role': user?.role ?? '',
+        'walkerName': '${walker?.firstName ?? 'Unknown'} ${walker?.lastName ?? 'Unknown'}',
+        'ownerName': '${owner?.firstName ?? 'Unknown'} ${owner?.lastName ?? 'Unknown'}',
+      };
+    } catch (e) {
+      print('Error fetching user role and names: $e');
+      return {
+        'role': '',
+        'walkerName': 'Unknown',
+        'ownerName': 'Unknown',
+      };
+    }
+  }
 }

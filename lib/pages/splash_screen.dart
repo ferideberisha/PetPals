@@ -19,14 +19,14 @@ class SplashScreen extends StatelessWidget {
             Text(
               'PetPals',
               style: GoogleFonts.pacifico( // Use a Google Font
-                fontSize: 50,
+                fontSize: 70,
                 fontWeight: FontWeight.bold,
                 color: Colors.white, // Title color
               ),
             ),
             SizedBox(height: 20),
             // App Icon
-            Icon(
+            const Icon(
               Icons.pets, // Dog icon or paw print icon
               size: 80,
               color: Colors.white, // Icon color
@@ -36,7 +36,7 @@ class SplashScreen extends StatelessWidget {
             Text(
               'Your Best Friend’s New Best Friend',
               style: GoogleFonts.openSans( // Use another Google Font
-                fontSize: 16,
+                fontSize: 18,
                 color: Colors.white70, // Tagline color
               ),
             ),

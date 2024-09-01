@@ -49,7 +49,7 @@ class _MyBusinessPageState extends State<MyBusinessPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Profile',
+          'My Business',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
       ),

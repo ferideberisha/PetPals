@@ -7,7 +7,7 @@ import 'package:petpals/controllers/aboutme_controller.dart';
 import 'package:petpals/controllers/price_controller.dart';
 import 'package:petpals/models/priceModel.dart';
 import 'package:petpals/models/userModel.dart';
-import 'package:petpals/pages/home/booking/booking_details_page.dart';
+import 'package:petpals/pages/home/profile/booking/booking_details_page.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class WalkerDetailPage extends StatefulWidget {
