@@ -348,7 +348,6 @@ Widget build(BuildContext context) {
                 ),
               ),
             ],
-            
             // Pets Section (only for owners)
             if (!isWalker)
               TextButton(
@@ -384,40 +383,44 @@ Widget build(BuildContext context) {
                 ),
               ),
             const SizedBox(height: 20),
-
             // Payments Section (only for owners)
             if (!isWalker)
-              TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => MyPaymentsPage(
-                        userId: userId!,
-                        role: role!,
-                      ),
+              Column(
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MyPaymentsPage(
+                            userId: userId!,
+                            role: role!,
+                          ),
+                        ),
+                      );
+                    },
+                    child: const Row(
+                      children: [
+                        SizedBox(width: 10),
+                        Icon(Icons.payment_rounded, color: Colors.black),
+                        SizedBox(width: 15),
+                        Text(
+                          'Sending payments',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.normal,
+                            fontSize: 16,
+                          ),
+                        ),
+                        SizedBox(width: 8),
+                        Expanded(child: SizedBox()),
+                        Icon(Icons.arrow_forward_ios, color: Colors.black),
+                        SizedBox(width: 10),
+                      ],
                     ),
-                  );
-                },
-                child: const Row(
-                  children: [
-                    SizedBox(width: 10),
-                    Icon(Icons.payment_rounded, color: Colors.black),
-                    SizedBox(width: 15),
-                    Text(
-                      'Sending payments',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.normal,
-                        fontSize: 16,
-                      ),
-                    ),
-                    SizedBox(width: 8),
-                    Expanded(child: SizedBox()),
-                    Icon(Icons.arrow_forward_ios, color: Colors.black),
-                    SizedBox(width: 10),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 20), // Adds space after the payments section
+                ],
               ),
             TextButton(
               onPressed: () {
