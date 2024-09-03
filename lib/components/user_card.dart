@@ -107,81 +107,84 @@ class UserCard extends StatelessWidget {
               ),
               const SizedBox(width: 20),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 10.0),
-                      child: Text(
-                        '${user.firstName} ${user.lastName}',
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    if (user.role == 'walker') ...[
-                      FutureBuilder<List<String>>(
-                        future: _fetchPriceIds(), // Fetch price IDs
-                        builder: (context, priceIDsnapshot) {
-                          if (priceIDsnapshot.connectionState == ConnectionState.waiting) {
-                            return const Text('Loading price...');
-                          }
+    child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top:
+ 15),
+            child: Text(
+              '${user.firstName} ${user.lastName}',
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          const SizedBox(height: 5),
+          Text(
+            user.address, // Displaying the address under the name
+            style: const TextStyle(
+              fontSize: 16,
+              color: Color.fromRGBO(97, 97, 97, 1),
+            ),
+          ),
+        ],
+    ),
+  ),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (user.role == 'walker') 
+                    FutureBuilder<List<String>>(
+                      future: _fetchPriceIds(), // Fetch price IDs
+                      builder: (context, priceIDsnapshot) {
+                        if (priceIDsnapshot.connectionState == ConnectionState.waiting) {
+                          return const Text('Loading price...');
+                        }
 
-                          if (priceIDsnapshot.hasError || priceIDsnapshot.data == null) {
-                            return const Text('Error fetching priceIDs');
-                          }
+                        if (priceIDsnapshot.hasError || priceIDsnapshot.data == null) {
+                          return const Text('Error fetching price');
+                        }
 
-                          final priceIds = priceIDsnapshot.data!;
-                          if (priceIds.isEmpty) {
-                            return const Text('No price IDs found');
-                          }
+                        final priceIds = priceIDsnapshot.data!;
+                        if (priceIds.isEmpty) {
+                          return const Text('No price IDs found');
+                        }
 
-                          return FutureBuilder<Prices?>(
-                            future: _fetchPrices(priceIds.first), // Fetch Prices document
-                            builder: (context, pricesSnapshot) {
-                              final prices = pricesSnapshot.data;
-                              final isLoading = pricesSnapshot.connectionState == ConnectionState.waiting;
-                              final error = pricesSnapshot.hasError;
+                        return FutureBuilder<Prices?>(
+                          future: _fetchPrices(priceIds.first), // Fetch Prices document
+                          builder: (context, pricesSnapshot) {
+                            final prices = pricesSnapshot.data;
+                            final isLoading = pricesSnapshot.connectionState == ConnectionState.waiting;
+                            final error = pricesSnapshot.hasError;
 
-                              if (isLoading) {
-                                return const Text('Loading price...');
-                              } else if (error) {
-                                return const Text('Error fetching price');
-                              } else if (prices != null) {
-                                return RichText(
+                            if (isLoading) {
+                              return const Text('Loading price...');
+                            } else if (error) {
+                              return const Text('Error fetching price');
+                            } else if (prices != null && prices.walkingPrice != null) {
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 0), // Adjust padding to space out the icon and text
+                                child: RichText(
                                   text: TextSpan(
-                                    text: 'FROM: ',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Color(0xFF967BB6),
-                                    ),
-                                    children: <TextSpan>[
-                                      TextSpan(
-                                        text: '${prices.walkingPrice?.toStringAsFixed(0) ?? 'N/A'} EURO',
+                                        text: '${prices.walkingPrice!.toStringAsFixed(0)} EURO',
                                         style: const TextStyle(
+                                          fontSize: 14,
                                           fontWeight: FontWeight.bold,
                                           color: Color(0xFF967BB6),
                                         ),
                                       ),
-                                    ],
-                                  ),
-                                );
-                              } else {
-                                return const Text('No price available');
-                              }
-                            },
-                          );
-                        },
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
+                                ),
+                              );
+                            } else {
+                              return const SizedBox.shrink(); // Show nothing if no price
+                            }
+                          },
+                        );
+                      },
+                    ),
                   IconButton(
                     icon: Icon(
                       isFavorited ? Icons.favorite : Icons.favorite_border,

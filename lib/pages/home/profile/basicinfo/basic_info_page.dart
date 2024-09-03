@@ -9,6 +9,18 @@ import 'package:petpals/components/my_textfield.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:petpals/pages/auth/auth.dart';
 
+const List<String> citiesOfKosovo = [
+  'Prishtinë',
+  'Prizren',
+  'Pejë',
+  'Gjakovë',
+  'Mitrovicë',
+  'Ferizaj',
+  'Gjilan',
+  'Vushtrri',
+  'Podujevë',
+];
+
 class BasicInfoPage extends StatefulWidget {
   const BasicInfoPage({super.key});
 
@@ -22,8 +34,8 @@ class _BasicInfoPageState extends State<BasicInfoPage> {
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _birthdayController = TextEditingController();
-  final TextEditingController _addressController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController(); // Add phone number controller
+  String? _selectedCity; // To store the selected city
 
 @override
 void initState() {
@@ -44,7 +56,7 @@ Future<void> _loadUserInfo() async {
         _firstNameController.text = userDoc['firstName'] ?? '';
         _lastNameController.text = userDoc['lastName'] ?? '';
         _emailController.text = user.email ?? '';
-        _addressController.text = userDoc['address'] ?? '';
+         _selectedCity = userDoc['address'] ?? ''; // Load selected city
         _birthdayController.text = userDoc['birthday'] ?? ''; // Load birthday
         _phoneController.text = userDoc['phoneNumber'] ?? '';
       });
@@ -69,7 +81,7 @@ Future<void> _updateUserInfo() async {
         'lastName': _lastNameController.text,
         'email': _emailController.text,
         'birthday': _birthdayController.text,
-        'address': _addressController.text,
+         'address': _selectedCity, // Save the selected city
         'phoneNumber': _phoneController.text, // Update phone number if needed
       };
 
@@ -308,14 +320,30 @@ void _selectBirthday(BuildContext context) {
 ),
 
               const SizedBox(height: 10),
-              MyTextField(
-                controller: _addressController,
-                hintText: 'Address',
-                obscureText: false,
-                fillColor: Colors.white,
+        DropdownButtonFormField<String>(
+                value: _selectedCity,
+                items: citiesOfKosovo.map((String city) {
+                  return DropdownMenuItem<String>(
+                    value: city,
+                    child: Text(city),
+                  );
+                }).toList(),
+                onChanged: (newValue) {
+                  setState(() {
+                    _selectedCity = newValue;
+                  });
+                },
+                decoration: InputDecoration(
+                  fillColor: Colors.white,
+                  filled: true,
+                  hintText: 'Select City',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your address';
+                    return 'Please select your city';
                   }
                   return null;
                 },

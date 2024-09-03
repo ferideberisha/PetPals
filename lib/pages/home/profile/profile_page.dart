@@ -58,25 +58,24 @@ String? _image; // Change from dynamic to String?
     }
   }
 
-void _getUserDisplayName() async {
-  User? user = FirebaseAuth.instance.currentUser;
-  if (user != null) {
-    DocumentSnapshot userDoc = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .get();
-    Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
-    String firstName = userData['firstName'] ?? '';
-    String lastName = userData['lastName'] ?? '';
-    String profilePictureUrl = userData['profilePicture'] ?? '';
+  void _getUserDisplayName() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+      Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
+      String firstName = userData['firstName'] ?? '';
+      String lastName = userData['lastName'] ?? '';
+      String profilePictureUrl = userData['profilePicture'] ?? '';
 
-    setState(() {
-      _userName = '$firstName $lastName';
-      _image = profilePictureUrl.isNotEmpty ? profilePictureUrl : 'assets/default_profile_picture.png';
-    });
+      setState(() {
+        _userName = '$firstName $lastName';
+        _image = profilePictureUrl.isNotEmpty ? profilePictureUrl : 'assets/default_profile_picture.png';
+      });
+    }
   }
-}
-
 
 
   void _checkUserRole() async {
@@ -95,51 +94,46 @@ void _getUserDisplayName() async {
 
 
 Future<void> updateProfilePicture(String imageUrl) async {
-  try {
-    final currentUser = FirebaseAuth.instance.currentUser;
-    if (currentUser != null) {
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(currentUser.uid)
-          .update({'profilePicture': imageUrl});
-      print('Profile picture updated successfully.');
-      print('Profile Picture URL: $_image');
-
-    }
-  } catch (e) {
-    print('Error updating profile picture: $e');
-    rethrow;
-  }
-}
-
-
-Future<void> _pickImage(ImageSource source) async {
-  final pickedImage = await ImagePicker().pickImage(source: source);
-
-  if (pickedImage != null) {
-    final File image = File(pickedImage.path);
-    final String fileName = '${DateTime.now().toIso8601String()}.jpg';
-    final Reference storageRef = FirebaseStorage.instance.ref().child('profile_pictures/$fileName');
-    
     try {
-      // Upload the image to Firebase Storage
-      await storageRef.putFile(image);
-
-      // Get the download URL
-      final String downloadUrl = await storageRef.getDownloadURL();
-
-      // Save the download URL to Firestore
-      await updateProfilePicture(downloadUrl);
-
-      // Update _image variable to display the new image
-      setState(() {
-        _image = downloadUrl;
-      });
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser != null) {
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(currentUser.uid)
+            .update({'profilePicture': imageUrl});
+        print('Profile picture updated successfully.');
+        setState(() {
+          _image = imageUrl; // Update the image URL
+        });
+      }
     } catch (e) {
-      print('Error uploading image: $e');
+      print('Error updating profile picture: $e');
+      rethrow;
     }
   }
-}
+
+ Future<void> _pickImage(ImageSource source) async {
+    final pickedImage = await ImagePicker().pickImage(source: source);
+
+    if (pickedImage != null) {
+      final File image = File(pickedImage.path);
+      final String fileName = '${DateTime.now().toIso8601String()}.jpg';
+      final Reference storageRef = FirebaseStorage.instance.ref().child('profile_pictures/$fileName');
+
+      try {
+        // Upload the image to Firebase Storage
+        await storageRef.putFile(image);
+
+        // Get the download URL
+        final String downloadUrl = await storageRef.getDownloadURL();
+
+        // Save the download URL to Firestore
+        await updateProfilePicture(downloadUrl);
+      } catch (e) {
+        print('Error uploading image: $e');
+      }
+    }
+  }
 
 Widget _buildProfileImage(String imageUrl) {
   return Image.network(imageUrl); // Fetches image from the network

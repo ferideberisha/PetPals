@@ -21,6 +21,7 @@ class UserModel {
     required this.address
   });
 
+
   // Factory constructor to create a UserModel from a Firestore document
   factory UserModel.fromDocument(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;

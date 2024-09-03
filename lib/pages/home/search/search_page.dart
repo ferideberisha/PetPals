@@ -22,6 +22,7 @@ class _SearchPageState extends State<SearchPage> {
   List<UserModel> _users = [];
   List<UserModel> _filteredUsers = [];
   bool _isLoading = true; // Start with loading state true
+  String? _currentUserAddress; // Declare a variable to store the current user's address
 
   @override
   void initState() {
@@ -65,22 +66,27 @@ class _SearchPageState extends State<SearchPage> {
     final currentUserRole = currentUserSnapshot['role'];
     String oppositeRole = currentUserRole == 'walker' ? 'owner' : 'walker';
 
+   // Get the current user's address
+final currentUserAddress = currentUserSnapshot['address'];
+_currentUserAddress = currentUserAddress; // Store the address in the variable
+
     final snapshot = await FirebaseFirestore.instance
         .collection('users')
         .where('role', isEqualTo: oppositeRole)
+        .where('address', isEqualTo: currentUserAddress) // Filter by address
         .get();
 
     return snapshot.docs.map((doc) => UserModel.fromDocument(doc)).toList();
   }
-
-  void _onSearchChanged(String query) {
-    setState(() {
-      _filteredUsers = _users.where((user) {
-        final name = '${user.firstName} ${user.lastName}'.toLowerCase();
-        return name.contains(query.toLowerCase());
-      }).toList();
-    });
-  }
+void _onSearchChanged(String query) {
+  setState(() {
+    _filteredUsers = _users.where((user) {
+      final name = '${user.firstName} ${user.lastName}'.toLowerCase();
+      return name.contains(query.toLowerCase()) &&
+          user.address == _currentUserAddress; // Use == for exact address comparison
+    }).toList();
+  });
+}
 
   Future<void> _addToFavorites(UserModel user) async {
     try {
@@ -108,6 +114,7 @@ class _SearchPageState extends State<SearchPage> {
         'firstName': user.firstName,
         'lastName': user.lastName,
         'role': user.role,
+        'address': user.address,
         'profilePicture': user.profilePicture,
       });
 

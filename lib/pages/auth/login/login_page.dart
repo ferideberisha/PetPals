@@ -168,34 +168,40 @@ Future<void> handleGoogleSignIn() async {
                         ),
                         const SizedBox(height: 10),
                         MyTextField(
-                          controller: passwordController,
-                          hintText: 'Password',
-                          obscureText: !isPasswordVisible,
-                          fillColor: Colors.white,
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              isPasswordVisible ? Icons.visibility : Icons.visibility_off,
-                              color: Colors.grey,
+                            controller: passwordController,
+                            hintText: 'Password',
+                            obscureText: !isPasswordVisible,
+                            fillColor: Colors.white,
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                                color: Colors.grey,
+                              ),
+                              onPressed: togglePasswordVisibility,
                             ),
-                            onPressed: togglePasswordVisibility,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your password';
+                              }
+                              if (value.length < 8) {
+                                return 'Password must be at least 8 characters long';
+                              }
+                              if (!RegExp(r'[a-z]').hasMatch(value)) {
+                                return 'Password must contain at least one lowercase letter';
+                              }
+                              if (!RegExp(r'[A-Z]').hasMatch(value)) {
+                                return 'Password must contain at least one uppercase letter';
+                              }
+                              if (!RegExp(r'[0-9]').hasMatch(value)) {
+                                return 'Password must contain at least one digit';
+                              }
+                              if (!RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(value)) {
+                                return 'Password must contain at least one symbol';
+                              }
+                              return null;
+                            },
                           ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your password';
-                            }
-                            if (value.length < 8 || value.length > 32) {
-                              return 'Password must be between 8 and 32 characters long';
-                            }
-                            if (!value.contains(RegExp(r'[A-Z]'))) {
-                              return 'Password must contain at least one uppercase letter';
-                            }
-                            int digitCount = value.replaceAll(RegExp(r'[^0-9]'), '').length;
-                            if (digitCount < 2) {
-                              return 'Password must contain at least two digits';
-                            }
-                            return null;
-                          },
-                        ),
+
                         const SizedBox(height: 10),
                         Align(
                           alignment: Alignment.centerRight,

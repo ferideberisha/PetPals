@@ -9,7 +9,7 @@ class SignUpTypePage extends StatelessWidget {
 
   const SignUpTypePage({super.key, required this.onTap});
 
- @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
@@ -63,11 +63,10 @@ class SignUpTypePage extends StatelessWidget {
                             );
                           },
                           style: ElevatedButton.styleFrom(
-                            foregroundColor: Colors.black,
-                            backgroundColor: Colors.white,
+                            foregroundColor: Colors.black, backgroundColor: Color(0x0D967BB6), // Text color
                             elevation: 0,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(12), // Border radius
                             ),
                           ),
                           child: Row(
@@ -123,11 +122,10 @@ class SignUpTypePage extends StatelessWidget {
                             );
                           },
                           style: ElevatedButton.styleFrom(
-                            foregroundColor: Colors.black,
-                            backgroundColor: Colors.white,
+                            foregroundColor: Colors.black, backgroundColor: Color(0x0D967BB6), // Text color
                             elevation: 0,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(12), // Border radius
                             ),
                           ),
                           child: Row(

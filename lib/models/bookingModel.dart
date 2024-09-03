@@ -1,7 +1,7 @@
 import 'package:intl/intl.dart';
 
 class BookingModel {
-  final String bookingId; // Add this field
+  final String bookingId; 
   final String ownerId;
   final String walkerId;
   final String service;

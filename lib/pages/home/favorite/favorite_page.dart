@@ -55,19 +55,23 @@ class _FavoritePageState extends State<FavoritePage>
 
     for (var doc in snapshot.docs) {
       final data = doc.data();
-      final userDoc = await FirebaseFirestore.instance.collection('users').doc(data['uid']).get();
+  final userDoc = await FirebaseFirestore.instance.collection('users').doc(data['uid']).get();
+if (userDoc.exists) {
+  print('Fetched address: ${userDoc['address']}');
+}
 
       if (userDoc.exists) {
         validFavorites.add(UserModel(
-          uid: data['uid'],
-          firstName: data['firstName'],
-          lastName: data['lastName'],
-          profilePicture: data['profilePicture'],
-          email: data['email'] ?? '',
-          role: data['role'] ?? '',
-          phoneNumber: data['phoneNumber'] ?? '',
-          address: data['address'] ?? '',
-        ));
+  uid: data['uid'],
+  firstName: data['firstName'],
+  lastName: data['lastName'],
+  profilePicture: data['profilePicture'],
+  email: data['email'] ?? '',
+  role: data['role'] ?? '',
+  phoneNumber: data['phoneNumber'] ?? '',
+  address: data['address'] ?? '', // Address field is included here
+));
+
       } else {
         // Remove from favorites if the user does not exist
         await FirebaseFirestore.instance
@@ -186,15 +190,13 @@ class _FavoritePageState extends State<FavoritePage>
             itemCount: favorites.length,
             itemBuilder: (context, index) {
               final user = favorites[index];
-              print('Rendering user: ${user.firstName} ${user.lastName}');
-              
               return UserCard(
                   elevation: 0, // Remove shadow
-  margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16), // Adjust margin as needed
-  color: const Color(0x0D967BB6), // Set background color
-  shape: RoundedRectangleBorder(
-    borderRadius: BorderRadius.circular(12), // Set border radius
-  ),
+                  margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16), // Adjust margin as needed
+                  color: const Color(0x0D967BB6), // Set background color
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12), // Set border radius
+                  ),
                 user: user,
                 isFavorited: true,
                 onFavoriteTap: () {
