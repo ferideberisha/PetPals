@@ -35,7 +35,8 @@ class _BasicInfoPageState extends State<BasicInfoPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _birthdayController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController(); // Add phone number controller
-  String? _selectedCity; // To store the selected city
+String? _selectedCity;
+
 
 @override
 void initState() {
@@ -43,22 +44,23 @@ void initState() {
   _loadUserInfo();
 }
 
-Future<void> _loadUserInfo() async {
+void _loadUserInfo() async {
   User? user = FirebaseAuth.instance.currentUser;
   if (user != null) {
-    DocumentSnapshot userDoc = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .get();
+    DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
 
     if (userDoc.exists) {
       setState(() {
         _firstNameController.text = userDoc['firstName'] ?? '';
         _lastNameController.text = userDoc['lastName'] ?? '';
         _emailController.text = user.email ?? '';
-         _selectedCity = userDoc['address'] ?? ''; // Load selected city
-        _birthdayController.text = userDoc['birthday'] ?? ''; // Load birthday
+        _birthdayController.text = userDoc['birthday'] ?? ''; 
         _phoneController.text = userDoc['phoneNumber'] ?? '';
+
+        // Safely load selected city
+        if (userDoc['address'] != null && userDoc['address'] is String && citiesOfKosovo.contains(userDoc['address'])) {
+          _selectedCity = userDoc['address'];
+        }
       });
     }
   }
@@ -321,33 +323,34 @@ void _selectBirthday(BuildContext context) {
 
               const SizedBox(height: 10),
         DropdownButtonFormField<String>(
-                value: _selectedCity,
-                items: citiesOfKosovo.map((String city) {
-                  return DropdownMenuItem<String>(
-                    value: city,
-                    child: Text(city),
-                  );
-                }).toList(),
-                onChanged: (newValue) {
-                  setState(() {
-                    _selectedCity = newValue;
-                  });
-                },
-                decoration: InputDecoration(
-                  fillColor: Colors.white,
-                  filled: true,
-                  hintText: 'Select City',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please select your city';
-                  }
-                  return null;
-                },
-              ),
+  value: _selectedCity,
+  items: citiesOfKosovo.map((String city) {
+    return DropdownMenuItem<String>(
+      value: city,
+      child: Text(city),
+    );
+  }).toList(),
+  onChanged: (newValue) {
+    setState(() {
+      _selectedCity = newValue;
+    });
+  },
+  decoration: InputDecoration(
+    fillColor: Colors.white,
+    filled: true,
+    hintText: 'Select City',
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8.0),
+    ),
+  ),
+  validator: (value) {
+    if (value == null || value.isEmpty) {
+      return 'Please select your city';
+    }
+    return null;
+  },
+),
+
               const SizedBox(height: 20),
               MyButton(
                 onTap: () {

@@ -53,40 +53,54 @@ class _SearchPageState extends State<SearchPage> {
     super.dispose();
   }
 
-  Future<List<UserModel>> fetchUsers() async {
-    final currentUserSnapshot = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .get();
+Future<List<UserModel>> fetchUsers() async {
+  final currentUserSnapshot = await FirebaseFirestore.instance
+      .collection('users')
+      .doc(user.uid)
+      .get();
 
-    if (!currentUserSnapshot.exists) {
-      return [];
-    }
-
-    final currentUserRole = currentUserSnapshot['role'];
-    String oppositeRole = currentUserRole == 'walker' ? 'owner' : 'walker';
-
-   // Get the current user's address
-final currentUserAddress = currentUserSnapshot['address'];
-_currentUserAddress = currentUserAddress; // Store the address in the variable
-
-    final snapshot = await FirebaseFirestore.instance
-        .collection('users')
-        .where('role', isEqualTo: oppositeRole)
-        .where('address', isEqualTo: currentUserAddress) // Filter by address
-        .get();
-
-    return snapshot.docs.map((doc) => UserModel.fromDocument(doc)).toList();
+  if (!currentUserSnapshot.exists) {
+    return [];
   }
+
+  final currentUserRole = currentUserSnapshot['role'];
+  String oppositeRole = currentUserRole == 'walker' ? 'owner' : 'walker';
+
+  // Get the current user's address
+  final currentUserAddress = currentUserSnapshot['address'];
+  _currentUserAddress = currentUserAddress; // Store the address in the variable
+
+  // If the current user's address is not set, fetch all users with the opposite role
+  Query query = FirebaseFirestore.instance
+      .collection('users')
+      .where('role', isEqualTo: oppositeRole);
+
+  if (currentUserAddress != null && currentUserAddress.isNotEmpty) {
+    query = query.where('address', isEqualTo: currentUserAddress);
+  }
+
+  final snapshot = await query.get();
+
+  return snapshot.docs.map((doc) => UserModel.fromDocument(doc)).toList();
+}
+
+
 void _onSearchChanged(String query) {
   setState(() {
     _filteredUsers = _users.where((user) {
       final name = '${user.firstName} ${user.lastName}'.toLowerCase();
-      return name.contains(query.toLowerCase()) &&
-          user.address == _currentUserAddress; // Use == for exact address comparison
+      final matchesQuery = name.contains(query.toLowerCase());
+      
+      // If the current user's address is not set, do not filter by address
+      final matchesAddress = _currentUserAddress == null || _currentUserAddress!.isEmpty
+          ? true
+          : user.address == _currentUserAddress;
+
+      return matchesQuery && matchesAddress;
     }).toList();
   });
 }
+
 
   Future<void> _addToFavorites(UserModel user) async {
     try {
@@ -225,24 +239,25 @@ void _onSearchChanged(String query) {
     );
   }
 
-  Future<void> _refreshUsers() async {
+Future<void> _refreshUsers() async {
+  setState(() {
+    _isLoading = true; // Set loading state to true
+  });
+  try {
+    final users = await fetchUsers();
     setState(() {
-      _isLoading = true; // Set loading state to true
+      _users = users;
+      _filteredUsers = users;
+      _isLoading = false; // Set loading state to false after refreshing
     });
-    try {
-      final users = await fetchUsers();
-      setState(() {
-        _users = users;
-        _filteredUsers = users;
-        _isLoading = false; // Set loading state to false after refreshing
-      });
-    } catch (error) {
-      print('Error refreshing users: $error');
-      setState(() {
-        _isLoading = false; // Ensure loading state is false in case of error
-      });
-    }
+  } catch (error) {
+    print('Error refreshing users: $error');
+    setState(() {
+      _isLoading = false; // Ensure loading state is false in case of error
+    });
   }
+}
+
 
   Future<void> _setUserRole(String role) async {
     await FirebaseFirestore.instance.collection('users').doc(user.uid).set(
