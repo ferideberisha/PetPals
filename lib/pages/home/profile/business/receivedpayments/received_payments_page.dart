@@ -30,8 +30,8 @@ class _ReceivedPaymentPageState extends State<ReceivedPaymentPage> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const Text(
-                    'PetPals uses Stripe, one of the most popular payment platforms to transfer your earnings to your bank account. '
-                    'You need to create a Stripe account to receive and send payments. To continue, use the button below.',
+                    'PetPals uses Paypal, one of the most popular payment platforms to transfer your earnings to your bank account. '
+                    'You need to create a Paypal account to receive and send payments. To continue, use the button below.',
                     style: TextStyle(fontSize: 16.0),
                   ),
                   const SizedBox(height: 20.0),
@@ -40,7 +40,7 @@ class _ReceivedPaymentPageState extends State<ReceivedPaymentPage> {
                       onTap: () {
                         // Handle button press
                       },
-                      text: 'Connect Stripe',
+                      text: 'Connect PayPal',
                       color: const Color(0xFF967BB6),
                       textColor: Colors.white,
                       borderColor: const Color(0xFF967BB6),
