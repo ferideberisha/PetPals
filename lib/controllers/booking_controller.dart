@@ -6,24 +6,63 @@ class BookingController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<void> createBooking({
-    required String ownerId,
-    required String walkerId,
-    required BookingModel booking, 
-    required String role,
-  }) async {
-    try {
-      String formattedDate = DateFormat('yyyy-MM-dd').format(booking.date);
+  required String ownerId,
+  required String walkerId,
+  required BookingModel booking, 
+  required String role,
+}) async {
+  try {
+    String formattedDate = DateFormat('yyyy-MM-dd').format(booking.date);
 
-      await Future.wait([
-        _saveBookingForWalker(walkerId, booking, formattedDate),
-        _saveBookingForOwner(ownerId, booking, formattedDate),
-      ]);
-
-      await _updateWalkerAvailability(walkerId, booking);
-    } catch (e) {
-      print('Error creating booking: $e');
+    // Check if the requested time slots are available for the walker
+    bool isAvailable = await _checkAvailability(walkerId, booking, formattedDate);
+    
+    if (!isAvailable) {
+      print('The requested time slots are already booked.');
+      return;
     }
+
+    // Proceed with booking
+    await Future.wait([
+      _saveBookingForWalker(walkerId, booking, formattedDate),
+      _saveBookingForOwner(ownerId, booking, formattedDate),
+    ]);
+
+    // Update walker availability after booking is successful
+    await _updateWalkerAvailability(walkerId, booking);
+  } catch (e) {
+    print('Error creating booking: $e');
   }
+}
+
+Future<bool> _checkAvailability(String walkerId, BookingModel booking, String formattedDate) async {
+  try {
+    DocumentReference docRef = _firestore.collection('users')
+        .doc(walkerId)
+        .collection('walkerInfo')
+        .doc(walkerId)
+        .collection('availability')
+        .doc(formattedDate);
+
+    DocumentSnapshot docSnapshot = await docRef.get();
+
+    if (docSnapshot.exists) {
+ List<String> busySlots = List<String>.from((docSnapshot.data() as Map<String, dynamic>)['busySlots'] ?? []);
+
+      // Check if any of the requested time slots are already busy
+      for (var slot in booking.timeSlots) {
+        if (busySlots.contains(slot)) {
+          return false; // Time slot is already booked
+        }
+      }
+    }
+    return true; // All requested time slots are available
+  } catch (e) {
+    print('Error checking availability: $e');
+    return false; // Assume not available if there's an error
+  }
+}
+
 
  Future<void> _saveBookingForWalker(String walkerId, BookingModel booking, String formattedDate) async {
   try {
