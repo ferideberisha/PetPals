@@ -38,7 +38,8 @@ Profile Setup: Complete your profile, including personal details, and for dog ow
 ![image](https://github.com/user-attachments/assets/e29ecda7-50c1-40b2-a011-c9cad7e48df2)
 
 ![image](https://github.com/user-attachments/assets/af8af862-b792-4d50-94e7-29562ca61b1c)
-![image](https://github.com/user-attachments/assets/a0b933c5-53d8-4c2c-9a69-1e6e6c3b883d)
+![image](https://github.com/user-attachments/assets/df10a584-7783-4b46-af6b-7e2bb19c2f1f)
+
 
 
 
