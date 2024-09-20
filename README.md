@@ -3,12 +3,12 @@
 PetPals is a mobile application developed using Flutter that connects dog owners with professional dog walkers. It aims to enhance the quality of life for dogs and their owners by facilitating organized dog-walking services. PetPals is designed to serve users across all cities in Kosovo, offering a simple and user-friendly platform for secure and efficient booking of dog-walking services.
 
 ## Features
-User Roles: Two primary user roles: Dog Owners and Dog Walkers.
-Service Booking: Easy and secure service booking for dog-walking services.
-User Profiles: Users can create and manage profiles based on their role.
-Dog Management: Owners can register and manage profiles for their dogs, including important details like breed, age, and health information.
-Walk Management: Dog walkers can manage their business, set availability, and pricing.
-Advanced Features: Planned future features include location tracking, advanced search filters, and integrated chat functionality.
+- User Roles: Two primary user roles: Dog Owners and Dog Walkers.
+- Service Booking: Easy and secure service booking for dog-walking services.
+- User Profiles: Users can create and manage profiles based on their role.
+- Dog Management: Owners can register and manage profiles for their dogs, including important details like breed, age, and health information.
+- Walk Management: Dog walkers can manage their business, set availability, and pricing.
+- Advanced Features: Planned future features include location tracking, advanced search filters, and integrated chat functionality.
 
 ## Technologies Used
 Frontend: Built using Flutter, providing a cross-platform solution for Android and iOS.
