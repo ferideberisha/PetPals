@@ -11,9 +11,9 @@ PetPals is a mobile application developed using Flutter that connects dog owners
 - Advanced Features: Planned future features include location tracking, advanced search filters, and integrated chat functionality.
 
 ## Technologies Used
-Frontend: Built using Flutter, providing a cross-platform solution for Android and iOS.
-Backend: Managed through Firebase for user authentication, real-time database storage, and cloud functions.
-Database: Firestore (NoSQL) for managing user data and interactions.
+- Frontend: Built using Flutter, providing a cross-platform solution for Android and iOS.
+- Backend: Managed through Firebase for user authentication, real-time database storage, and cloud functions.
+- Database: Firestore (NoSQL) for managing user data and interactions.
 
 ## Installation
 1. Clone the repository:
