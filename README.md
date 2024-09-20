@@ -25,8 +25,7 @@ git clone https://github.com/ferideberisha/petpals.git
 
 ## How to Use
 Sign up: New users can register as either a Dog Owner or a Dog Walker.
-![image](https://github.com/user-attachments/assets/a98f20ca-a75e-402b-b27c-3952eb49c8f4)
-
+![image](https://github.com/user-attachments/assets/a98f20ca-a75e-402b-b27c-3952eb49c8f4) 
 ![image](https://github.com/user-attachments/assets/45172cab-121c-406b-9a8c-8450354ebc9a)
 
 Profile Setup: Complete your profile, including personal details, and for dog owners, add details about your dog(s).
