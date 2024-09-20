@@ -38,6 +38,7 @@ Profile Setup: Complete your profile, including personal details, and for dog ow
 
 
 Service Booking: Dog owners can browse and book dog-walking services based on availability, while dog walkers can manage appointments and pricing.
+
 ![image](https://github.com/user-attachments/assets/5617552d-cbc3-4819-938a-a5bf8c415e3f)
 ![image](https://github.com/user-attachments/assets/b5abf9e5-3316-4b53-bff8-97be1a606345)
 
